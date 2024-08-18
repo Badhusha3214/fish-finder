@@ -81,6 +81,43 @@ router.get('/', async (req, res) => {
 
 
 /**
+ * @route   GET /api/v1/items/:id
+ * @desc    Get an item by item_id
+ * @access  Public
+ * @params  item_id
+ * @return  message, data
+ * @error   400, { error }
+ * @status  200, 400
+ * 
+ * @example /api/v1/items/123456
+**/
+
+router.get('/:id', async (req, res) => {
+
+    const itemId = req.params.id;
+
+    await Item.findOne({ item_id: itemId })
+        .select('-__v -_id')
+        .then(item => {
+            res.status(200).json({
+                status: 200,
+                message: 'Item retrieved successfully',
+                data: item
+            });
+        })
+        .catch(err => {
+            res.status(400).json({
+                status: 400,
+                message: 'Error retrieving item',
+                error: err
+            });
+        });
+
+});
+
+
+
+/**
  * @route   POST /api/v1/items
  * @desc    Create new item
  * @access  Admin, Super Admin

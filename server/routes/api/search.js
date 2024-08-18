@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
     }
 
     let items = await Item.find(query)
-        .select('common_name scientific_name vernacular_names.name')
+        .select('common_name scientific_name vernacular_names.name item_id -_id')
         .catch(err => {
             res.status(400).json({
                 status: 400,
@@ -46,14 +46,22 @@ router.get('/', async (req, res) => {
             });
         });
 
+    // let names = items.map(item => {
+    //     return [item.common_name, item.scientific_name, ...item.vernacular_names.map(name => name.name)].filter(name => name.match(new RegExp(search, 'i')));
+    // });
+
     let names = items.map(item => {
-        return [item.common_name, item.scientific_name, ...item.vernacular_names.map(name => name.name)].filter(name => name.match(new RegExp(search, 'i')));
+        let data = [item.common_name, item.scientific_name, ...item.vernacular_names.map(name => name.name)].filter(name => name.match(new RegExp(search, 'i')));
+        return {
+            name: data[0],
+            id: item.item_id
+        };
     });
 
     res.status(200).json({
         status: 200,
         message: 'Search results',
-        data: names.flat()
+        data: names
     });
 
 });

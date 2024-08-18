@@ -1,0 +1,40 @@
+
+@font-face {
+    font-family: "Sansation";
+    src: local("Sansation"),
+        url(@/fonts/Sansation-Regular.ttf) format("truetype");
+    font-weight: normal;
+}
+
+
+@font-face {
+    font-family: "Sansation";
+    src: local("Sansation"),
+        url(@/fonts/Sansation-Bold.ttf) format("truetype");
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: "Sansation";
+    src: local("Sansation"),
+        url(@/fonts/Sansation-BoldItalic.ttf) format("truetype");
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Sansation";
+    src: local("Sansation"),
+        url(@/fonts/Sansation-Italic.ttf) format("truetype");
+    font-weight: normal;
+    font-style: italic;
+}
+
+
+* {
+    font-family: "Sansation", sans-serif;
+}
+
+
+// ------------------------------ Global SCSS ------------------------------
+
