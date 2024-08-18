@@ -20,7 +20,7 @@ const router = createRouter({
     },
 
     {
-      path: '/search',
+      path: '/:category/search',
       name: 'search',
       component: SearchView,
       meta: {
