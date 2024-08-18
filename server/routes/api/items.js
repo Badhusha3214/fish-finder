@@ -8,7 +8,7 @@ const verifyToken = require('../../middleware/authentication');
 
 
 /**
- * @route   GET /api/v1/items
+ * @route   GET /api/v1/item
  * @desc    Get all items with pagination
  * @access  Public
  * @params  page, limit, search
@@ -16,7 +16,7 @@ const verifyToken = require('../../middleware/authentication');
  * @error   400, { error }
  * @status  200, 400
  * 
- * @example /api/v1/items?page=1&limit=10&search=keyword&category=category
+ * @example /api/v1/item?page=1&limit=10&search=keyword&category=category
 **/
 
 router.get('/', async (req, res) => {
@@ -81,7 +81,7 @@ router.get('/', async (req, res) => {
 
 
 /**
- * @route   GET /api/v1/items/:id
+ * @route   GET /api/v1/item/:id
  * @desc    Get an item by item_id
  * @access  Public
  * @params  item_id
@@ -89,7 +89,7 @@ router.get('/', async (req, res) => {
  * @error   400, { error }
  * @status  200, 400
  * 
- * @example /api/v1/items/123456
+ * @example /api/v1/item/123456
 **/
 
 router.get('/:id', async (req, res) => {
@@ -118,15 +118,15 @@ router.get('/:id', async (req, res) => {
 
 
 /**
- * @route   POST /api/v1/items
+ * @route   POST /api/v1/item
  * @desc    Create new item
  * @access  Admin, Super Admin
- * @params  scientific_name, images, description, category, vernacular_names
+ * @params  scientific_name, images, description, category, vernacular_names, more_info
  * @return  message, data
  * @error   400, { error }
  * @status  201, 400
  * 
- * @example /api/v1/items
+ * @example /api/v1/item
 **/
 
 router.post('/', verifyToken, async (req, res) => {
@@ -137,6 +137,7 @@ router.post('/', verifyToken, async (req, res) => {
         description: req.body.description,
         category: req.body.category,
         vernacular_names: req.body.vernacular_names,
+        more_info: req.body.more_info
     });
 
     await newItem.save()
@@ -159,15 +160,15 @@ router.post('/', verifyToken, async (req, res) => {
 
 
 /**
- * @route   PATCH /api/v1/items/:id
+ * @route   PATCH /api/v1/item/:id
  * @desc    Update a item by item_id
  * @access  Admin, Super Admin
- * @params  item_id, scientific_name, images, description, category, vernacular_names
+ * @params  item_id, scientific_name, images, description, category, vernacular_names, more_info
  * @return  message, data
  * @error   400, { error }
  * @status  200, 400
  * 
- * @example /api/v1/items/123456
+ * @example /api/v1/item/123456
 **/
 
 router.patch('/:id', verifyToken, async (req, res) => {
@@ -180,6 +181,7 @@ router.patch('/:id', verifyToken, async (req, res) => {
         description: req.body.description,
         category: req.body.category,
         vernacular_names: req.body.vernacular_names,
+        more_info: req.body.more_info,
         updated_at: Date.now()
     })
         .then(item => {
@@ -201,7 +203,7 @@ router.patch('/:id', verifyToken, async (req, res) => {
 
 
 /**
- * @route   DELETE /api/v1/items/:id
+ * @route   DELETE /api/v1/item/:id
  * @desc    Delete a item by item_id
  * @access  Admin, Super Admin
  * @params  item_id
@@ -209,7 +211,7 @@ router.patch('/:id', verifyToken, async (req, res) => {
  * @error   400, { error }
  * @status  200, 400
  * 
- * @example /api/v1/items/123456
+ * @example /api/v1/item/123456
 **/
 
 router.delete('/:id',  verifyToken, async (req, res) => {
