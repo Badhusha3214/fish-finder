@@ -1,7 +1,7 @@
 
 import { createRouter, createWebHistory } from 'vue-router'
 
-import SplashView from '@/views/SplashView.vue'
+import HomeView from '@/views/HomeView.vue'
 import SearchView from '@/views/SearchView.vue'
 import ItemView from '@/views/ItemView.vue'
 
@@ -12,10 +12,10 @@ const router = createRouter({
     
     {
       path: '/',
-      name: 'splash',
-      component: SplashView,
+      name: 'home',
+      component: HomeView,
       meta: {
-        title: 'Splash',
+        title: 'Home',
       }
     },
 

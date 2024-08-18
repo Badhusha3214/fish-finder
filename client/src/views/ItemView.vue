@@ -24,18 +24,6 @@
                 <swiper
                     :slides-per-view="1"
                     :loop="true"
-                    :centeredSlides="true"
-                    :navigation="true"
-                    :autoplay="{
-                        delay: 2500,
-                        disableOnInteraction: false
-                    }"
-                    :hashNavigation="{
-                        watchState: true
-                    }"
-                    :pagination="{
-                        clickable: true
-                    }"
                 >
                     <template v-for="(value, key) in item?.images">
                         <swiper-slide>
@@ -85,9 +73,7 @@
 import { getSingleItem } from '@/API/index.js'
 import Loader from '@/components/Loader.vue'
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { Pagination } from 'swiper/modules';
 import 'swiper/css';
-import 'swiper/css/pagination';
 
 
 export default {
@@ -103,11 +89,6 @@ export default {
             item: null,
             loading: true,
         }
-    },
-    setup() {
-        return {
-            modules: [ Pagination ],
-        };
     },
     async mounted() {
         this.loading = true;
