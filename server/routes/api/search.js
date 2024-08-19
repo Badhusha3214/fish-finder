@@ -28,6 +28,7 @@ router.get('/', async (req, res) => {
     if (search && category) {
         query = {
             category: category,
+            // category: { $regex: category, $options: 'i' },
             $or: [
                 { common_name: { $regex: search, $options: 'i' } },
                 { scientific_name: { $regex: search, $options: 'i' } },
