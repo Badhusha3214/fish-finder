@@ -21,7 +21,7 @@
                     <template v-for="(category, index) in categories">
                         <swiper-slide>
 
-                            <div class="relative flex flex-col mt-4 w-full h-full">
+                            <div class="relative flex flex-col mt-4 w-full h-full" @click="openPage(activeCategory)">
                                 <img :src="category.image" alt="">
                             </div>
 
