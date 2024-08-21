@@ -1,0 +1,10 @@
+{
+  "appId": "fish.finder",
+  "appName": "fish-finder",
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}
