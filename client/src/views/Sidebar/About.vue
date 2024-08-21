@@ -8,7 +8,7 @@
                     stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                 </svg>
-                <P class="text-xl text-primary uppercase font-bold ">About Us</P>
+                <a class="text-xl text-primary uppercase font-bold ">About Us</a>
             </button>
         </div>
 
@@ -16,24 +16,24 @@
             <img src="/img/logo.png" class="w-40 h-40" alt="logo">
         </div>
 
-        <p>
+        <a>
             Fish Finder is an intuitive Android application designed to help users identify and learn about various fish
             species using their vernacular names. Whether you're a fishing enthusiast, marine biologist, or simply
             curious about aquatic life, Fish Finder offers a comprehensive and easy-to-use platform for exploring the
             vast diversity of fish species.
-        </p>
-        <p>
+        </a>
+        <a>
             With Fish Finder, you can search for fish by their local names, access detailed information about each
             species, including habitat, behavior, and distinguishing features, and view high-quality images to aid in
             identification. The app is designed to support multiple languages, ensuring that users from different
             regions can easily find and identify fish using the names they are most familiar with.
-        </p>
-        <p>
+        </a>
+        <a>
             Whether you're on a fishing trip or simply exploring your local waters, Fish Finder is your go-to resource
             for discovering the rich world of fish species, making fish identification easy and accessible for everyone.
-        </p>
+        </a>
 
-        <P class="text-xl text-primary uppercase font-bold ">Team Members</P>
+        <a class="text-xl text-primary uppercase font-bold ">Team Members</a>
 
         <div class="grid gap-8 grid-cols-3 ">
             <div class="text-center text-gray-500 dark:text-gray-400">
@@ -64,9 +64,9 @@
     </div>
 
     <div class="flex flex-col p-5 w-full h-full">
-        <P class="text-xl text-primary uppercase font-bold ">Development Team</P>
-        <P class="text-lg text-primary uppercase font-black ">Team DevMorphix,</P>
-        <p class="">Bringing dreams to life with precision and expertise in every delivery.</p>
+        <a class="text-xl text-primary uppercase font-bold ">Development Team</a>
+        <a class="text-lg text-primary uppercase font-black ">Team DevMorphix,</a>
+        <a class="">Bringing dreams to life with precision and expertise in every delivery.</a>
 
 
         <div>

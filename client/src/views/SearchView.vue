@@ -1,6 +1,7 @@
 
 <template>
-    <HomeLayout>
+
+<SearchLayout>
 
         <div class="flex flex-col gap-2 w-full h-full">
 
@@ -54,19 +55,19 @@
             </template>
             
         </div>
+    </SearchLayout>
 
-    </HomeLayout>
 </template>
 
 
 <script>
 import { getSearchSuggestions } from '@/API/index.js'
-import HomeLayout from '@/layouts/HomeLayout.vue'
+import SearchLayout from '@/layouts/SearchLayout.vue'
 
 export default {
     name: "SearchView",
     components: {
-        HomeLayout
+        SearchLayout
     },
     data() {
         return {

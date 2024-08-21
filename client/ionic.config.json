@@ -1,0 +1,7 @@
+{
+  "name": "fish-finder",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "custom"
+}
