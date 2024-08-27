@@ -1,21 +1,21 @@
 <template>
     <HomeLayout>
-          <transition name="slide" mode="out-in">
-        <div class="flex flex-col h-full w-full">
+      <transition name="slide" mode="out-in">
+        <div class="flex flex-col h-full w-full overflow-hidden">
           <div class="flex flex-col py-6 items-center justify-center">
             <img src="/img/logo.png" class="w-40 h-40" alt="logo" />
           </div>
     
           <h1 class="text-xl font-bold text-primary">Choose Category</h1>
     
-          <div class="w-full h-full mt-4 relative swiper-container">
+          <div class="w-full mt-4 relative swiper-container">
             <swiper
               :slides-per-view="1.4"
               :centered-slides="true"
               :loop="false"
               :space-between="5"
               :pagination="{ clickable: true, el: '.swiper-pagination' }"
-              @slideChange="activeCategory = categories[$event.activeIndex]"
+              @slideChange="onSlideChange"
               :modules="modules"
               class="mySwiper"
             >
@@ -32,7 +32,7 @@
                   >
                     <img
                       :src="category.image"
-                      alt=""
+                      :alt="category.title"
                       :key="category.id"
                       class="w-full h-full object-cover"
                     />
@@ -44,7 +44,7 @@
             <div class="swiper-pagination"></div>
           </div>
           
-          <div class="relative flex flex-col w-full h-full mt-10">
+          <div class="relative flex flex-col w-full mt-10">
             <button
               class="py-3 w-full mt-4 custom-search text-white text-lg font-bold rounded-full touch-manipulation active:opacity-80"
               @touchstart="onTouchStart2"
@@ -121,9 +121,10 @@
             </div>
           </div>
         </div>
-    </transition>
-      </HomeLayout>
+      </transition>
+    </HomeLayout>
   </template>
+  
   
   <script>
   import { ref } from "vue";
@@ -195,9 +196,13 @@
       onTouchStart2(event) {
         event.currentTarget.style.opacity = "0";
       },
+      onSlideChange(swiper) {
+        this.activeCategory = this.categories[swiper.activeIndex];
+      },
     },
   };
   </script>
+  
   <style scoped>
   .swiper {
     overflow: visible;
@@ -283,4 +288,15 @@
     transform: translateX(-100%);
   }
   
+  /* Prevent vertical scrolling */
+  :global(html), :global(body) {
+    overflow: hidden;
+    overscroll-behavior-y: none;
+  }
+  
+  /* Allow horizontal swiping for Swiper */
+  .swiper-container {
+    overflow: hidden;
+    touch-action: pan-y;
+  }
   </style>
