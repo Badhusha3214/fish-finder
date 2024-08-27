@@ -1,15 +1,10 @@
-
 <template>
-
-<SearchLayout>
-
-        <div class="flex flex-col gap-2 w-full h-full">
-
-            <div class="flex flex-col gap-7 w-full h-full">
-                <h1 class="text-2xl text-primary uppercase font-bold text-center">{{ selectedCategory }}</h1>
+    <SearchLayout>
+        <transition-group name="fade" appear tag="div" class="flex flex-col gap-2 w-full h-full">
+            <div key="main-content" class="flex flex-col gap-7 w-full h-full">
+                <h1 key="title" class="text-2xl text-primary uppercase font-bold text-center">{{ selectedCategory }}</h1>
         
-                <div class="flex items-center gap-2 border rounded-full px-3">
-                    
+                <div key="search" class="flex items-center gap-2 border rounded-full px-3">
                     <input
                         type="text"
                         placeholder="Search fish..."
@@ -18,7 +13,12 @@
                         @input="searchItem"
                     />
                     
-                    <div class="text-secondary">
+                    <div 
+                        class="text-secondary touch-manipulation"
+                        @touchstart="onTouchStart"
+                        @touchend="onTouchEnd"
+                        @click="performSearch"
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
@@ -26,13 +26,13 @@
                 </div>
             </div>
             
-
             <template v-if="suggestions.length > 0 && search.length > 0">
-                <div class="flex flex-col w-full h-full border rounded-xl py-2">
+                <div key="suggestions" class="flex flex-col w-full h-full border rounded-xl py-2">
                     <template v-for="suggestion in suggestions">
-
                         <div
-                            class="flex items-center gap-2 px-3 py-2"
+                            class="flex items-center gap-2 px-3 py-2 touch-manipulation"
+                            @touchstart="onTouchStart"
+                            @touchend="onTouchEnd"
                             @click="openDetailedView(suggestion?.id)"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 9 9" fill="none">
@@ -40,65 +40,99 @@
                             </svg>
                             <span class="text-sm text-secondary">{{ suggestion.name }}</span>
                         </div>
-
                     </template>
                 </div>
             </template>
-
-
+    
             <template v-if="suggestions.length === 0 && search.length > 0">
-                <div class="flex flex-col w-full h-full border rounded-xl py-2">
+                <div key="no-results" class="flex flex-col w-full h-full border rounded-xl py-2">
                     <div class="flex items-center gap-2 px-3 py-2 justify-center">
                         <span class="text-sm text-secondary">Result not found</span>
                     </div>
                 </div>
             </template>
-            
-        </div>
+        </transition-group>
     </SearchLayout>
-
-</template>
-
-
-<script>
-import { getSearchSuggestions } from '@/API/index.js'
-import SearchLayout from '@/layouts/SearchLayout.vue'
-
-export default {
-    name: "SearchView",
-    components: {
-        SearchLayout
-    },
-    data() {
-        return {
-            category: "marine",
-            search: "",
-            suggestions: [],
-            selectedCategory: null,
-            categories: [
-                { name: "marine", value: "Marine" },
-                { name: "freshwater", value: "Fresh water" },
-                { name: "brackish", value: "Brackish" }
-            ]
-        }
-    },
-    mounted() {
-        let category = this.$route.params.category;
-        this.selectedCategory = this.categories.find(c => c.name === category).value;
-    },
-    methods: {
-        async searchItem() {
-            try {
-                const res = await getSearchSuggestions(this.category ,this.search)
-                this.suggestions = res.data
-            } catch (error) {
-                console.log(error)
+    </template>
+    
+    <script>
+    import { getSearchSuggestions } from '@/API/index.js'
+    import SearchLayout from '@/layouts/SearchLayout.vue'
+    
+    export default {
+        name: "SearchView",
+        components: {
+            SearchLayout
+        },
+        data() {
+            return {
+                category: "marine",
+                search: "",
+                suggestions: [],
+                selectedCategory: null,
+                categories: [
+                    { name: "marine", value: "Marine" },
+                    { name: "freshwater", value: "Fresh water" },
+                    { name: "brackish", value: "Brackish" }
+                ]
             }
         },
-        openDetailedView(id) {
-            this.search = ""
-            window.location.href = `/item/${id}`
+        mounted() {
+            let category = this.$route.params.category;
+            this.selectedCategory = this.categories.find(c => c.name === category).value;
+        },
+        methods: {
+            async searchItem() {
+                try {
+                    const res = await getSearchSuggestions(this.category, this.search)
+                    this.suggestions = res.data
+                } catch (error) {
+                    console.log(error)
+                }
+            },
+            openDetailedView(id) {
+                this.search = ""
+                window.location.href = `/item/${id}`
+            },
+            onTouchStart(event) {
+                event.currentTarget.style.opacity = '0.6';
+                event.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+            },
+            onTouchEnd(event) {
+                event.currentTarget.style.opacity = '1';
+                event.currentTarget.style.backgroundColor = 'transparent';
+            },
+            performSearch() {
+                console.log('Performing search with:', this.search);
+                this.searchItem();
+            }
         }
+    };
+    </script>
+    
+    <style scoped>
+    .touch-manipulation {
+        touch-action: manipulation;
     }
-};
-</script>
+    
+    .fade-enter-active {
+        transition: all 0.5s ease-out;
+    }
+    
+    .fade-enter-from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    
+    .fade-enter-active:nth-child(2) {
+        transition-delay: 0.1s;
+    }
+    
+    .fade-enter-active:nth-child(3) {
+        transition-delay: 0.2s;
+    }
+    
+    .fade-enter-active:nth-child(4) {
+        transition-delay: 0.3s;
+    }
+    </style>
