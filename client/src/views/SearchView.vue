@@ -6,7 +6,7 @@
         <div class="flex flex-col gap-2 w-full h-full">
 
             <div class="flex flex-col gap-7 w-full h-full">
-                <h1 class="text-2xl text-primary uppercase font-bold text-center">{{ selectedCategory }}</h1>
+                <h1 class="text-2xl text-primary uppercase font-bold text-center">{{ selectedCategory?.value }}</h1>
         
                 <div class="flex items-center gap-2 border rounded-full px-3">
                     
@@ -71,7 +71,7 @@ export default {
     },
     data() {
         return {
-            category: "marine",
+            category: null,
             search: "",
             suggestions: [],
             selectedCategory: null,
@@ -84,12 +84,12 @@ export default {
     },
     mounted() {
         let category = this.$route.params.category;
-        this.selectedCategory = this.categories.find(c => c.name === category).value;
+        this.selectedCategory = this.categories.find(c => c.name === category);
     },
     methods: {
         async searchItem() {
             try {
-                const res = await getSearchSuggestions(this.category ,this.search)
+                const res = await getSearchSuggestions(this.selectedCategory?.name ,this.search)
                 this.suggestions = res.data
             } catch (error) {
                 console.log(error)
@@ -101,4 +101,5 @@ export default {
         }
     }
 };
+
 </script>
