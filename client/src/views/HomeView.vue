@@ -1,61 +1,61 @@
 <template>
-    <HomeLayout>
-      <transition name="slide" mode="out-in">
-        <div class="flex flex-col h-full w-full overflow-hidden">
-          <div class="flex flex-col py-6 items-center justify-center">
-            <img src="/img/logo.png" class="w-40 h-40" alt="logo" />
-          </div>
-    
-          <h1 class="text-xl font-bold text-primary">Choose Category</h1>
-    
-          <div class="w-full mt-4 relative swiper-container">
-            <swiper
-              :slides-per-view="1.4"
-              :centered-slides="true"
-              :loop="false"
-              :space-between="5"
-              :pagination="{ clickable: true, el: '.swiper-pagination' }"
-              @slideChange="onSlideChange"
-              :modules="modules"
-              class="mySwiper"
+  <HomeLayout>
+    <transition name="slide" mode="out-in">
+      <div class="flex flex-col h-full w-full overflow-y-auto">
+        <div class="flex flex-col py-6 items-center justify-center">
+          <img src="/img/logo.png" class="w-40 h-40" alt="logo" />
+        </div>
+
+        <h1 class="text-xl font-bold text-primary">Choose Category</h1>
+
+        <div class="w-full mt-4 relative swiper-container">
+          <swiper
+            :slides-per-view="1.4"
+            :centered-slides="true"
+            :loop="false"
+            :space-between="5"
+            :pagination="{ clickable: true, el: '.swiper-pagination' }"
+            @slideChange="onSlideChange"
+            :modules="modules"
+            class="mySwiper"
+          >
+            <swiper-slide
+              v-for="(category, index) in categories"
+              :key="category.id"
             >
-              <swiper-slide
-                v-for="(category, index) in categories"
-                :key="category.id"
-              >
-                <div class="slide-content">
-                  <div
-                    class="relative flex flex-col mt-4 w-full h-full touch-manipulation"
-                    @touchstart="onTouchStart"
-                    @touchend="onTouchEnd"
-                    @click="openPage(category)"
-                  >
-                    <img
-                      :src="category.image"
-                      :alt="category.title"
-                      :key="category.id"
-                      class="w-full h-full object-cover"
-                    />
-                  </div>
+              <div class="slide-content">
+                <div
+                  class="relative flex flex-col mt-4 w-full h-full touch-manipulation"
+                  @touchstart="onTouchStart"
+                  @touchend="onTouchEnd"
+                  @click="openPage(category)"
+                >
+                  <img
+                    :src="category.image"
+                    :alt="category.title"
+                    :key="category.id"
+                    class="w-full h-full object-cover"
+                  />
                 </div>
-              </swiper-slide>
-            </swiper>
-            
-            <div class="swiper-pagination"></div>
-          </div>
+              </div>
+            </swiper-slide>
+          </swiper>
           
-          <div class="relative flex flex-col w-full mt-10">
-            <button
-              class="py-3 w-full mt-4 custom-search text-white text-lg font-bold rounded-full touch-manipulation active:opacity-80"
-              @touchstart="onTouchStart2"
-              @touchend="onTouchEnd"
-              @click="openPage(activeCategory)"
-            >
-              <span>Search</span>
-            </button>
-            <div
-              class="absolute left-0 top-0 -z-10 w-full h-full flex items-center justify-center"
-            >
+          <div class="swiper-pagination"></div>
+        </div>
+        
+        <div class="relative flex flex-col w-full mt-10 mb-6">
+          <button
+            class="py-3 w-full mt-4 custom-search text-white text-lg font-bold rounded-full touch-manipulation active:opacity-80"
+            @touchstart="onTouchStart2"
+            @touchend="onTouchEnd"
+            @click="openPage(activeCategory)"
+          >
+            <span>Search</span>
+          </button>
+          <div
+            class="absolute left-0 top-0 -z-10 w-full h-full flex items-center justify-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="316"
@@ -118,16 +118,16 @@
                 </linearGradient>
               </defs>
             </svg>
-            </div>
           </div>
         </div>
-      </transition>
-    </HomeLayout>
-  </template>
+      </div>
+    </transition>
+  </HomeLayout>
+</template>
   
   
   <script>
-  import { ref } from "vue";
+
   import HomeLayout from "@/layouts/HomeLayout.vue";
   import { Swiper, SwiperSlide } from "swiper/vue";
   import { Pagination, EffectCoverflow } from "swiper/modules";
@@ -299,4 +299,28 @@
     overflow: hidden;
     touch-action: pan-y;
   }
+  /* Updated styles for scrolling */
+:global(html), :global(body) {
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  height: 100%;
+}
+
+.swiper-container {
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+/* Ensure the main container takes up the full height */
+:global(#app), :global(.home-layout) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Allow vertical scrolling for the main content */
+.flex.flex-col.h-full.w-full {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
   </style>
