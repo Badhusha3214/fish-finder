@@ -306,10 +306,6 @@
   height: 100%;
 }
 
-.swiper-container {
-  overflow: visible;
-  touch-action: pan-y;
-}
 
 /* Ensure the main container takes up the full height */
 :global(#app), :global(.home-layout) {
