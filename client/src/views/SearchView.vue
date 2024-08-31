@@ -2,7 +2,7 @@
     <SearchLayout>
         <transition-group name="fade" appear tag="div" class="flex flex-col gap-2 w-full h-full">
             <div key="main-content" class="flex flex-col gap-7 w-full h-full">
-                <h1 key="title" class="text-2xl text-primary uppercase font-bold text-center">{{ selectedCategory }}</h1>
+                <h1 key="title" class="text-2xl text-primary uppercase font-bold text-center">{{ selectedCategory?.value }}</h1>
         
                 <div key="search" class="flex items-center gap-2 border rounded-full px-3">
                     <input
@@ -10,7 +10,7 @@
                         placeholder="Search fish..."
                         class="w-full h-10 text-secondary py-2 border border-none focus:outline-none focus:ring-0"
                         v-model="search"
-                        @input="searchItem"
+                        @input="handlsearch"
                     />
                     
                     <div 
@@ -66,7 +66,8 @@
         },
         data() {
             return {
-                category: "marine",
+                debounce: null,
+                category: null,
                 search: "",
                 suggestions: [],
                 selectedCategory: null,
@@ -79,17 +80,24 @@
         },
         mounted() {
             let category = this.$route.params.category;
-            this.selectedCategory = this.categories.find(c => c.name === category).value;
+            this.selectedCategory = this.categories.find(c => c.name === category);
         },
         methods: {
             async searchItem() {
                 try {
-                    const res = await getSearchSuggestions(this.category, this.search)
+                    const res = await getSearchSuggestions(this.selectedCategory?.name, this.search)
                     this.suggestions = res.data
                 } catch (error) {
                     console.log(error)
                 }
             },
+            handlsearch() {
+                clearTimeout(this.debounce)
+                this.debounce = setTimeout(() => {
+                    this.searchItem();
+                }, 500)
+            },
+
             openDetailedView(id) {
                 this.search = ""
                 window.location.href = `/item/${id}`
@@ -136,3 +144,7 @@
         transition-delay: 0.3s;
     }
     </style>
+
+
+
+
