@@ -74,7 +74,7 @@ router.get('/', verifyToken, async (req, res) => {
  * @route   POST /api/v1/suggestions
  * @desc    Create new suggestion
  * @access  Public
- * @params  author, suggestion_id, email, message, status
+ * @params  author, item_id, email, message
  * @return  message, data
  * @error   400, { error }
  * @status  201, 400
@@ -85,10 +85,9 @@ router.get('/', verifyToken, async (req, res) => {
 router.post('/', async (req, res) => {
     const newSuggestion = new Suggestion({
         author: req.body.author,
-        suggestion_id: req.body.suggestion_id,
+        item_id: req.body.item_id,
         email: req.body.email,
-        message: req.body.message,
-        status: req.body.status
+        message: req.body.message
     });
 
     await newSuggestion.save()
