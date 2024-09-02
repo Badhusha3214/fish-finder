@@ -11,7 +11,7 @@ const e = require('express');
 /**
  * @route   GET /api/v1/suggestions
  * @desc    Get all suggestions with pagination
- * @access  Public
+ * @access  Admin, Super Admin
  * @params  page, limit, search
  * @return  message, data
  * @error   400, { error }
@@ -20,7 +20,7 @@ const e = require('express');
  * @example /api/v1/suggestions?page=1&limit=10
 **/
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
 
     let page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
@@ -73,8 +73,8 @@ router.get('/', async (req, res) => {
 /**
  * @route   POST /api/v1/suggestions
  * @desc    Create new suggestion
- * @access  Admin, Super Admin
- * @params  author, suggestion_id, email, message, status
+ * @access  Public
+ * @params  author, item_id, email, message
  * @return  message, data
  * @error   400, { error }
  * @status  201, 400
@@ -82,13 +82,12 @@ router.get('/', async (req, res) => {
  * @example /api/v1/suggestions
 **/
 
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', async (req, res) => {
     const newSuggestion = new Suggestion({
         author: req.body.author,
-        suggestion_id: req.body.suggestion_id,
+        item_id: req.body.item_id,
         email: req.body.email,
-        message: req.body.message,
-        status: req.body.status
+        message: req.body.message
     });
 
     await newSuggestion.save()
@@ -140,6 +139,40 @@ router.patch('/:id', verifyToken, async (req, res) => {
             res.status(400).json({
                 status: 400,
                 message: 'Error updating suggestion',
+                error: err
+            });
+        });
+});
+
+
+
+/**
+ * @route   DELETE /api/v1/suggestions/:id
+ * @desc    Delete suggestion by suggestion_id
+ * @access  Admin, Super Admin
+ * @params  suggestion_id
+ * @return  message, data
+ * @error   400, { error }
+ * @status  200, 400
+ * 
+ * @example /api/v1/suggestions/123456
+ **/
+
+router.delete('/:id', verifyToken, async (req, res) => {
+    const suggestionId = req.params.id;
+
+    await Suggestion.findOneAndDelete({ suggestion_id: suggestionId })
+        .then(suggestion => {
+            res.status(200).json({
+                status: 200,
+                message: 'Suggestion deleted successfully',
+                data: suggestion
+            });
+        })
+        .catch(err => {
+            res.status(400).json({
+                status: 400,
+                message: 'Error deleting suggestion',
                 error: err
             });
         });

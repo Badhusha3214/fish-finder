@@ -90,23 +90,7 @@ export default {
             
 
             if (response.status == 200) {
-                // localStorage.setItem("token", response.token);
-                // sessionStorage.setItem("token", response.token);
-                // document.cookie.setItem("token", response.token);
-
-                // document.cookie = "token=" + response.token ;
-
-                // function getCookie(name) {
-                //     const value = `; ${document.cookie}`;
-                //     console.log(value);
-                //     const parts = value.split(`; ${name}=`);
-                //     if (parts.length === 2) return parts.pop().split(';').shift();
-                // }
-
-                // const token = getCookie('token');
-                // console.log(token); // This will log the value of the token cookie
-
-                // Set the cookie
+                
                 document.cookie = "token=" + response.token;
 
                 // Function to get the cookie value by name
@@ -120,7 +104,7 @@ export default {
                 const token = getCookie('token');
 
                 // Log the token to the console
-                console.log(token);
+                // console.log(token);
 
                 window.location.href = "/";
             } else if (response.response.status === 401) {
