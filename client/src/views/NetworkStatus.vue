@@ -1,6 +1,6 @@
 <template>
     <div>
-      <!-- <div v-if="!isOnline" class="network-error"> -->
+      <div v-if="!isOnline" class="network-error">
         <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="text-center">
       <div class="mb-8">
@@ -13,8 +13,8 @@
       
     </div>
   </div>
-      <!-- </div> -->
-      <!-- <slot v-else></slot> -->
+      </div>
+      <slot v-else></slot>
     </div>
   </template>
   
@@ -55,24 +55,4 @@
   };
   </script>
   
-  <style scoped>
-  .network-error {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #fee2e2; /* Light red background */
-  }
   
-  .network-error h1 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #dc2626; /* Red text */
-    margin-bottom: 1rem;
-  }
-  
-  .network-error p {
-    color: #ef4444; /* Slightly lighter red text */
-  }
-  </style>

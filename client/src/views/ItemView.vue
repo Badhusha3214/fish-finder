@@ -20,7 +20,7 @@
     
             <h1 class="text-2xl text-primary uppercase font-bold text-center">{{ item?.scientific_name }}</h1>
     
-            <div class="w-full h-full">
+            <div class="w-auto h-auto">
                 <swiper
                     :slides-per-view="1"
                     :loop="true"
@@ -61,6 +61,8 @@
                     <span>For more information click here</span>
                 </div>
             </template>
+
+            
     
         </div>
     </template>
