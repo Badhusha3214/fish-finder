@@ -7,6 +7,7 @@ import SearchView from '@/views/SearchView.vue'
 import ItemView from '@/views/ItemView.vue'
 import About from '@/views/Sidebar/About.vue'
 import Contact from '@/views/Sidebar/Contact.vue'
+import NetworkStatus from '@/views/NetworkStatus.vue'
 
 
 const router = createRouter({
@@ -30,7 +31,11 @@ const router = createRouter({
         title: 'Home',
       }
     },
-
+    {
+      path: '/network',
+      name: 'NetworkStatus',
+      component: NetworkStatus,
+    },
     {
       path: '/:category/search',
       name: 'Search',
