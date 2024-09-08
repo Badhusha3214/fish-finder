@@ -9,6 +9,7 @@ import About from '@/views/Sidebar/About.vue'
 import Contact from '@/views/Sidebar/Contact.vue'
 
 
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -30,7 +31,7 @@ const router = createRouter({
         title: 'Home',
       }
     },
-
+    
     {
       path: '/:category/search',
       name: 'Search',

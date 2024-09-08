@@ -3,7 +3,7 @@
         <div class="bg-primary flex-1 flex items-center justify-center ">
             
             <div class="text-center text-white p-6">
-                <h2 class="text-3xl font-bold mb-4">Welcome to our Inovus Labs</h2>
+                <h2 class="text-3xl font-bold mb-4">Welcome to our Fish Finder</h2>
                 <p class="text-lg">Sign up to get started</p>
             </div>
 

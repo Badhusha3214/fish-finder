@@ -19,3 +19,15 @@ export const getSearchSuggestions = async (category, query) => {
         console.log(error);
     }
 };
+
+export const sendSuggession = async (feedback) => {
+
+    try {
+        const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/suggestions`, feedback);
+        console.log(res)
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+
+};
