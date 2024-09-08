@@ -41,7 +41,7 @@
                         <th class="border-r border-primary w-1/2 py-2">District</th>
                         <th class="w-1/2 py-2">Name</th>
                     </tr>
-                </thead>
+                </thead>            
                 <tbody>
                     <template v-for="(value, key) in item?.vernacular_names">
                         <tr class="border-b border-x border-primary w-full text-sm">
@@ -74,6 +74,11 @@
                     <p class="mb-4">Help us grow better with your feedback!</p>
                     <form @submit.prevent="submitSuggestion" class="space-y-4">
                         <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                            <input type="text" id="name" v-model="name" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        </div>
+                        <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                             <input type="email" id="email" v-model="email" required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
@@ -87,7 +92,7 @@
                             <button type="button" @click="toggleModal" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
                                 Cancel
                             </button>
-                            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark">
+                            <button type="submit" @click="sendSuggession" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark">
                                 Submit
                             </button>
                         </div>
@@ -104,7 +109,7 @@
 
 
 <script>
-import { getSingleItem } from '@/API/index.js'
+import { getSingleItem , sendSuggession } from '@/API/index.js'
 import Loader from '@/components/Loader.vue'
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import 'swiper/css';
@@ -125,6 +130,7 @@ export default {
             showModal: false,
             email: '',
             suggestion: '',
+            name:''
         }
     },
     async mounted() {
@@ -150,10 +156,20 @@ export default {
                 this.suggestion = '';
             }
         },
-        submitSuggestion() {
+        async sendSuggession() {
             // Here you would typically send the suggestion to your backend
             console.log('Suggestion submitted:', { email: this.email, suggestion: this.suggestion });
-            // You can add an API call here to send the suggestion to your backend
+
+            const data={
+                author: this.name,
+                item_id: this.id,
+                email: this.email,
+                message: this.suggestion,
+            }
+
+            let res = await sendSuggession(data)
+            console.log(res);
+            
             this.toggleModal();
             // Optionally, show a success message to the user
         },

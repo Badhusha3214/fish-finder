@@ -87,12 +87,12 @@
               Login
             </button>
           </div>
-          <button
-            @click="signupPage"
-            class="ml-40 pl-2 pt-2 place-items-center text-primary text-sm"
-          >
-            SignUp
-          </button>
+            <!-- <button
+              @click="signupPage"
+              class="ml-40 pl-2 pt-2 place-items-center text-primary text-sm"
+            >
+              SignUp
+            </button> -->
         </form>
       </div>
     </div>
