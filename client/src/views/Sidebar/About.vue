@@ -42,6 +42,7 @@
                     everyone.
                 </p>
 
+
                 <h2 class="text-xl text-primary uppercase font-bold">Team Members</h2>
 
                 <div class="grid gap-8 grid-cols-3">
