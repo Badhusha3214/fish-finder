@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <div class="flex flex-col p-5 w-full h-full">
+    <div class="flex flex-col p-5 mt-44  w-full h-full">
         <a class="text-xl text-primary uppercase font-bold ">Development Team</a>
         <a class="text-lg text-primary uppercase font-black ">Team DevMorphix,</a>
         <a class="">Bringing dreams to life with precision and expertise in every delivery.</a>

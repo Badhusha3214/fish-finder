@@ -82,14 +82,14 @@ export const getsuggestions = async (suggestions) => {
       return error;
     }
   };
-  export const marksuggestions = async (suggestionId, status) => {
+  export const marksuggestions = async (suggestionId) => {
     try {
       // Retrieve cookies and find the token
       const cookies = document.cookie.split(';');
       const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
   
       if (!tokenCookie) {
-        throw new Error('No token found in cookie');
+        throw new Error('session timeout try login again');
       }
   
       // Extract the token value from the cookie
@@ -97,11 +97,14 @@ export const getsuggestions = async (suggestions) => {
   
       // Ensure the token is not empty
       if (!token) {
-        throw new Error('Token is empty');
+        throw new Error('session timeout try login again');
       }
+      const id =suggestionId.suggestionId;
+      console.log(suggestionId.status);
+      const status = suggestionId.status      
   
       // Make the API call with the token in headers
-      const res = await axios.patch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/suggestions/${suggestionId}`, { status }, {
+      const res = await axios.patch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/suggestions/${id}`, {status} , {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -131,9 +134,10 @@ export const deletesuggestions = async (suggestionId) => {
     if (!token) {
       throw new Error('Token is empty');
     }
-
+    console.log(suggestionId.suggestionId);
+    const id =suggestionId.suggestionId;
     // Make the API call with the token in headers
-    const res = await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/suggestions/${suggestionId}`, {
+    const res = await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/suggestions/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -255,7 +259,7 @@ export const deletesuggestions = async (suggestionId) => {
 
 
   // add item
-
+    
   export const additem = async (item) => {
     try {
       // Retrieve cookies and find the token

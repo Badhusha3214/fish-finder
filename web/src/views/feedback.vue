@@ -7,10 +7,10 @@
           <strong class="font-bold">Error!</strong>
           <span class="block sm:inline"> {{ error }}</span>
         </div>
-        <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <!-- <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
           <input v-model="searchTerm" type="text" placeholder="Search..." class="p-2 px-4 border rounded mb-2 sm:mb-0 w-full sm:w-auto">
           <button @click="showModal = true" class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition w-full sm:w-auto">Add Feedback</button>
-        </div>
+        </div> -->
         <div v-if="isLoading" class="text-white text-center">Loading...</div>
         <div v-else-if="feedbackList.length === 0" class="text-white text-center">No feedback available.</div>
         <div v-else class="overflow-x-auto rounded">
@@ -31,18 +31,36 @@
                 <td class="py-3 px-4 text-center">{{ feedback.status }}</td>
                 <td class="py-3 px-4 text-center hidden sm:table-cell">{{ formatDate(feedback.created_at) }}</td>
                 <td class="py-3 px-4 text-center">
-                  <div class="flex item-center justify-center">
-                    <button @click="markAsRead(feedback.suggestion_id)" class="w-4 mr-2 transform hover:text-blue-500 hover:scale-110" :disabled="feedback.status === 'done'">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </button>
-                    <button @click="deleteFeedback(feedback.suggestion_id)" class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
+                  <td class="py-3 px-4 text-center">
+  <div class="flex item-center justify-center">
+    <button 
+      @click="markAsRead(feedback.suggestion_id)" 
+      class="w-4 mr-2 transform hover:scale-110" 
+      :disabled="feedback.status === 'done'"
+    >
+      <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        fill="none" 
+        viewBox="0 0 24 24" 
+        stroke="currentColor"
+        :class="{ 'text-green-500': feedback.status === 'done', 'hover:text-blue-500': feedback.status !== 'done' }"
+      >
+        <path 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          stroke-width="2" 
+          d="M5 13l4 4L19 7" 
+        />
+      </svg>
+    </button>
+    <button @click="deleteFeedback(feedback.suggestion_id)" class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+      </svg>
+    </button>
+  </div>
+</td>
+
                 </td>
               </tr>
             </tbody>
@@ -98,7 +116,7 @@ export default {
       formData: {
         author: "",
         message: "",
-        status: "pending",
+        status: "",
         created_at: ""
       },
       searchTerm: "",
@@ -162,11 +180,12 @@ export default {
     async markAsRead(suggestionId) {
       try {
         // console.log('Marking suggestion as read:', suggestionId);
-        const response = await marksuggestions({ suggestionId, status: "done" });
+        const status = "done"
+        const response = await marksuggestions({ suggestionId , status });
         console.log('Mark as read response:', response);
 
         if (response && response.status === 200) {
-          // Update the local state
+          // Update the local state  
           const index = this.feedbackList.findIndex(f => f._id === suggestionId);
           if (index !== -1) {
             this.feedbackList[index].status = "done";
@@ -184,13 +203,14 @@ export default {
       if (confirm("Are you sure you want to delete this feedback?")) {
         try {
           console.log('Deleting suggestion:', suggestionId);
-          const response = await deletesuggestions({ suggestion_id: suggestionId });
+          const response = await deletesuggestions({ suggestionId });
           console.log('Delete suggestion response:', response);
 
           if (response && response.status === 200) {
             // Remove the feedback from the local state
             this.feedbackList = this.feedbackList.filter(f => f._id !== suggestionId);
             console.log('Suggestion deleted successfully');
+            await this.getsuggestions
           } else {
             throw new Error('Unexpected response from server');
           }
