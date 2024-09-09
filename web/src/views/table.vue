@@ -15,7 +15,7 @@
                 <th class="py-3 px-4 text-center">Images</th>
                 <th class="py-3 px-4 text-left hidden md:table-cell">Description</th>
                 <th class="py-3 px-4 text-center hidden lg:table-cell">External Link</th>
-                <th class="py-3 px-4 text-center">category</th>
+                <th class="py-3 px-4 text-center">Category</th>
                 <th class="py-3 px-4 text-center">Actions</th>
               </tr>
             </thead>
@@ -66,72 +66,94 @@
         </div>
       </div>
   
-      <!-- Responsive Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-gray-700 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-          <h3 class="text-lg font-bold mb-4 text-black">{{ editIndex === null ? 'Add New Entry' : 'Edit Entry' }}</h3>
-          <form @submit.prevent="submitForm" class="space-y-4">
-            <div>
-              <label class="block text-black text-sm font-bold mb-2" for="commonName">Common Name</label>
-              <input v-model="formData.common_name" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="commonName" type="text" placeholder="Common Name" required>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2" for="scientificName">Scientific Name</label>
-              <input v-model="formData.scientific_name" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="scientificName" type="text" placeholder="Scientific Name" required>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2">Vernacular Names</label>
-              <div v-for="(name, index) in formData.vernacular_names" :key="index" class="flex mb-2 space-x-2">
-                <input v-model="name.place" class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Place" required>
-                <input v-model="name.name" class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Name" required>
+      <!-- Attractive Modal -->
+      <Transition name="modal">
+        <div v-if="showModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <div class="relative w-full max-w-lg mx-auto p-6 bg-white rounded-lg shadow-xl">
+            <button @click="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <h3 class="text-2xl font-semibold mb-6 text-gray-800">{{ editIndex === null ? 'Add New Entry' : 'Edit Entry' }}</h3>
+            <form @submit.prevent="submitForm" class="space-y-6">
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="commonName">Common Name</label>
+                  <input v-model="formData.common_name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" id="commonName" type="text" placeholder="E.g., Atlantic Cod" required>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="scientificName">Scientific Name</label>
+                  <input v-model="formData.scientific_name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" id="scientificName" type="text" placeholder="E.g., Gadus morhua" required>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Vernacular Names</label>
+                  <TransitionGroup name="list" tag="div" class="space-y-2">
+                    <div v-for="(name, index) in formData.vernacular_names" :key="index" class="flex space-x-2">
+                      <input v-model="name.place" class="w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" type="text" placeholder="Place" required>
+                      <input v-model="name.name" class="w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" type="text" placeholder="Name" required>
+                    </div>
+                  </TransitionGroup>
+                  <button type="button" @click="addVernacularName" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Name
+                  </button>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Images</label>
+                  <TransitionGroup name="list" tag="div" class="space-y-2">
+                    <div v-for="(image, index) in formData.images" :key="index">
+                      <input v-model="formData.images[index]" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" type="url" placeholder="https://example.com/image.jpg" required>
+                    </div>
+                  </TransitionGroup>
+                  <button type="button" @click="addImageField" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Image
+                  </button>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="description">Description</label>
+                  <textarea v-model="formData.description" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" id="description" rows="3" placeholder="Enter a description" required></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="externalLink">External Link</label>
+                  <input v-model="formData.more_info" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" id="externalLink" type="url" placeholder="https://example.com" required>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="category">Category</label>
+                  <select v-model="formData.category" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" id="category" required>
+                    <option value="">Select category</option>
+                    <option value="brackish">Brackish</option>
+                    <option value="freshwater">Freshwater</option>
+                    <option value="marine">Marine</option>
+                  </select>
+                </div>
               </div>
-              <button type="button" @click="addVernacularName" class="bg-blue-500 text-white px-2 py-1 rounded text-sm">+ Add Name</button>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2">Images</label>
-              <div v-for="(image, index) in formData.images" :key="index" class="flex mb-2 space-x-2">
-                <input v-model="formData.images[index]" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" type="url" placeholder="https://example.com/image.jpg" required>
+              <div class="flex justify-end space-x-3">
+                <button @click="closeModal" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" type="button">
+                  Cancel
+                </button>
+                <button class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" type="submit">
+                  {{ editIndex === null ? 'Submit' : 'Update' }}
+                </button>
               </div>
-              <button type="button" @click="addImageField" class="bg-blue-500 text-white px-2 py-1 rounded text-sm">+ Add Image</button>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2" for="description">Description</label>
-              <textarea v-model="formData.description" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="description" placeholder="Description" required></textarea>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2" for="externalLink">External Link</label>
-              <input v-model="formData.more_info" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="externalLink" type="url" placeholder="https://example.com" required>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2" for="category">categorie</label>
-              <select v-model="formData.category" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="category" required>
-                <option value="">Select categories</option>
-                <option value="brackish">Brackish</option>
-                <option value="freshwater">Freshwater</option>
-                <option value="marine">Marine</option>
-              </select>
-            </div>
-            <div class="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
-              <button class="bg-blue-500 hover:bg-black text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
-                {{ editIndex === null ? 'Submit' : 'Update' }}
-              </button>
-              <button @click="closeModal" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="button">
-                Cancel
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
-      </div>
+      </Transition>
     </div>
   </DashboardLayout>
 </template>
-
 <script>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { getitem, additem , deleteitem , edititem} from '@/API/index';
+import { getitem, additem, deleteitem, edititem } from '@/API/index';
 
 export default {
-  name: 'table',
+  name: 'Dashboard',
   components: {
     DashboardLayout,
   },
@@ -170,25 +192,25 @@ export default {
   },
   methods: {
     async getitem() {
-  try {
-    const res = await getitem();
-    const data = res.data.data.items;
-    this.entries = data.map(item => ({
-      item_id: item.item_id,
-      scientificName: item.scientific_name,
-      vernacularNames: item.vernacular_names.map(name => ({
-        place: name.place,
-        name: name.name
-      })),
-      images: item.images.length > 0 ? item.images : ['https://via.placeholder.com/100'],
-      description: item.description,
-      externalLink: item.more_info || '',
-      category: item.category || 'Not specified'
-    }));
-  } catch (error) {
-    console.log(error);
-  }
-},
+      try {
+        const res = await getitem();
+        const data = res.data.data.items;
+        this.entries = data.map(item => ({
+          item_id: item.item_id,
+          scientificName: item.scientific_name,
+          vernacularNames: item.vernacular_names.map(name => ({
+            place: name.place,
+            name: name.name
+          })),
+          images: item.images.length > 0 ? item.images : ['https://via.placeholder.com/100'],
+          description: item.description,
+          externalLink: item.more_info || '',
+          category: item.category || 'Not specified'
+        }));
+      } catch (error) {
+        console.log(error);
+      }
+    },
     addVernacularName() {
       this.formData.vernacular_names.push({ place: "", name: "" });
     },
@@ -212,31 +234,31 @@ export default {
       this.editIndex = null;
     },
     async submitForm() {
-  try {
-    if (this.editIndex === null) {
-      const res = await additem(this.formData);
-      console.log(res);
-      await this.getitem(); // Refresh the list after adding
-    } else {
-      const entryToUpdate = this.entries[this.editIndex];
-      const updatedData = {
-        common_name: this.formData.common_name,
-        scientific_name: this.formData.scientific_name,
-        vernacular_names: this.formData.vernacular_names,
-        images: this.formData.images,
-        description: this.formData.description,
-        more_info: this.formData.more_info,
-        category: this.formData.category,
-      };
-      const res = await edititem(entryToUpdate.item_id, updatedData);
-      console.log(res);
-      await this.getitem(); // Refresh the list after updating
-    }
-    this.closeModal();
-  } catch (error) {
-    console.log(error);
-  }
-},
+      try {
+        if (this.editIndex === null) {
+          const res = await additem(this.formData);
+          console.log(res);
+          await this.getitem(); // Refresh the list after adding
+        } else {
+          const entryToUpdate = this.entries[this.editIndex];
+          const updatedData = {
+            common_name: this.formData.common_name,
+            scientific_name: this.formData.scientific_name,
+            vernacular_names: this.formData.vernacular_names,
+            images: this.formData.images,
+            description: this.formData.description,
+            more_info: this.formData.more_info,
+            category: this.formData.category,
+          };
+          const res = await edititem(entryToUpdate.item_id, updatedData);
+          console.log(res);
+          await this.getitem(); // Refresh the list after updating
+        }
+        this.closeModal();
+      } catch (error) {
+        console.log(error);
+      }
+    },
     editEntry(index) {
       this.editIndex = index;
       const entry = this.entries[index];
@@ -252,19 +274,42 @@ export default {
       this.showModal = true;
     },
     async deleteEntry(index) {
-  if (confirm("Are you sure you want to delete this entry?")) {
-    try {
-      const entryToDelete = this.entries[index];
-      await deleteitem(entryToDelete.item_id);
-      this.entries.splice(index, 1);
-      await this.getitem(); // Refresh the list after deleting
-    } catch (error) {
-      console.log(error);
-      alert("Failed to delete entry. Please try again later.");
-      console.error("Failed to delete entry:", error);
+      if (confirm("Are you sure you want to delete this entry?")) {
+        try {
+          const entryToDelete = this.entries[index];
+          await deleteitem(entryToDelete.item_id);
+          this.entries.splice(index, 1);
+          await this.getitem(); // Refresh the list after deleting
+        } catch (error) {
+          console.log(error);
+          alert("Failed to delete entry. Please try again later.");
+          console.error("Failed to delete entry:", error);
+        }
+      }
     }
-  }
-}
   }
 };
 </script>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+</style>
