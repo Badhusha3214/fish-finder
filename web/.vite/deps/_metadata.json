@@ -1,0 +1,31 @@
+{
+  "hash": "26e3b964",
+  "configHash": "74f40996",
+  "lockfileHash": "da9769d4",
+  "browserHash": "6a36b6c1",
+  "optimized": {
+    "vue": {
+      "src": "../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
+      "file": "vue.js",
+      "fileHash": "c69cedd0",
+      "needsInterop": false
+    },
+    "flowbite": {
+      "src": "../../node_modules/flowbite/lib/esm/index.js",
+      "file": "flowbite.js",
+      "fileHash": "46de45f3",
+      "needsInterop": false
+    },
+    "vue-router": {
+      "src": "../../node_modules/vue-router/dist/vue-router.mjs",
+      "file": "vue-router.js",
+      "fileHash": "959eb69b",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-KESUWDAB": {
+      "file": "chunk-KESUWDAB.js"
+    }
+  }
+}

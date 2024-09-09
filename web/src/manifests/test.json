@@ -1,0 +1,88 @@
+{
+    "version": 1.0,
+    "name": "user",
+    "attributes": [
+        {
+            "name": "name",
+            "type": "string",
+            "label": "Name",
+            "description": "Name of the user",
+            "placeholder": "John Doe",
+            "validation": {
+                "minLength": 2,
+                "maxLength": 50,
+                "pattern": "^[a-zA-Z ]+$",
+                "errorMessage": "Please enter a valid name",
+                "requiredMessage": "Please enter your name",
+                "minLengthMessage": "Name must be at least 2 characters",
+                "maxLengthMessage": "Name must be less than 50 characters",
+                "patternMessage": "Name must only contain letters",
+                "required": true
+            }
+        },
+        {
+            "name": "email",
+            "type": "string",
+            "label": "Email",
+            "description": "Email of the user",
+            "placeholder": "name@company.com",
+            "validation": {
+                "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                "errorMessage": "Please enter a valid email",
+                "requiredMessage": "Please enter your email",
+                "patternMessage": "Please enter a valid email",
+                "required": true
+            }
+        },
+        {
+            "name": "slug",
+            "type": "string",
+            "label": "Slug",
+            "description": "Slug of the user",
+            "placeholder": "john-doe",
+            "validation": {
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                "errorMessage": "Please enter a valid slug",
+                "requiredMessage": "Please enter your slug",
+                "patternMessage": "Slug must be lowercase and contain only letters and numbers",
+                "required": true
+            }
+        },
+        {
+            "name": "phone",
+            "type": "string",
+            "label": "Phone",
+            "description": "Phone of the user",
+            "placeholder": "1234567890",
+            "validation": {
+                "pattern": "^[0-9]{10}$",
+                "errorMessage": "Please enter a valid phone number",
+                "requiredMessage": "Please enter your phone number",
+                "patternMessage": "Please enter a valid phone number",
+                "required": true
+            }
+        },
+        {
+            "name": "user-type",
+            "type": "string",
+            "label": "User Type",
+            "description": "Type of user",
+            "placeholder": "Select a user type",
+            "validation": {
+                "requiredMessage": "Please select a user type",
+                "required": true
+            },
+            "options": [
+                {
+                    "label": "Admin",
+                    "value": "admin"
+                },
+                {
+                    "label": "User",
+                    "value": "user"
+                }
+            ],
+            "default": "user"
+        }
+    ]
+}

@@ -1,74 +1,50 @@
 <template>
-
-    <div class="flex flex-col gap-6 p-5 w-full h-full">
-
-        <div class="flex items-center justify-between w-full">
-            <button @click="this.$router.go(-1)" class="flex items-center text-primary rounded-full cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                </svg>
-                <a class="text-xl text-primary uppercase font-bold ">About Us</a>
-            </button>
-        </div>
-
-        <div class="flex flex-col py-6 items-center justify-center">
-            <img src="/img/logo.png" class="w-40 h-40" alt="logo">
-        </div>
-
-        <a>
-            Fish Finder is an intuitive Android application designed to help users identify and learn about various fish
-            species using their vernacular names. Whether you're a fishing enthusiast, marine biologist, or simply
-            curious about aquatic life, Fish Finder offers a comprehensive and easy-to-use platform for exploring the
-            vast diversity of fish species.
-        </a>
-        <a>
-            With Fish Finder, you can search for fish by their local names, access detailed information about each
-            species, including habitat, behavior, and distinguishing features, and view high-quality images to aid in
-            identification. The app is designed to support multiple languages, ensuring that users from different
-            regions can easily find and identify fish using the names they are most familiar with.
-        </a>
-        <a>
-            Whether you're on a fishing trip or simply exploring your local waters, Fish Finder is your go-to resource
-            for discovering the rich world of fish species, making fish identification easy and accessible for everyone.
-        </a>
-
-        <a class="text-xl text-primary uppercase font-bold ">Team Members</a>
-
+    <div class="flex flex-col gap-6 p-5 w-full h-full max-w-4xl mx-auto">
+      <!-- Header -->
+      <div class="flex items-center justify-between w-full">
+        <button @click="$router.go(-1)" class="flex items-center text-primary rounded-full cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+          </svg>
+          <span class="text-xl text-primary uppercase font-bold ml-2">About Us</span>
+        </button>
+      </div>
+  
+      <!-- Logo -->
+      <div class="flex flex-col py-6 items-center justify-center">
+        <img src="/img/logo.png" class="w-40 h-40" alt="Fish Finder logo">
+      </div>
+  
+      <!-- App Description -->
+      <div class="space-y-4">
+        <p v-for="(paragraph, index) in appDescription" :key="index" class="text-gray-700">
+          {{ paragraph }}
+        </p>
+      </div>
+  
+      <!-- Team Members -->
+      <div>
+        <h2 class="text-xl text-primary uppercase font-bold mb-4">Team Members</h2>
         <div class="grid gap-8 grid-cols-3 ">
-            <div class="text-center text-gray-500 dark:text-gray-400">
-                <div class="mx-auto mb-4 w-24 h-24 rounded-full overflow-hidden">
-                    <img class="w-full h-full object-cover" src="/img/test1.jpg" alt="Bonnie Avatar">
-                </div>
-                <h3 class="mb-1 text-2xl text-xl text-primary uppercase font-bold">
-                    <a href="#">STEVE JOSE</a>
-                </h3>
+          <div v-for="member in teamMembers" :key="member.name" class="text-center text-gray-500 dark:text-gray-400">
+            <div class="mx-auto mb-4 w-24 h-24 rounded-full overflow-hidden">
+              <img class="w-full h-full object-cover" :src="member.image" :alt="`${member.name} Avatar`">
             </div>
-            <div class="text-center text-gray-500 dark:text-gray-400">
-                <div class="mx-auto mb-4 w-24 h-24 rounded-full overflow-hidden">
-                    <img class="w-full h-full object-cover" src="/img/test2.jpg" alt="Bonnie Avatar">
-                </div>
-                <h3 class="mb-1 text-2xl text-xl text-primary uppercase font-bold">
-                    <a href="#">joseph sabu</a>
-                </h3>
-            </div>
-            <div class="text-center text-gray-500 dark:text-gray-400">
-                <div class="mx-auto mb-4 w-24 h-24 rounded-full overflow-hidden">
-                    <img class="w-full h-full object-cover" src="/img/test3.jpg" alt="Bonnie Avatar">
-                </div>
-                <h3 class="mb-1 text-2xl text-xl text-primary uppercase font-bold">
-                    <a href="#">Fredy Jhonson</a>
-                </h3>
-            </div>
+            <h3 class="mb-1 text-xl text-primary uppercase font-bold">
+              <a href="#" class="hover:underline">{{ member.name }}</a>
+            </h3>
+          </div>
         </div>
-    </div>
-
-    <div class="flex flex-col p-5 w-full h-full">
-        <a class="text-xl text-primary uppercase font-bold ">Development Team</a>
-        <a class="text-lg text-primary uppercase font-black ">Team DevMorphix,</a>
-        <a class="">Bringing dreams to life with precision and expertise in every delivery.</a>
-
-
+      </div>
+  
+      <!-- Development Team -->
+      <div class="mt-8">
+        <h2 class="text-xl text-primary uppercase font-bold mb-2">Development Team</h2>
+        <h3 class="text-lg text-primary uppercase font-black mb-2">Team DevMorphix,</h3>
+        <p class="text-gray-700 mb-4">Bringing dreams to life with precision and expertise in every delivery.</p>
+  
+        <!-- Social Links -->
         <div>
             <!-- LinkedIn -->
             <a href="https://www.linkedin.com/company/devmorphix/" data-tooltip-target="tooltip-linkedin"
@@ -118,12 +94,30 @@
                 <div class="tooltip-arrow" data-popper-arrow></div>
             </div>
         </div>
+      </div>
     </div>
-
-</template>
-
-<script>
-export default {
-    name: "About",
-};
-</script>
+  </template>
+  
+  <script>
+  import { defineComponent } from 'vue';
+  
+  export default defineComponent({
+    name: 'About',
+    data() {
+      return {
+        appDescription: [
+          "Fish Finder is an intuitive Android application designed to help users identify and learn about various fish species using their vernacular names. Whether you're a fishing enthusiast, marine biologist, or simply curious about aquatic life, Fish Finder offers a comprehensive and easy-to-use platform for exploring the vast diversity of fish species.",
+          "With Fish Finder, you can search for fish by their local names, access detailed information about each species, including habitat, behavior, and distinguishing features, and view high-quality images to aid in identification. The app is designed to support multiple languages, ensuring that users from different regions can easily find and identify fish using the names they are most familiar with.",
+          "Whether you're on a fishing trip or simply exploring your local waters, Fish Finder is your go-to resource for discovering the rich world of fish species, making fish identification easy and accessible for everyone."
+        ],
+        teamMembers: [
+          { name: 'STEVE JOSE', image: '/img/test1.jpg' },
+          { name: 'JOSEPH SABU', image: '/img/test2.jpg' },
+          { name: 'FREDY JHONSON', image: '/img/test3.jpg' },
+        ],
+        
+      };
+    },
+    
+  });
+  </script>
