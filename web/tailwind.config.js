@@ -15,6 +15,7 @@ export default {
         tertiary: '#A3A3A3', // button color / icon hover
         border: '#484848', // border / line color
         link: '#4A8FFF', // link color
+        btn: '#1f255f',
       }
     }
   },

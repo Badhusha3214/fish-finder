@@ -2,13 +2,13 @@
   <DashboardLayout>
     <div class="min-h-screen">
       <div class="container mx-auto p-4 sm:p-6">
-        <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
-          <input v-model="searchTerm" type="text" placeholder="Search..." class="p-2 px-4 border rounded w-full sm:w-auto">
-          <button @click="showModal = true" class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition w-full sm:w-auto">Add Entry</button>
+        <div class="mb-4 bg-btn p-5 rounded-lg bg-opacity-10 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
+          <input v-model="searchTerm" type="text" placeholder="Search..." class="p-2 px-4 border border-btn rounded w-full sm:w-auto">
+          <button @click="showModal = true" class="bg-btn text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-full sm:w-auto">Add Entry</button>
         </div>
-        <div class="overflow-x-auto rounded">
+        <div class="overflow-x-auto rounded-lg">
           <table class="w-full bg-white shadow-md rounded">
-            <thead class="bg-gray-700 text-white uppercase text-sm leading-normal">
+            <thead class="bg-btn text-white uppercase text-sm leading-normal">
               <tr>
                 <th class="py-3 px-4 text-left">Scientific Name</th>
                 <th class="py-3 px-4 text-left hidden sm:table-cell">Vernacular Names</th>
@@ -19,8 +19,8 @@
                 <th class="py-3 px-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody class="text-white bg-gray-800 text-sm font-light">
-              <tr v-for="(entry, index) in filteredEntries" :key="index" class="border-b border-gray-900 hover:bg-gray-600">
+            <tbody class="text-black bg-btn bg-opacity-10 text-sm font-light">
+              <tr v-for="(entry, index) in filteredEntries" :key="index" class="border-b border-gray-900 hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">
                   <div class="font-medium">{{ entry.scientificName }}</div>
                   <div class="text-xs text-gray-400 sm:hidden">{{ entry.vernacularNames[0]?.name || 'N/A' }}</div>
