@@ -3,7 +3,7 @@
     <!-- Mobile toggle button -->
     <button
       @click="toggleSidebar"
-      class="fixed top-4 left-4 z-50 p-2 rounded-md bg-gray-200 dark:bg-gray-700 md:hidden"
+      class="fixed top-3 left-4 z-50 p-2 rounded-md bg-white md:hidden"
       aria-label="Toggle Sidebar"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -14,16 +14,16 @@
     <!-- Sidebar -->
     <aside
       :class="{'translate-x-0': isOpen, '-translate-x-full': !isOpen}"
-      class="fixed top-0 left-0 z-40 w-72 h-screen pt-16 transition-transform bg-gray-50 border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+      class="fixed top-0 left-0 z-40 w-72 h-screen pt-16 transition-transform bg-btn border-r border-gray-200 md:translate-x-0 "
       aria-label="Sidenav"
       id="drawer-navigation"
     >
-      <div class="flex flex-col justify-between overflow-y-auto py-5 px-3 h-full bg-gray-50 dark:bg-gray-800">
+      <div class="flex flex-col justify-between overflow-y-auto py-5 px-3 h-full bg-btn">
         <ul class="space-y-2">
           <template v-for="item in navItems">
             <template v-if="item.children">
               <li>
-                <button type="button" class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" @click="openNav(item)">
+                <button type="button" class="flex items-center p-2 w-full text-base font-medium rounded transition duration-75 group text-white hover:bg-btn hover:bg-opacity-30" @click="openNav(item)">
                   <span v-html="item.icon"></span>
                   <span class="flex-1 ml-3 text-left whitespace-nowrap">{{ item.name }}</span>
                   <svg aria-hidden="true" :class="{'rotate-180': item.open}" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -44,7 +44,7 @@
             <template v-else>
               <li>
                 <template v-if="item.active">
-                  <a :href="item.link" class="flex items-center p-2 text-base font-medium text-gray-900 rounded dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" :class="{'bg-gray-100 dark:bg-gray-700': currentRoute === item.link}">
+                  <a :href="item.link" class="flex items-center p-2 text-base font-medium rounded text-white hover:bg-btn hover:bg-opacity-30 group" :class="{'bg-gray-100 dark:bg-gray-700': currentRoute === item.link}">
                     <span v-html="item.icon"></span>
                     <span class="ml-3">{{ item.name }}</span>
                   </a>
@@ -62,7 +62,7 @@
         
         <!-- Logout button -->
         <div class="mt-auto">
-          <button @click="logout" class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+          <button @click="logout" class="flex items-center p-2 w-full text-base font-medium rounded transition duration-75 group text-white hover:bg-red-400">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
