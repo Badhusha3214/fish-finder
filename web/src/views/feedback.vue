@@ -133,10 +133,17 @@ export default {
       );
     }
   },
-  async mounted() {
-    await this.fetchSuggestions();
-  },
+  mounted() {
+    this.checkAuth();
+  },  
   methods: {
+    checkAuth() {
+      if (!document.cookie.includes('token')) {
+        this.$router.push('/');
+      } else {
+        this.fetchSuggestions();
+      }
+    },
     async fetchSuggestions() {
       this.isLoading = true;
       this.error = null;

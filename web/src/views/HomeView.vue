@@ -48,7 +48,7 @@
         // console.log('Token found:', token);
       } else {
         console.log('Token not found bye bye');
-        // window.location.href = "login";
+        this.$router.push('/login');
       }
     },
     getCookie(name) {

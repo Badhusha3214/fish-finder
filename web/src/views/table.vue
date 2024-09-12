@@ -85,14 +85,14 @@
                 <input v-model="name.place" class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Place" required>
                 <input v-model="name.name" class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Name" required>
               </div>
-              <button type="button" @click="addVernacularName" class="bg-blue-500 text-white px-2 py-1 rounded text-sm">+ Add Name</button>
+              <button type="button" @click="addVernacularName" class="bg-btn hover:bg-blue-600 text-white px-2 py-1 rounded text-sm">+ Add Name</button>
             </div>
             <div>
               <label class="block text-black text-sm font-bold mb-2">Images</label>
               <div v-for="(image, index) in formData.images" :key="index" class="flex mb-2 space-x-2">
                 <input v-model="formData.images[index]" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" type="url" placeholder="https://example.com/image.jpg" required>
               </div>
-              <button type="button" @click="addImageField" class="bg-blue-500 text-white px-2 py-1 rounded text-sm">+ Add Image</button>
+              <button type="button" @click="addImageField" class="bg-btn hover:bg-blue-600 text-white px-2 py-1 rounded text-sm">+ Add Image</button>
             </div>
             <div>
               <label class="block text-black text-sm font-bold mb-2" for="description">Description</label>
@@ -112,7 +112,7 @@
               </select>
             </div>
             <div class="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
-              <button class="bg-blue-500 hover:bg-black text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
+              <button class="bg-btn hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
                 {{ editIndex === null ? 'Submit' : 'Update' }}
               </button>
               <button @click="closeModal" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="button">
@@ -129,6 +129,7 @@
 <script>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import { getitem, additem , deleteitem , edititem} from '@/API/index';
+
 
 export default {
   name: 'table',
@@ -165,10 +166,17 @@ export default {
       );
     }
   },
-  async mounted() {
-    await this.getitem();
+  mounted() {
+    this.checkAuth();
   },
   methods: {
+    checkAuth() {
+      if (!document.cookie.includes('token')) {
+        this.$router.push('/login');
+      } else {
+        this.getitem();
+      }
+    },
     async getitem() {
   try {
     const res = await getitem();
