@@ -42,6 +42,16 @@ const ItemSchema = new mongoose.Schema({
         required: false,
         default: ''
     },
+    
+    created_by: {
+        type: String,
+        required: true
+    },
+    updated_by: {
+        type: String,
+        required: true
+    },
+
     created_at: {
         type: Date,
         required: false,
