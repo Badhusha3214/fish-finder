@@ -16,6 +16,8 @@
                 <th class="py-3 px-4 text-left hidden md:table-cell">Description</th>
                 <th class="py-3 px-4 text-center hidden lg:table-cell">External Link</th>
                 <th class="py-3 px-4 text-center">category</th>
+                <th class="py-3 px-4 text-center">Created by</th>
+                <th class="py-3 px-4 text-center">Updated by</th>
                 <th class="py-3 px-4 text-center">Actions</th>
               </tr>
             </thead>
@@ -45,6 +47,12 @@
                 </td>
                 <td class="py-3 px-4 text-center">
                   {{ entry.category }}
+                </td>
+                <td class="py-3 px-4 text-center">
+                  {{ entry.created_by }}
+                </td>
+                <td class="py-3 px-4 text-center">
+                  {{ entry.updated_by }}
                 </td>
                 <td class="py-3 px-4 text-center">
                   <div class="flex item-center justify-center">
@@ -191,7 +199,10 @@ export default {
       images: item.images.length > 0 ? item.images : ['https://via.placeholder.com/100'],
       description: item.description,
       externalLink: item.more_info || '',
-      category: item.category || 'Not specified'
+      category: item.category || 'Not specified',
+      created_by:item.created_by,
+      updated_by:item.updated_by
+
     }));
   } catch (error) {
     console.log(error);

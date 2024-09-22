@@ -128,7 +128,7 @@ export default {
             item: null,
             loading: true,
             showModal: false,
-            email: '',
+            email: '',  
             suggestion: '',
             name:''
         }
