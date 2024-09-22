@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const Item = require('../../models/items');
+const User = require('../../models/users');
 const verifyToken = require('../../middleware/authentication');
 
 
@@ -52,6 +53,31 @@ router.get('/', async (req, res) => {
         .skip((page - 1) * limit)
         .limit(limit)
         .select('-__v -_id')
+        .then(async items => {
+
+            let newItems = [];
+            for (let i = 0; i < items.length; i++) {
+
+                let item = items[i];
+                
+                let created_by = await User.findOne({ user_id: item.created_by }).select('first_name last_name -_id').then(user => {
+                    return user.first_name + ' ' + user.last_name;
+                });
+                
+                let updated_by = await User.findOne({ user_id: item.updated_by }).select('first_name last_name -_id').then(user => {
+                    return user.first_name + ' ' + user.last_name;
+                });
+                
+                newItems.push({
+                    ...item._doc,
+                    created_by: created_by,
+                    updated_by: updated_by
+                });
+
+            }
+            return newItems;
+
+        })
         .catch(err => {
             res.status(400).json({
                 status: 400,
@@ -97,7 +123,7 @@ router.get('/:id', async (req, res) => {
     const itemId = req.params.id;
 
     await Item.findOne({ item_id: itemId })
-        .select('-__v -_id')
+        .select('-__v -_id -created_by -updated_by')
         .then(item => {
             res.status(200).json({
                 status: 200,
@@ -137,7 +163,10 @@ router.post('/', verifyToken, async (req, res) => {
         description: req.body.description,
         category: req.body.category,
         vernacular_names: req.body.vernacular_names,
-        more_info: req.body.more_info
+        more_info: req.body.more_info,
+
+        created_by: req.user.user_id,
+        updated_by: req.user.user_id
     });
 
     await newItem.save()
@@ -182,7 +211,8 @@ router.patch('/:id', verifyToken, async (req, res) => {
         category: req.body.category,
         vernacular_names: req.body.vernacular_names,
         more_info: req.body.more_info,
-        updated_at: Date.now()
+        updated_at: Date.now(),
+        updated_by: req.user.user_id
     })
         .then(item => {
             res.status(200).json({
