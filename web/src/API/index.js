@@ -320,10 +320,45 @@ export const deletesuggestions = async (suggestionId) => {
 
       });
   
-    //   console.log(res);
+    //console.log(res);
       return res;
     } catch (error) {
       console.error('Error fetching suggestions:', error.response ? error.response.data : error.message);
+      return error;
+    }
+  };
+  export const deleteContact = async (message_id) => {
+    try {
+      // Retrieve cookies and find the token
+      const cookies = document.cookie.split(';');
+      const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
+  
+      if (!tokenCookie) {
+        throw new Error('No token found in cookie');
+      }
+  
+      // Extract the token value from the cookie
+      const token = tokenCookie.split('=')[1].trim();
+  
+      // Ensure the token is not empty
+      if (!token) {
+        throw new Error('Token is empty');
+      }
+      console.log(message_id);
+      const id =message_id;
+      
+      // Make the API call with the token in headers
+      const res = await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/messages/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      console.log("deleted contact keto")
+      console.log(res);
+      return res;
+    } catch (error) {
+      console.error('Error deleting suggestion:', error.response ? error.response.data : error.message);
       return error;
     }
   };
