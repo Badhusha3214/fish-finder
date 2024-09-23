@@ -183,7 +183,7 @@ export default {
         this.$router.push('/login');
       } else {
         this.getitem();
-      }
+      } 
     },
     async getitem() {
   try {
