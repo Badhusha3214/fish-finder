@@ -115,11 +115,12 @@ router.post('/login', async (req, res) => {
         }
         
 
-        // Create and assign a token to the user
+        // // Create and assign a token to the user
         const token = jwt.sign({ email: email, user_id: user.user_id }, process.env.TOKEN_SECRET, {
             expiresIn: '24h'
         });
-
+        console.log(token);
+        
         
         // Set cookie
         res.cookie('authcookie', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });

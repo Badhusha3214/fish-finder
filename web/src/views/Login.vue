@@ -87,12 +87,12 @@
               Login
             </button>
           </div>
-          <button
+          <!-- <button
             @click="signupPage"
             class="ml-40 pl-2 pt-2 place-items-center text-primary text-sm"
           >
             SignUp
-          </button>
+          </button> -->
         </form>
       </div>
     </div>
@@ -101,7 +101,7 @@
 
 <script>
 import { userLogin } from "@/API/index.js";
-import SignUp from "./SignUp.vue";
+// import SignUp from "./SignUp.vue";
 
 export default {
   name: "login",

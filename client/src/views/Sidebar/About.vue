@@ -18,24 +18,41 @@
 
     <!-- App Description -->
     <div class="space-y-4">
-      <p v-for="(paragraph, index) in appDescription" :key="index" class="text-gray-700">
+      <p v-for="(paragraph, index) in appDescription" :key="index" class="text-gray-700 text-justify	">
         {{ paragraph }}
       </p>
     </div>
-
+    <div class="space-y-4">
+      <h3 class="text-lg text-primary font-black mb-2">Features and Benifits</h3>
+      <ul class=" list-none text-gray-700 space-y-4 text-justify	">
+        <li><span class="font-bold">Extensive Database:</span> A wide collection of fish species with vernacular names across Kerala districts, common names, and scientific names.</li>
+        <li><span class="font-bold text-gray">Easy Search:</span> Find fish by scientific, common, or vernacular names quickly.</li>
+        <li><span class="font-bold">Photos & Descriptions:</span> Each species is accompanied by images and a brief description for reference.</li>
+        <li><span class="font-bold">Educational Tool:</span> A valuable resource for research and learning.</li>
+        <li><span class="font-bold">Admin-Managed Data:</span> Ensures the accuracy of information.</li>
+      </ul>
+    </div>
+    <div class="space-y-4">
+      <h3 class="text-lg text-primary font-black mb-2">Version</h3>
+      <p class="text-gray-700 text-justify	"><span class="font-bold">Version 1.0.0</span> – Initial release with regular updates planned</p>
+    </div>
+    <div class="space-y-4">
+      <h3 class="text-lg text-primary font-black mb-2">Data Sources</h3>
+      <p class="text-gray-700 text-justify">Data comes from field research, fisheries experts, scientific databases, and local fishermen for vernacular names.</p>
+    </div>
+    <div class="space-y-4">
+      <h3 class="text-lg text-primary font-black mb-2">Privacy Policy & Copyright</h3>
+      <p class="text-gray-700 text-justify	">User data is securely stored and not shared with third parties. The design and layout of the app are the intellectual property of DevMorphix. Unauthorized reproduction or use of these elements without permission is prohibited. © 2024 DevMorphix. All rights reserved.</p>
+    </div>
+    <div class="space-y-4">
+      <h3 class="text-lg text-primary font-black mb-2">Feedback & Contributions:</h3>
+      <p class="text-gray-700 text-justify">We value your feedback. Use the in-app feedback section for suggestions or corrections. Experts can also contribute to improving the database.</p>
+    </div>
     <!-- Team Members -->
-    <div>
+    <!-- <div>
       <h2 class="text-2xl text-primary uppercase font-bold mb-4">Team Members</h2>
       <div class="grid gap-8 grid-cols-1 ">
-        <!-- <div v-for="member in teamMembers" :key="member.name" class="text-center text-gray-500 dark:text-gray-400">
-            <div class="mx-auto mb-4 w-24 h-24 rounded-full overflow-hidden">
-              <img class="w-full h-full object-cover" :src="member.image" :alt="`${member.name} Avatar`">
-            </div>
-            <h3 class="mb-1 text-xl text-primary uppercase font-bold">
-              <a href="#" class="hover:underline">{{ member.name }}</a>
-            </h3>
-          </div> -->
-
+       
       <div v-for="member in teamMembers" :key="member.name">
         <figure class="relative max-w-sm transition-all duration-300 cursor-pointer filter \">
           <a href="#">
@@ -49,7 +66,7 @@
         </figure>
       </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Development Team -->
     <div class="mt-8">
@@ -119,9 +136,9 @@ export default defineComponent({
   data() {
     return {
       appDescription: [
-        "Fish Finder is an intuitive Android application designed to help users identify and learn about various fish species using their vernacular names. Whether you're a fishing enthusiast, marine biologist, or simply curious about aquatic life, Fish Finder offers a comprehensive and easy-to-use platform for exploring the vast diversity of fish species.",
-        "With Fish Finder, you can search for fish by their local names, access detailed information about each species, including habitat, behavior, and distinguishing features, and view high-quality images to aid in identification. The app is designed to support multiple languages, ensuring that users from different regions can easily find and identify fish using the names they are most familiar with.",
-        "Whether you're on a fishing trip or simply exploring your local waters, Fish Finder is your go-to resource for discovering the rich world of fish species, making fish identification easy and accessible for everyone."
+        "The core idea of developing such an app was by Adithyan A R, a student of KUFOS- CoF Payyanur. With the help of Mr. Sreeram C Pillai, the technical factors and the present layout of the app was developed. Other members of the team include Ajith A, Aman A Nambiar, Aswin B B of CoF Payyanur. The app is developed by Dev Morphix.",
+        "The purpose of the app is to make the identification of a particular fish effortlessly throughout Kerala, irrespective of the fluctuations in vernacular names according to regional variations.",
+        "The main objective is to help students, researchers and even faculties in the field of Fisheries Science in Kerala to gain accurate information regarding a particular fish with the knowledge of just its vernacular name, common name, or scientific name."
       ],
       teamMembers: [
         { name: 'STEVE JOSE', image: '/img/test1.jpg' },
