@@ -120,11 +120,11 @@
               </select>
             </div>
             <div class="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
-              <button class="bg-btn hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
-                {{ editIndex === null ? 'Submit' : 'Update' }}
-              </button>
               <button @click="closeModal" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="button">
                 Cancel
+              </button>
+              <button class="bg-btn hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
+                {{ editIndex === null ? 'Submit' : 'Update' }}
               </button>
             </div>
           </form>

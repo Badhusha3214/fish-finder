@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HomeView from '@/views/HomeView.vue'
+// import HomeView from '@/views/HomeView.vue'
 import Feedback from '@/views/feedback.vue'
 import table  from '@/views/table.vue'
 import login from '@/views/Login.vue'
-import signup from '@/views/SignUp.vue'
+// import signup from '@/views/SignUp.vue'
 import contacts from '@/views/contactView.vue'
 
 import NotFoundView from '@/views/404.vue'
@@ -13,16 +13,16 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     
+    // {
+    //   path: '/',
+    //   name: 'home',
+    //   component: HomeView,
+    //   meta: {
+    //     title: 'Home',
+    //   },
+    // },
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
-      meta: {
-        title: 'Home',
-      },
-    },
-    {
-      path: '/table',
       name: 'table',
       component: table,
       meta: {
@@ -57,14 +57,15 @@ const router = createRouter({
       meta: {
         title: 'login',
       },
-    },{
-      path: '/signup',
-      name: 'signup',
-      component: signup,
-      meta: {
-        title: 'signup',
-      },
     },
+    // {
+    //   path: '/signup',
+    //   name: 'signup',
+    //   component: signup,
+    //   meta: {
+    //     title: 'signup',
+    //   },
+    // },
 
   ]
 })
