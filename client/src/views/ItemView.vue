@@ -20,14 +20,15 @@
 
             <h1 class="text-2xl text-primary uppercase font-bold text-center">{{ item?.scientific_name }}</h1>
 
-            <div class="w-auto h-auto">
-                <swiper :slides-per-view="1" :loop="true">
+            <div class="w-auto h-auto relative">
+                <swiper :slides-per-view="1" :loop="false" :pagination="{ clickable: true }" :modules="modules">
                     <template v-for="(value, key) in item?.images">
                         <swiper-slide>
                             <img :src="value" class="w-full max-h-48 h-auto rounded-xl object-cover"
                                 :alt="item?.common_name">
                         </swiper-slide>
                     </template>
+                    <div class="swiper-pagination"></div>
                 </swiper>
             </div>
 
@@ -64,8 +65,7 @@
 
             <!-- togglemodal -->
             <div class="flex w-full justify-start">
-                <button @click="toggleModal"
-                    class="flex items-center text-primary rounded-md hover:bg-gray-100 ">
+                <button @click="toggleModal" class="flex items-center text-primary rounded-md hover:bg-gray-100 ">
                     <svg class="w-4 h-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
                         height="24" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -122,8 +122,9 @@
 import { getSingleItem, sendSuggession } from '@/API/index.js'
 import Loader from '@/components/Loader.vue'
 import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Pagination } from 'swiper/modules';
 import 'swiper/css';
-
+import 'swiper/css/pagination';
 
 export default {
     name: "ItemView",
@@ -132,6 +133,11 @@ export default {
         SwiperSlide,
         Loader,
     },
+    setup() {
+    return {
+      modules: [Pagination],
+    };
+  },
     data() {
         return {
             id: null,
@@ -186,3 +192,94 @@ export default {
     },
 };
 </script>
+<style>
+.swiper-pagination {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    border: 1px solid #000000;
+    background-color: #ffffff;
+    opacity: 1;
+    margin: 0 8px;
+    border-radius: 50%;
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.swiper-pagination-bullet::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, #ff0000 60%, #ff0000 60%);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.5s ease-out;
+}
+
+.swiper-pagination-bullet-active {
+    transform: scale(1.2);
+    border: 1px solid #000000;
+    border-radius: 100%;
+    background-color: #ffffff;
+    width: 12px;
+    height: 12px;
+}
+
+.swiper-pagination-bullet-active::before {
+    animation: liquidIndicator 2s infinite ease-in-out;
+}
+
+/* @keyframes liquidIndicator {
+    0% {
+        transform: translate(-50%, -50%) scale(0.1) rotate(0deg);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1) rotate(180deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(0.1) rotate(360deg);
+    }
+} */
+
+/* Optional: Add a glow effect to the active bullet */
+.swiper-pagination-bullet-active::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    filter: blur(3px);
+    transform: translate(-50%, -50%) scale(1.5);
+    animation: glowPulse 2s infinite ease-in-out;
+}
+/* 
+@keyframes glowPulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+} */
+</style>
