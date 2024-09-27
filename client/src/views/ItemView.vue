@@ -192,7 +192,7 @@ export default {
     },
 };
 </script>
-<style>
+<style scoped>
 .swiper-pagination {
     position: absolute;
     bottom: 10px;
