@@ -26,8 +26,6 @@
               <div class="slide-content">
                 <div
                   class="relative flex flex-col mt-4 w-full h-full touch-manipulation"
-                  @touchstart="onTouchStart"
-                  @touchend="onTouchEnd"
                   @click="openPage(category)"
                 >
                   <img
@@ -46,7 +44,7 @@
         
         <div class="relative flex flex-col w-full mt-10 mb-6">
           <button
-            class="py-3 w-full mt-4 custom-search text-white text-lg font-bold rounded-full touch-manipulation active:opacity-80"
+            class="py-4 w-full mt-4  text-white text-xl font-bold rounded-full touch-manipulation active:opacity-80"
             @touchstart="onTouchStart2"
             @touchend="onTouchEnd"
             @click="openPage(activeCategory)"
@@ -187,15 +185,15 @@
           });
         }
       },
-      onTouchStart(event) {
-        event.currentTarget.style.opacity = "0.8";
-      },
-      onTouchEnd(event) {
-        event.currentTarget.style.opacity = "1";
-      },
-      onTouchStart2(event) {
-        event.currentTarget.style.opacity = "0";
-      },
+      // onTouchStart(event) {
+      //   event.currentTarget.style.opacity = "0.8";
+      // },
+      // onTouchEnd(event) {
+      //   event.currentTarget.style.opacity = "1";
+      // },
+      // onTouchStart2(event) {
+      //   event.currentTarget.style.opacity = "0";
+      // },
       onSlideChange(swiper) {
         this.activeCategory = this.categories[swiper.activeIndex];
       },
