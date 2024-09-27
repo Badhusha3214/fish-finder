@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Feedback from '@/views/feedback.vue'
 import table  from '@/views/table.vue'
 import login from '@/views/Login.vue'
-// import signup from '@/views/SignUp.vue'
+import signup from '@/views/SignUp.vue'
 import contacts from '@/views/contactView.vue'
 
 import NotFoundView from '@/views/404.vue'
