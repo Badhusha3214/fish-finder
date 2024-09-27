@@ -4,7 +4,7 @@
         <!-- Logo container -->
         <div class="flex justify-start items-center w-full md:w-auto">
           <a href="/" class="flex items-center ml-auto md:ml-0">
-            <img src="../../assets/white_logo.png" class="lg:h-12 h-10 py-0.5" alt="Inovus Labs Logo">
+            <img src="../../public/assets/white_logo.png" class="lg:h-12 h-10 py-0.5" alt="Inovus Labs Logo">
           </a>
         </div>
         
