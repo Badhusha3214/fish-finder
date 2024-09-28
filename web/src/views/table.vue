@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout>
-    <div class="min-h-screen">
+    <div class="min-h-screen bg-white rounded-lg">
       <div class="container mx-auto p-4 sm:p-6">
         <div class="mb-4 bg-btn p-5 rounded-lg bg-opacity-10 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
           <input v-model="searchTerm" type="text" placeholder="Search..." class="p-2 px-4 border border-btn rounded w-full sm:w-auto">
@@ -22,7 +22,7 @@
               </tr>
             </thead>
             <tbody class="text-black bg-btn bg-opacity-10 text-sm font-light">
-              <tr v-for="(entry, index) in filteredEntries" :key="index" class="border-b border-gray-900 hover:bg-btn hover:bg-opacity-30">
+              <tr v-for="(entry, index) in filteredEntries" :key="index" class="odd:bg-white  hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">
                   <div class="font-medium">{{ entry.scientificName }}</div>
                   <div class="text-xs text-gray-400 sm:hidden">{{ entry.vernacularNames[0]?.name || 'N/A' }}</div>

@@ -1,5 +1,5 @@
 <template>
-    <nav class="bg-btn border-b  px-4 py-2.5 fixed left-0 right-0 top-0 z-50">
+    <nav class="bg-btn   px-4 py-2.5 fixed left-0 right-0 top-0 z-50">
       <div class="flex flex-wrap justify-between items-center">
         <!-- Logo container -->
         <div class="flex justify-start items-center w-full md:w-auto">

@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout>
-    <div class="min-h-screen">
+    <div class="min-h-screen bg-white rounded-lg">
       <div class="container mx-auto p-4 sm:p-6">
         <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-btn">User Feedback</h1>
         <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
@@ -28,7 +28,7 @@
             </thead>
             <tbody class="text-black bg-btn bg-opacity-10 text-sm font-light">
               <tr v-for="(feedback, index) in filteredFeedback" :key="feedback.suggestion_id"
-                class="border-b border-gray-900 hover:bg-btn hover:bg-opacity-30">
+                class="odd:bg-white oddbg-btn hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">{{ feedback.author }}</td>
                 <td class="py-3 px-4 text-left">{{ feedback.email }}</td>
                 <td class="py-3 px-4 text-left hidden sm:table-cell">{{ feedback.message }}</td>
