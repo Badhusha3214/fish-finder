@@ -8,7 +8,7 @@
                     <strong class="font-bold">Error!</strong>
                     <span class="block sm:inline"> {{ error }}</span>
                 </div>
-                <div v-if="isLoading" class="text-center">Loading...</div>
+                <div v-if="isLoading" class="text-center"><Loader /></div>
                 <div v-else-if="contactList.length === 0" class="text-center">No contacts available.</div>
                 <div v-else>
                     <!-- <input v-model="searchTerm" placeholder="Search contacts..."
@@ -64,12 +64,14 @@
 
 <script>
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
+import Loader from '@/components/Loader.vue';
 import { deleteContact, getContact } from '@/API/index'
 
 export default {
     name: 'Contacts',
     components: {
         DashboardLayout,
+        Loader
     },
     data() {
         return {
