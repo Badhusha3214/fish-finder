@@ -2,8 +2,9 @@
   <DashboardLayout>
     <div class="min-h-screen">
       <div class="container mx-auto p-4 sm:p-6">
-        <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-white">User Feedback</h1>
-        <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-btn">User Feedback</h1>
+        <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+          role="alert">
           <strong class="font-bold">Error!</strong>
           <span class="block sm:inline"> {{ error }}</span>
         </div>
@@ -12,55 +13,46 @@
           <button @click="showModal = true" class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition w-full sm:w-auto">Add Feedback</button>
         </div> -->
         <div v-if="isLoading" class="text-white text-center">Loading...</div>
-        <div v-else-if="feedbackList.length === 0" class="text-white text-center">No feedback available.</div>
+        <div v-else-if="feedbackList.length === 0" class="text-btn text-center">No feedback available.</div>
         <div v-else class="overflow-x-auto rounded">
           <table class="w-full bg-white shadow-md rounded">
             <thead>
-              <tr class="bg-gray-700 text-white uppercase text-sm leading-normal">
+              <tr class="bg-btn text-white uppercase text-sm leading-normal">
                 <th class="py-3 px-4 text-left">User</th>
+                <th class="py-3 px-4 text-left">Email</th>
                 <th class="py-3 px-4 text-left hidden sm:table-cell">Feedback</th>
                 <th class="py-3 px-4 text-center">Status</th>
                 <th class="py-3 px-4 text-center hidden sm:table-cell">Date</th>
                 <th class="py-3 px-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody class="text-white bg-gray-800 text-sm font-light">
-              <tr v-for="(feedback, index) in filteredFeedback" :key="feedback.suggestion_id" class="border-b border-gray-900 hover:bg-gray-600">
+            <tbody class="text-black bg-btn bg-opacity-10 text-sm font-light">
+              <tr v-for="(feedback, index) in filteredFeedback" :key="feedback.suggestion_id"
+                class="border-b border-gray-900 hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">{{ feedback.author }}</td>
+                <td class="py-3 px-4 text-left">{{ feedback.email }}</td>
                 <td class="py-3 px-4 text-left hidden sm:table-cell">{{ feedback.message }}</td>
                 <td class="py-3 px-4 text-center">{{ feedback.status }}</td>
                 <td class="py-3 px-4 text-center hidden sm:table-cell">{{ formatDate(feedback.created_at) }}</td>
                 <td class="py-3 px-4 text-center">
-                  <td class="py-3 px-4 text-center">
-  <div class="flex item-center justify-center">
-    <button 
-      @click="markAsRead(feedback.suggestion_id)" 
-      class="w-4 mr-2 transform hover:scale-110" 
-      :disabled="feedback.status === 'done'"
-    >
-      <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        fill="none" 
-        viewBox="0 0 24 24" 
-        stroke="currentColor"
-        :class="{ 'text-green-500': feedback.status === 'done', 'hover:text-blue-500': feedback.status !== 'done' }"
-      >
-        <path 
-          stroke-linecap="round" 
-          stroke-linejoin="round" 
-          stroke-width="2" 
-          d="M5 13l4 4L19 7" 
-        />
-      </svg>
-    </button>
-    <button @click="deleteFeedback(feedback.suggestion_id)" class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-      </svg>
-    </button>
-  </div>
-</td>
-
+                <td class="py-3 px-4 text-center">
+                  <div class="flex item-center justify-center">
+                    <button @click="markAsRead(feedback.suggestion_id)" class="w-4 mr-2 transform hover:scale-110"
+                      :disabled="feedback.status === 'done'">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        :class="{ 'text-green-500': feedback.status === 'done', 'hover:text-blue-500': feedback.status !== 'done' }">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </button>
+                    <button @click="deleteFeedback(feedback.suggestion_id)"
+                      class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
                 </td>
               </tr>
             </tbody>
@@ -77,19 +69,27 @@
               <label class="block text-blue-700 text-sm font-bold mb-2" for="author">
                 User
               </label>
-              <input v-model="formData.author" class="shadow appearance-none border rounded w-full py-2 px-3 text-blue-700 leading-tight focus:outline-none focus:shadow-outline" id="author" type="text" placeholder="User name" required>
+              <input v-model="formData.author"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-blue-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="author" type="text" placeholder="User name" required>
             </div>
             <div class="mb-4">
               <label class="block text-blue-700 text-sm font-bold mb-2" for="message">
                 Feedback
               </label>
-              <textarea v-model="formData.message" class="shadow appearance-none border rounded w-full py-2 px-3 text-blue-700 leading-tight focus:outline-none focus:shadow-outline" id="message" placeholder="User feedback" required></textarea>
+              <textarea v-model="formData.message"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-blue-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="message" placeholder="User feedback" required></textarea>
             </div>
             <div class="flex flex-col sm:flex-row items-center justify-between">
-              <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto mb-2 sm:mb-0" type="submit">
+              <button
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto mb-2 sm:mb-0"
+                type="submit">
                 Submit
               </button>
-              <button @click="closeModal" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="button">
+              <button @click="closeModal"
+                class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto"
+                type="button">
                 Cancel
               </button>
             </div>
@@ -133,17 +133,24 @@ export default {
       );
     }
   },
-  async mounted() {
-    await this.fetchSuggestions();
-  },
+  mounted() {
+    this.checkAuth();
+  },  
   methods: {
+    checkAuth() {
+      if (!document.cookie.includes('token')) {
+        this.$router.push('/');
+      } else {
+        this.fetchSuggestions();
+      }
+    },
     async fetchSuggestions() {
       this.isLoading = true;
       this.error = null;
       try {
         const response = await getsuggestions();
         console.log('API Response:', response);
-        
+
         if (response.status === 200 && response.data && response.data.data && Array.isArray(response.data.data.suggestions)) {
           this.feedbackList = response.data.data.suggestions;
           this.meta = response.data.meta || {};
@@ -181,7 +188,7 @@ export default {
       try {
         // console.log('Marking suggestion as read:', suggestionId);
         const status = "done"
-        const response = await marksuggestions({ suggestionId , status });
+        const response = await marksuggestions({ suggestionId, status });
         console.log('Mark as read response:', response);
 
         if (response && response.status === 200) {

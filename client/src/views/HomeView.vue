@@ -209,12 +209,14 @@
   }
   
   .swiper-slide {
-    transition: all 0.3s ease;
+    transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
     overflow: hidden;
   }
   
   .swiper-container {
     padding-bottom: 40px;
+    overflow: hidden;
+    touch-action: pan-y;
   }
   
   .swiper-pagination {
@@ -225,6 +227,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 10px 0;
   }
   
   .swiper-pagination-bullet {
@@ -234,22 +237,63 @@
     opacity: 0.5;
     margin: 0 5px;
     border-radius: 50%;
-    transition: all 0.3s ease;
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .swiper-pagination-bullet::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(10, 31, 68, 0.8) 0%, rgba(10, 31, 68, 0.3) 70%, transparent 100%);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.5s ease-out;
   }
   
   .swiper-pagination-bullet-active {
     opacity: 1;
-    transform: scale(1.2);
+    transform: scale(1.5);
+    box-shadow: 0 0 10px rgba(10, 31, 68, 0.5);
+  }
+  
+  .swiper-pagination-bullet-active::before {
+    animation: liquidBullet 2s infinite ease-in-out;
+  }
+  
+  @keyframes liquidBullet {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(0);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1);
+    }
   }
   
   .swiper-slide-active {
-    transform: scale(1.2);
+    transform: scale(1.1);
+    z-index: 2;
+    animation: fluidPulse 2s infinite ease-in-out;
   }
   
   .swiper-slide-prev,
   .swiper-slide-next {
     transform: scale(0.9);
-    opacity: 0.6;
+    opacity: 0.8;
+  }
+  
+  .swiper-slide:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  @keyframes fluidPulse {
+    0% { transform: scale(1.1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1.1); }
   }
   
   .slide-content {
@@ -288,35 +332,23 @@
     transform: translateX(-100%);
   }
   
-  /* Prevent vertical scrolling */
+  /* Updated styles for scrolling */
   :global(html), :global(body) {
-    overflow: hidden;
-    overscroll-behavior-y: none;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    height: 100%;
   }
   
-  /* Allow horizontal swiping for Swiper */
-  .swiper-container {
-    overflow: hidden;
-    touch-action: pan-y;
+  /* Ensure the main container takes up the full height */
+  :global(#app), :global(.home-layout) {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
-  /* Updated styles for scrolling */
-:global(html), :global(body) {
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  height: 100%;
-}
-
-
-/* Ensure the main container takes up the full height */
-:global(#app), :global(.home-layout) {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Allow vertical scrolling for the main content */
-.flex.flex-col.h-full.w-full {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
+  
+  /* Allow vertical scrolling for the main content */
+  .flex.flex-col.h-full.w-full {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   </style>

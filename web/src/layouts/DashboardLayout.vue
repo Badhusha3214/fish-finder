@@ -1,6 +1,6 @@
 
 <template>
-    <section class="min-h-screen bg-white dark:bg-gray-900">
+    <section class="min-h-screen bg-white ">
 
         <Navbar />
 
