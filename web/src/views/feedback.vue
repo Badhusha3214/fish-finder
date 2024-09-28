@@ -28,7 +28,7 @@
             </thead>
             <tbody class="text-black bg-btn bg-opacity-10 text-sm font-light">
               <tr v-for="(feedback, index) in filteredFeedback" :key="feedback.suggestion_id"
-                class="border-b border-gray-900 hover:bg-btn hover:bg-opacity-30">
+                class="odd:bg-white oddbg-btn hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">{{ feedback.author }}</td>
                 <td class="py-3 px-4 text-left">{{ feedback.email }}</td>
                 <td class="py-3 px-4 text-left hidden sm:table-cell">{{ feedback.message }}</td>

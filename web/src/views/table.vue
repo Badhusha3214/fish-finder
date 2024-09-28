@@ -22,7 +22,7 @@
               </tr>
             </thead>
             <tbody class="text-black bg-btn bg-opacity-10 text-sm font-light">
-              <tr v-for="(entry, index) in filteredEntries" :key="index" class="border-b border-gray-900 hover:bg-btn hover:bg-opacity-30">
+              <tr v-for="(entry, index) in filteredEntries" :key="index" class="odd:bg-white  hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">
                   <div class="font-medium">{{ entry.scientificName }}</div>
                   <div class="text-xs text-gray-400 sm:hidden">{{ entry.vernacularNames[0]?.name || 'N/A' }}</div>

@@ -73,7 +73,7 @@
         <!-- Logout button -->
         <div class="mt-auto">
           <button @click="logout"
-            class="flex items-center p-2 w-full text-base font-medium rounded transition duration-75 group text-white hover:bg-red-400">
+            class="flex py-2 px-2 items-center mb-10 lg:mb-24 w-full text-base font-medium rounded transition duration-75 group text-white hover:bg-red">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
