@@ -192,7 +192,11 @@ export default {
     },
 };
 </script>
+<<<<<<< HEAD
 <style>
+=======
+<style scoped>
+>>>>>>> ce22d58c4209ce3f32d32e982426a281264b49c9
 .swiper-pagination {
     position: absolute;
     bottom: 10px;
