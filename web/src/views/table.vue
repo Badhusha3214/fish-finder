@@ -1,7 +1,12 @@
 <template>
   <DashboardLayout>
     <div class="min-h-screen bg-white rounded-lg">
-      <div class="container mx-auto p-4 sm:p-6">
+      <template v-if="loading">
+          
+        <h1 class="text-xl font-bold p-5 text-gray-500">Items are loading</h1>
+          <Loader />
+      </template>
+      <div v-else class="container mx-auto p-4 sm:p-6">
         <div class="mb-4 bg-btn p-5 rounded-lg bg-opacity-10 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
           <input v-model="searchTerm" type="text" placeholder="Search..." class="p-2 px-4 border border-btn rounded w-full sm:w-auto">
           <button @click="showModal = true" class="bg-btn text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-full sm:w-auto">Add Entry</button>
@@ -136,6 +141,7 @@
 
 <script>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
+import Loader from '@/components/Loader.vue'
 import { getitem, additem , deleteitem , edititem} from '@/API/index';
 
 
@@ -143,11 +149,13 @@ export default {
   name: 'table',
   components: {
     DashboardLayout,
+    Loader,
   },
   data() {
     return {
       entries: [],
       showModal: false,
+      loading: true,
       formData: {
         common_name: "",
         scientific_name: "",
@@ -175,6 +183,7 @@ export default {
     }
   },
   mounted() {
+    this.loading = true;
     this.checkAuth();
   },
   methods: {
@@ -206,6 +215,8 @@ export default {
     }));
   } catch (error) {
     console.log(error);
+  } finally{
+    this.loading = false;
   }
 },
     addVernacularName() {

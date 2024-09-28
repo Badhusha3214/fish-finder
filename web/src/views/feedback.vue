@@ -12,8 +12,8 @@
           <input v-model="searchTerm" type="text" placeholder="Search..." class="p-2 px-4 border rounded mb-2 sm:mb-0 w-full sm:w-auto">
           <button @click="showModal = true" class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition w-full sm:w-auto">Add Feedback</button>
         </div> -->
-        <div v-if="isLoading" class="text-white text-center">Loading...</div>
-        <div v-else-if="feedbackList.length === 0" class="text-btn text-center">No feedback available.</div>
+        <div v-if="loading" class="text-white text-center"><Loader/></div>
+        <div v-if="feedbackList.length === 0" class="text-btn text-center">No feedback available.</div>
         <div v-else class="overflow-x-auto rounded">
           <table class="w-full bg-white shadow-md rounded">
             <thead>
@@ -102,17 +102,20 @@
 
 <script>
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
+import Loader from '@/components/Loader.vue';
 import { getsuggestions, marksuggestions, deletesuggestions } from '@/API/index'
 
 export default {
   name: 'Feedback',
   components: {
     DashboardLayout,
+    Loader
   },
   data() {
     return {
       feedbackList: [],
       showModal: false,
+      loading: true,
       formData: {
         author: "",
         message: "",
@@ -122,7 +125,7 @@ export default {
       searchTerm: "",
       meta: {},
       error: null,
-      isLoading: true
+      
     };
   },
   computed: {
@@ -134,6 +137,7 @@ export default {
     }
   },
   mounted() {
+    this.loading = true;
     this.checkAuth();
   },  
   methods: {
@@ -162,7 +166,7 @@ export default {
         this.error = 'Failed to fetch feedback. Please try again later.';
         this.feedbackList = [];
       } finally {
-        this.isLoading = false;
+        this.loading = false;
       }
     },
     closeModal() {
