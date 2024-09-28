@@ -1,6 +1,6 @@
 <template>
     <DashboardLayout>
-        <div class="min-h-screen">
+        <div class="min-h-screen bg-white rounded-lg">
             <div class="container mx-auto p-4 sm:p-6">
                 <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-btn">Contacts</h1>
                 <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
@@ -11,8 +11,8 @@
                 <div v-if="isLoading" class="text-center">Loading...</div>
                 <div v-else-if="contactList.length === 0" class="text-center">No contacts available.</div>
                 <div v-else>
-                    <input v-model="searchTerm" placeholder="Search contacts..."
-                        class="w-full p-2 mb-4 border rounded" />
+                    <!-- <input v-model="searchTerm" placeholder="Search contacts..."
+                        class="w-full p-2 mb-4 border rounded" /> -->
                     <div class="overflow-x-auto rounded">
                         <table class="w-full bg-white shadow-md rounded">
                             <thead>

@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout>
-    <div class="min-h-screen">
+    <div class="min-h-screen bg-white rounded-lg">
       <div class="container mx-auto p-4 sm:p-6">
         <div class="mb-4 bg-btn p-5 rounded-lg bg-opacity-10 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
           <input v-model="searchTerm" type="text" placeholder="Search..." class="p-2 px-4 border border-btn rounded w-full sm:w-auto">
