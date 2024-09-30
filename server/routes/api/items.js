@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
+
 const multer = require("multer");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const sharp = require("sharp");
+const slugify = require("slugify");
 
 const Item = require("../../models/items");
 const User = require("../../models/users");
@@ -188,14 +190,14 @@ router.post(
   "/",
   verifyToken,
   upload.fields([
-    { name: "image_1", maxCount: 1 },
-    { name: "image_2", maxCount: 1 },
+    { name: "image", maxCount: 1 },
+    { name: "diagram", maxCount: 1 },
   ]),
   async (req, res) => {
     const uploadPromises = [];
     const fileUrls = {
-      image_1: [],
-      image_2: [],
+      image: [],
+      diagram: [],
     };
 
     const handleFiles = async (fieldName, req, uploadPromises, fileUrls) => {
@@ -222,15 +224,17 @@ router.post(
 
           const command = new PutObjectCommand(params);
           uploadPromises.push(s3Client.send(command));
-          fileUrls[fieldName].push(`${process.env.R2_PUBLIC}/${key}`); // Store the file URL
+          fileUrls[fieldName].push(
+            `${process.env.CLOUDFLARE_R2_BUCKET_URL}/${key}`
+          ); // Store the file URL
         }
       }
     };
 
     // Handle files for each field
     await Promise.all([
-      handleFiles("image_1", req, uploadPromises, fileUrls),
-      handleFiles("image_2", req, uploadPromises, fileUrls),
+      handleFiles("image", req, uploadPromises, fileUrls),
+      handleFiles("diagram", req, uploadPromises, fileUrls),
     ]);
 
     await Promise.all(uploadPromises);
@@ -254,7 +258,7 @@ router.post(
         res.status(201).json({
           status: 201,
           message: "Item created successfully",
-          // data: item
+          data: item,
         });
       })
       .catch((err) => {
