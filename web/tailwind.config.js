@@ -16,7 +16,8 @@ export default {
         border: '#484848', // border / line color
         link: '#4A8FFF', // link color
         btn: '#000000',
-        red: '#f35654'
+        red: '#f35654',
+        btnh: '#333333'
       }
     }
   },
