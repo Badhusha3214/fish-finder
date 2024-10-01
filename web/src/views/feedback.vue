@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout>
-    <div class="min-h-screen">
+    <div class="min-h-screen bg-white rounded-lg">
       <div class="container mx-auto p-4 sm:p-6">
         <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-btn">User Feedback</h1>
         <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
@@ -12,8 +12,8 @@
           <input v-model="searchTerm" type="text" placeholder="Search..." class="p-2 px-4 border rounded mb-2 sm:mb-0 w-full sm:w-auto">
           <button @click="showModal = true" class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition w-full sm:w-auto">Add Feedback</button>
         </div> -->
-        <div v-if="isLoading" class="text-white text-center">Loading...</div>
-        <div v-else-if="feedbackList.length === 0" class="text-btn text-center">No feedback available.</div>
+        <div v-if="loading" class="text-white text-center"><Loader/></div>
+        <div v-if="feedbackList.length === 0" class="text-btn text-center">No feedback available.</div>
         <div v-else class="overflow-x-auto rounded">
           <table class="w-full bg-white shadow-md rounded">
             <thead>
@@ -28,7 +28,7 @@
             </thead>
             <tbody class="text-black bg-btn bg-opacity-10 text-sm font-light">
               <tr v-for="(feedback, index) in filteredFeedback" :key="feedback.suggestion_id"
-                class="border-b border-gray-900 hover:bg-btn hover:bg-opacity-30">
+                class="odd:bg-white oddbg-btn hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">{{ feedback.author }}</td>
                 <td class="py-3 px-4 text-left">{{ feedback.email }}</td>
                 <td class="py-3 px-4 text-left hidden sm:table-cell">{{ feedback.message }}</td>
@@ -102,17 +102,20 @@
 
 <script>
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
+import Loader from '@/components/Loader.vue';
 import { getsuggestions, marksuggestions, deletesuggestions } from '@/API/index'
 
 export default {
   name: 'Feedback',
   components: {
     DashboardLayout,
+    Loader
   },
   data() {
     return {
       feedbackList: [],
       showModal: false,
+      loading: true,
       formData: {
         author: "",
         message: "",
@@ -122,7 +125,7 @@ export default {
       searchTerm: "",
       meta: {},
       error: null,
-      isLoading: true
+      
     };
   },
   computed: {
@@ -134,6 +137,7 @@ export default {
     }
   },
   mounted() {
+    this.loading = true;
     this.checkAuth();
   },  
   methods: {
@@ -162,7 +166,7 @@ export default {
         this.error = 'Failed to fetch feedback. Please try again later.';
         this.feedbackList = [];
       } finally {
-        this.isLoading = false;
+        this.loading = false;
       }
     },
     closeModal() {

@@ -1,10 +1,15 @@
 <template>
   <DashboardLayout>
-    <div class="min-h-screen">
-      <div class="container mx-auto p-4 sm:p-6">
+    <div class="min-h-screen bg-white rounded-lg">
+      <template v-if="loading">
+          
+        <h1 class="text-xl font-bold p-5 text-gray-500">Items are loading</h1>
+          <Loader />
+      </template>
+      <div v-else class="container mx-auto p-4 sm:p-6">
         <div class="mb-4 bg-btn p-5 rounded-lg bg-opacity-10 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
           <input v-model="searchTerm" type="text" placeholder="Search..." class="p-2 px-4 border border-btn rounded w-full sm:w-auto">
-          <button @click="showModal = true" class="bg-btn text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-full sm:w-auto">Add Entry</button>
+          <button @click="showModal = true" class="bg-btn text-white px-4 py-2 rounded-lg hover:bg-btnh  transition w-full sm:w-auto">Add Entry</button>
         </div>
         <div class="overflow-x-auto rounded-lg">
           <table class="w-full bg-white shadow-md rounded">
@@ -22,7 +27,7 @@
               </tr>
             </thead>
             <tbody class="text-black bg-btn bg-opacity-10 text-sm font-light">
-              <tr v-for="(entry, index) in filteredEntries" :key="index" class="border-b border-gray-900 hover:bg-btn hover:bg-opacity-30">
+              <tr v-for="(entry, index) in filteredEntries" :key="index" class="odd:bg-white  hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">
                   <div class="font-medium">{{ entry.scientificName }}</div>
                   <div class="text-xs text-gray-400 sm:hidden">{{ entry.vernacularNames[0]?.name || 'N/A' }}</div>
@@ -111,7 +116,7 @@
               <input v-model="formData.more_info" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="externalLink" type="url" placeholder="https://example.com" required>
             </div>
             <div>
-              <label class="block text-black text-sm font-bold mb-2" for="category">categorie</label>
+              <label class="block text-black text-sm font-bold mb-2" for="category">Category</label>
               <select v-model="formData.category" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="category" required>
                 <option value="">Select categories</option>
                 <option value="brackish">Brackish</option>
@@ -120,7 +125,7 @@
               </select>
             </div>
             <div class="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
-              <button @click="closeModal" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="button">
+              <button @click="closeModal" class="bg-gray-200 hover:bg-red hover:text-white text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="button">
                 Cancel
               </button>
               <button class="bg-btn hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
@@ -136,6 +141,7 @@
 
 <script>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
+import Loader from '@/components/Loader.vue'
 import { getitem, additem , deleteitem , edititem} from '@/API/index';
 
 
@@ -143,11 +149,13 @@ export default {
   name: 'table',
   components: {
     DashboardLayout,
+    Loader,
   },
   data() {
     return {
       entries: [],
       showModal: false,
+      loading: true,
       formData: {
         common_name: "",
         scientific_name: "",
@@ -175,6 +183,7 @@ export default {
     }
   },
   mounted() {
+    this.loading = true;
     this.checkAuth();
   },
   methods: {
@@ -206,6 +215,8 @@ export default {
     }));
   } catch (error) {
     console.log(error);
+  } finally{
+    this.loading = false;
   }
 },
     addVernacularName() {
