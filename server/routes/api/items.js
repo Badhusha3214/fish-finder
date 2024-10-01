@@ -258,7 +258,7 @@ router.post(
         res.status(201).json({
           status: 201,
           message: "Item created successfully",
-          data: item,
+          //   data: item,
         });
       })
       .catch((err) => {
