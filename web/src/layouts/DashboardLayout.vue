@@ -1,12 +1,12 @@
 
 <template>
-    <section class="min-h-screen bg-white dark:bg-gray-900">
+    <section class="min-h-screen bg-btn bg-opacity-10 ">
 
-        <Navbar />
+        <!-- <Navbar /> -->
 
         <Sidebar />
 
-        <main class="p-4 md:ml-72 h-auto pt-24">
+        <main class="p-4 md:ml-72 h-auto">
 
             <slot />
 

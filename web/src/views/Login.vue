@@ -2,7 +2,7 @@
   <div class="h-screen flex flex-col md:flex-row">
     <!-- Side Section -->
     <div
-      class="bg-primary text-white md:w-1/3 md:flex-1 flex items-center justify-center"
+      class="bg-btn text-white md:w-1/3 md:flex-1 flex items-center justify-center"
     >
       <div>
         <h2 class="pt-5 text-3xl md:text-4xl font-bold mb-4 text-center">
@@ -81,18 +81,20 @@
           <div class="flex items-center justify-between">
             <button
               @click="userLog"
-              class="bg-primary hover:bg-primary2 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
+              class="bg-btn hover:bg-primary2 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
               type="submit"
+              :disabled="isLoading"
             >
-              Login
+              <span v-if="!isLoading">Login</span>
+              <span v-else class="flex items-center justify-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading...
+              </span>
             </button>
           </div>
-          <button
-            @click="signupPage"
-            class="ml-40 pl-2 pt-2 place-items-center text-primary text-sm"
-          >
-            SignUp
-          </button>
         </form>
       </div>
     </div>
@@ -101,7 +103,6 @@
 
 <script>
 import { userLogin } from "@/API/index.js";
-import SignUp from "./SignUp.vue";
 
 export default {
   name: "login",
@@ -112,6 +113,7 @@ export default {
       showPassword: false,
       HaveID: false,
       wrongPassword: false,
+      isLoading: false,
     };
   },
   methods: {
@@ -131,44 +133,39 @@ export default {
       });
     },
     async userLog() {
+      this.isLoading = true;
       let user = {
         email: this.email,
         password: this.password,
       };
 
-      let response = await userLogin(user);
-      console.log(response);
+      try {
+        let response = await userLogin(user);
+        console.log(response);
 
-      if (response.status == 200) {
-        // Set expiration date to 24 hours from now
-        let expiryDate = new Date();
-        expiryDate.setTime(expiryDate.getTime() + 24 * 60 * 60 * 1000);
+        if (response.status == 200) {
+          // Set expiration date to 24 hours from now
+          let expiryDate = new Date();
+          expiryDate.setTime(expiryDate.getTime() + 24 * 60 * 60 * 1000);
 
-        // Set the cookie with expiration
-        document.cookie = `token=${
-          response.token
-        }; expires=${expiryDate.toUTCString()}; path=/`;
+          // Set the cookie with expiration
+          document.cookie = `token=${
+            response.token
+          }; expires=${expiryDate.toUTCString()}; path=/`;
 
-        // Function to get the cookie value by name
-        function getCookie(name) {
-          const value = `; ${document.cookie}`;
-          const parts = value.split(`; ${name}=`);
-          if (parts.length === 2) return parts.pop().split(";").shift();
+          window.location.href = "/";
+        } else if (response.response.status === 401) {
+          this.wrongPassword = true;
+          console.log("401 - wrong pass");
+        } else {
+          console.log("error");
+          this.HaveID = true;
         }
-
-        // Retrieve the token from the cookie
-        const token = getCookie("token");
-
-        // Log the token to the console
-        // console.log(token);
-
-        window.location.href = "/";
-      } else if (response.response.status === 401) {
-        this.wrongPassword = true;
-        console.log("401 - wrong pass");
-      } else {
-        console.log("error");
-        this.HaveID = true;
+      } catch (error) {
+        console.error("Login error:", error);
+        // Handle any network or unexpected errors here
+      } finally {
+        this.isLoading = false;
       }
     },
   },
@@ -183,21 +180,3 @@ export default {
   }
 }
 </style>
-
-<!-- async handleSignUp() {
-
-    if (!this.passwordError && !this.passwordMismatch && !this.mobileError && !this.passwordLength) {
-        await this.userReg()
-        console.log(this.formData);
-    }
-},
-
-async userReg() {
-    let user = {
-        "email": this.email,
-        "password": this.password,
-    }
-
-    let response = await userRegister(user);
-    console.log(response);
-}, -->
