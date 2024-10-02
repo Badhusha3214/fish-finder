@@ -141,12 +141,17 @@ export default {
         const res = await getitem();
         const data = res.data.data.items;
         this.entries = data.map(item => {
-          let vernacularNames;
+          let vernacularNames = {};
+          
+          // Log the raw value for debugging
+          console.log("Raw vernacular names:", item.vernacular_names[0]);
+
           try {
-            vernacularNames = JSON.parse(item.vernacular_names[0]);
+            // Remove trailing comma if present and parse the JSON string
+            const cleanedJsonString = item.vernacular_names[0].replace(/,\s*$/, "");
+            vernacularNames = JSON.parse(cleanedJsonString);
           } catch (error) {
             console.error("Error parsing vernacular names:", error);
-            vernacularNames = {}; // Set to empty object if parsing fails
           }
           
           return {
