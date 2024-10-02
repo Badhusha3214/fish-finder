@@ -162,7 +162,7 @@
             title: "Fresh Water",
             description:
               "Freshwater fish live in rivers, lakes, and streams, adapting to low salt environments.",
-            image: "/img/category/freshwater.png",
+            image: "/img/category/Fresh.png",
           },
           {
             id: "marine",

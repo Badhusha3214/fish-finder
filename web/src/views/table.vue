@@ -1,6 +1,31 @@
 <template>
   <DashboardLayout>
     <div class="min-h-screen bg-white rounded-lg">
+
+      <!-- Error Alert -->
+      <div v-if="error" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded relative" role="alert">
+        <strong class="font-bold">Error!</strong>
+        <span class="block sm:inline">{{ error }}</span>
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3" @click="error = null">
+          <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <title>Close</title>
+            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+          </svg>
+        </span>
+      </div>
+      
+      <!-- Success Alert -->
+      <div v-if="successMessage" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded relative" role="alert">
+        <strong class="font-bold">Success!</strong>
+        <span class="block sm:inline">{{ successMessage }}</span>
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3" @click="successMessage = null">
+          <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <title>Close</title>
+            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+          </svg>
+        </span>
+      </div>
+
       <template v-if="loading">
         <h1 class="text-xl font-bold p-5 text-gray-500">Items are loading</h1>
         <Loader />
@@ -29,15 +54,22 @@
               <tr v-for="(entry, index) in filteredEntries" :key="index" class="odd:bg-white hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">
                   <div class="font-medium">{{ entry.scientificName }}</div>
-                  <div class="text-xs text-gray-400 sm:hidden">{{ Object.values(entry.vernacularNames)[0] || 'N/A' }}</div>
                 </td>
                 <td class="py-3 px-4 text-left hidden sm:table-cell">
-                  <ul class="list-disc list-inside">
-                    <li v-for="(name, place) in entry.vernacularNames" :key="place">
-                      {{ place }}: {{ name }}
-                    </li>
-                  </ul>
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <tbody class="divide-y divide-gray-200">
+                      <tr v-for="(name, place) in entry.vernacularNames" :key="place" class="text-xs">
+                        <td class="py-1 pr-2 font-medium text-gray-600">{{ place }}:</td>
+                        <td class="py-1">{{ name }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <!-- Mobile view -->
+                  <div class="sm:hidden text-xs text-gray-600">
+                    {{ Object.values(entry.vernacularNames)[0] || 'N/A' }}
+                  </div>
                 </td>
+                <!-- Rest of the columns remain the same -->
                 <td class="py-3 px-4 text-center">
                   <div class="flex justify-center space-x-2">
                     <img v-for="(img, imgIndex) in entry.images.slice(0, 1)" :key="imgIndex" :src="img" :alt="`${entry.scientificName} ${imgIndex + 1}`" class="w-12 h-12 rounded-full">
@@ -78,8 +110,6 @@
         </div>
       </div>
 
-      <!-- Modal component -->
-      <!-- Modal component -->
   <div v-if="showModal" class="fixed inset-0 bg-gray-700 bg-opacity-50 overflow-y-auto h-full w-full z-50">
     <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
       <h3 class="text-lg font-bold mb-4 text-black">{{ editIndex === null ? 'Add New Entry' : 'Edit Entry' }}</h3>
@@ -106,9 +136,39 @@
           </select>
         </div>
         <div>
-          <label class="block text-black text-sm font-bold mb-2" for="vernacularNames">Vernacular Names (comma-separated)</label>
-          <input v-model="formData.vernacular_names" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="vernacularNames" type="text" placeholder="Name1, Name2, ..." required>
-        </div>
+            <label class="block text-black text-sm font-bold mb-2">Vernacular Names</label>
+            <div v-for="(name, index) in vernacularNames" :key="index" class="flex space-x-2 mb-2">
+              <input
+                v-model="name.place"
+                class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline"
+                type="text"
+                placeholder="Place"
+                required
+              >
+              <input
+                v-model="name.name"
+                class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline"
+                type="text"
+                placeholder="Name"
+                required
+              >
+              <button
+                @click="removeVernacularName(index)"
+                type="button"
+                class="bg-red-500 text-white px-2 rounded hover:bg-red-600"
+              >
+                ×
+              </button>
+            </div>
+            <button
+              @click="addVernacularName"
+              type="button"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+            >
+              Add Vernacular Name
+            </button>
+          </div>
+          
         <div>
           <label class="block text-black text-sm font-bold mb-2" for="moreInfo">More Info</label>
           <input v-model="formData.more_info" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="moreInfo" type="url" placeholder="https://example.com" required>
@@ -136,6 +196,8 @@
   </DashboardLayout>
 </template>
 
+
+
 <script>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import Loader from '@/components/Loader.vue'
@@ -152,12 +214,14 @@ export default {
       entries: [],
       showModal: false,
       loading: true,
+      error: null,
+      successMessage: null,
+      vernacularNames: [{ place: '', name: '' }],
       formData: {
         common_name: "",
         scientific_name: "",
         description: "",
         category: "",
-        vernacular_names: "",
         more_info: "",
         images: [{ image: null, diagram: null }]
       },
@@ -165,40 +229,58 @@ export default {
       searchTerm: ""
     };
   },
-
   computed: {
     filteredEntries() {
       return this.entries.filter(entry =>
         entry.scientificName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         entry.description.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        Object.values(entry.vernacularNames).some(name => 
+        Object.entries(entry.vernacularNames).some(([place, name]) => 
+          place.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
           name.toLowerCase().includes(this.searchTerm.toLowerCase())
         ) ||
         entry.category.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
     }
   },
-  mounted() {
-    this.loading = true;
-    this.checkAuth();
+  async created() {
+    await this.initializeData();
   },
   methods: {
-    checkAuth() {
-      if (!document.cookie.includes('token')) {
-        this.$router.push('/login');
-      } else {
-        this.getitem();
-      } 
+    async initializeData() {
+      try {
+        this.loading = true;
+        if (!document.cookie.includes('token')) {
+          this.showError('Authentication failed. Please log in.');
+          this.$router.push('/login');
+          return;
+        }
+        await this.getItems();
+      } catch (error) {
+        this.showError('Failed to initialize data. Please refresh the page.');
+        console.error('Initialization error:', error);
+      } finally {
+        this.loading = false;
+      }
     },
-    async getitem() {
+    showError(message, timeout = 5000) {
+      this.error = message;
+      setTimeout(() => {
+        this.error = null;
+      }, timeout);
+    },
+    showSuccess(message, timeout = 5000) {
+      this.successMessage = message;
+      setTimeout(() => {
+        this.successMessage = null;
+      }, timeout);
+    },
+    async getItems() {
       try {
         const res = await getitem();
         const data = res.data.data.items;
         this.entries = data.map(item => {
           let vernacularNames = {};
           
-          console.log("Raw vernacular names:", item.vernacular_names[0]);
-
           try {
             const cleanedJsonString = item.vernacular_names[0].replace(/,\s*$/, "");
             vernacularNames = JSON.parse(cleanedJsonString);
@@ -220,18 +302,42 @@ export default {
         });
       } catch (error) {
         console.error("Error fetching items:", error);
-      } finally {
-        this.loading = false;
+        this.showError('Failed to fetch items. Please try again later.');
+        throw error;
+      }
+    },
+    handleFileUpload(event, type) {
+      try {
+        const file = event.target.files[0];
+        if (!file) {
+          this.showError(`No ${type} file selected`);
+          return;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+          this.showError(`Invalid file type for ${type}. Please select an image file.`);
+          return;
+        }
+        
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+          this.showError(`${type} file is too large. Maximum size is 5MB.`);
+          return;
+        }
+        
+        this.formData.images[0][type] = file;
+      } catch (error) {
+        console.error(`Error handling ${type} file upload:`, error);
+        this.showError(`Failed to process ${type} file. Please try again.`);
       }
     },
     addVernacularName() {
-      if (this.newVernacularPlace) {
-        this.$set(this.formData.vernacular_names, this.newVernacularPlace, "");
-        this.newVernacularPlace = "";
-      }
+      this.vernacularNames.push({ place: '', name: '' });
     },
-    addImageField() {
-      this.formData.images[0].image.push("");
+    removeVernacularName(index) {
+      if (this.vernacularNames.length > 1) {
+        this.vernacularNames.splice(index, 1);
+      }
     },
     closeModal() {
       this.showModal = false;
@@ -243,70 +349,100 @@ export default {
         scientific_name: "",
         description: "",
         category: "",
-        vernacular_names: "",
         more_info: "",
         images: [{ image: null, diagram: null }]
       };
+      this.vernacularNames = [{ place: '', name: '' }];
       this.editIndex = null;
-    },
-    handleFileUpload(event, type) {
-      const file = event.target.files[0];
-      this.formData.images[0][type] = file;
     },
     async submitForm() {
       try {
+        this.loading = true;
         const formData = new FormData();
+        
         for (const key in this.formData) {
           if (key === 'images') {
-            formData.append('image', this.formData.images[0].image);
-            formData.append('diagram', this.formData.images[0].diagram);
-          } else if (key === 'vernacular_names') {
-            formData.append(key, JSON.stringify(this.formData[key].split(',').map(name => name.trim())));
+            if (this.formData.images[0].image) {
+              formData.append('image', this.formData.images[0].image);
+            }
+            if (this.formData.images[0].diagram) {
+              formData.append('diagram', this.formData.images[0].diagram);
+            }
           } else {
             formData.append(key, this.formData[key]);
           }
         }
+        
+        const vernacularNamesObject = {};
+        this.vernacularNames.forEach(({ place, name }) => {
+          if (place && name) {
+            vernacularNamesObject[place] = name;
+          }
+        });
+        formData.append('vernacular_names', JSON.stringify(vernacularNamesObject));
 
         if (this.editIndex === null) {
-          const res = await additem(formData);
-          console.log(res);
+          await additem(formData);
+          this.showSuccess('Item added successfully!');
         } else {
           const entryToUpdate = this.entries[this.editIndex];
-          const res = await edititem(entryToUpdate.item_id, formData);
-          console.log(res);
+          await edititem(entryToUpdate.item_id, formData);
+          this.showSuccess('Item updated successfully!');
         }
-        await this.getitem(); // Refresh the list after adding or updating
+        await this.getItems();
         this.closeModal();
       } catch (error) {
-        console.error(error);
+        console.error("Error submitting form:", error);
+        this.showError('Failed to submit form. Please check your inputs and try again.');
+      } finally {
+        this.loading = false;
       }
     },
     editEntry(index) {
-      this.editIndex = index;
-      const entry = this.entries[index];
-      this.formData = {
-        common_name: entry.commonName,
-        scientific_name: entry.scientificName,
-        vernacular_names: Object.values(entry.vernacularNames).join(', '),
-        images: [{ image: null, diagram: null }],
-        description: entry.description,
-        more_info: entry.externalLink,
-        category: entry.category
-      };
-      this.showModal = true;
+      try {
+        this.editIndex = index;
+        const entry = this.entries[index];
+        this.formData = {
+          common_name: entry.commonName,
+          scientific_name: entry.scientificName,
+          description: entry.description,
+          more_info: entry.externalLink,
+          category: entry.category,
+          images: [{ image: null, diagram: null }]
+        };
+        
+        this.vernacularNames = Object.entries(entry.vernacularNames).map(([place, name]) => ({
+          place,
+          name
+        }));
+        
+        if (this.vernacularNames.length === 0) {
+          this.vernacularNames.push({ place: '', name: '' });
+        }
+        
+        this.showModal = true;
+      } catch (error) {
+        console.error("Error editing entry:", error);
+        this.showError('Failed to load entry for editing. Please try again.');
+      }
     },
     async deleteEntry(index) {
       if (confirm("Are you sure you want to delete this entry?")) {
         try {
+          this.loading = true;
           const entryToDelete = this.entries[index];
           await deleteitem(entryToDelete.item_id);
-          await this.getitem(); // Refresh the list after deleting
+          this.showSuccess('Item deleted successfully!');
+          await this.getItems();
         } catch (error) {
           console.error("Failed to delete entry:", error);
-          alert("Failed to delete entry. Please try again later.");
+          this.showError('Failed to delete entry. Please try again later.');
+        } finally {
+          this.loading = false;
         }
       }
     }
   }
 };
 </script>
+

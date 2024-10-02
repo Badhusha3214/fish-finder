@@ -45,7 +45,7 @@
     checkToken() {
       const token = this.getCookie('token');
       if (token) {
-        // console.log('Token found:', token);
+        console.log('Token found:', token);
       } else {
         console.log('Token not found bye bye');
         this.$router.push('/login');
@@ -59,5 +59,3 @@
 
 
 </script>
-
-
