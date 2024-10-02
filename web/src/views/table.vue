@@ -2,14 +2,13 @@
   <DashboardLayout>
     <div class="min-h-screen bg-white rounded-lg">
       <template v-if="loading">
-          
         <h1 class="text-xl font-bold p-5 text-gray-500">Items are loading</h1>
-          <Loader />
+        <Loader />
       </template>
       <div v-else class="container mx-auto p-4 sm:p-6">
         <div class="mb-4 bg-btn p-5 rounded-lg bg-opacity-10 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
           <input v-model="searchTerm" type="text" placeholder="Search..." class="p-2 px-4 border border-btn rounded w-full sm:w-auto">
-          <button @click="showModal = true" class="bg-btn text-white px-4 py-2 rounded-lg hover:bg-btnh  transition w-full sm:w-auto">Add Entry</button>
+          <button @click="showModal = true" class="bg-btn text-white px-4 py-2 rounded-lg hover:bg-btnh transition w-full sm:w-auto">Add Entry</button>
         </div>
         <div class="overflow-x-auto rounded-lg">
           <table class="w-full bg-white shadow-md rounded">
@@ -27,7 +26,7 @@
               </tr>
             </thead>
             <tbody class="text-black bg-btn bg-opacity-10 text-sm font-light">
-              <tr v-for="(entry, index) in filteredEntries" :key="index" class="odd:bg-white  hover:bg-btn hover:bg-opacity-30">
+              <tr v-for="(entry, index) in filteredEntries" :key="index" class="odd:bg-white hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">
                   <div class="font-medium">{{ entry.scientificName }}</div>
                   <div class="text-xs text-gray-400 sm:hidden">{{ entry.vernacularNames[0]?.name || 'N/A' }}</div>
@@ -41,7 +40,8 @@
                 </td>
                 <td class="py-3 px-4 text-center">
                   <div class="flex justify-center space-x-2">
-                    <img v-for="(img, imgIndex) in entry.images.slice(0, 1)" :key="imgIndex" :src="img" :alt="`${entry.scientificName} ${imgIndex + 1}`" class="w-12 h-12 rounded-full">
+                    <img v-if="entry.images[0]?.image" :src="entry.images[0].image[0]" :alt="`${entry.scientificName} image`" class="w-12 h-12 rounded-full">
+                    <img v-if="entry.images[0]?.diagram" :src="entry.images[0].diagram[0]" :alt="`${entry.scientificName} diagram`" class="w-12 h-12 rounded-full">
                   </div>
                 </td>
                 <td class="py-3 px-4 text-left hidden md:table-cell">
@@ -101,11 +101,24 @@
               <button type="button" @click="addVernacularName" class="bg-btn hover:bg-blue-600 text-white px-2 py-1 rounded text-sm">+ Add Name</button>
             </div>
             <div>
-              <label class="block text-black text-sm font-bold mb-2">Images</label>
-              <div v-for="(image, index) in formData.images" :key="index" class="flex mb-2 space-x-2">
-                <input v-model="formData.images[index]" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" type="url" placeholder="https://example.com/image.jpg" required>
-              </div>
-              <button type="button" @click="addImageField" class="bg-btn hover:bg-blue-600 text-white px-2 py-1 rounded text-sm">+ Add Image</button>
+              <label class="block text-black text-sm font-bold mb-2">Image</label>
+              <input 
+                type="file" 
+                @change="handleFileUpload($event, 'image')" 
+                accept="image/*"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline"
+                required
+              >
+            </div>
+            <div>
+              <label class="block text-black text-sm font-bold mb-2">Diagram</label>
+              <input 
+                type="file" 
+                @change="handleFileUpload($event, 'diagram')" 
+                accept="image/*"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline"
+                required
+              >
             </div>
             <div>
               <label class="block text-black text-sm font-bold mb-2" for="description">Description</label>
@@ -142,8 +155,7 @@
 <script>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import Loader from '@/components/Loader.vue'
-import { getitem, additem , deleteitem , edititem} from '@/API/index';
-
+import { getitem, additem, deleteitem, edititem } from '@/API/index';
 
 export default {
   name: 'table',
@@ -160,7 +172,10 @@ export default {
         common_name: "",
         scientific_name: "",
         vernacular_names: [{ place: "", name: "" }],
-        images: [""],
+        images: {
+          image: null,
+          diagram: null
+        },
         description: "",
         more_info: "",
         category: ""
@@ -195,35 +210,28 @@ export default {
       } 
     },
     async getitem() {
-  try {
-    const res = await getitem();
-    const data = res.data.data.items;
-    this.entries = data.map(item => ({
-      item_id: item.item_id,
-      scientificName: item.scientific_name,
-      vernacularNames: item.vernacular_names.map(name => ({
-        place: name.place,
-        name: name.name
-      })),
-      images: item.images.length > 0 ? item.images : ['https://via.placeholder.com/100'],
-      description: item.description,
-      externalLink: item.more_info || '',
-      category: item.category || 'Not specified',
-      created_by:item.created_by,
-      updated_by:item.updated_by
-
-    }));
-  } catch (error) {
-    console.log(error);
-  } finally{
-    this.loading = false;
-  }
-},
+      try {
+        const res = await getitem();
+        const data = res.data.data.items;
+        this.entries = data.map(item => ({
+          item_id: item.item_id,
+          scientificName: item.scientific_name,
+          vernacularNames: JSON.parse(item.vernacular_names[0]),
+          images: item.images,
+          description: item.description,
+          externalLink: item.more_info || '',
+          category: item.category || 'Not specified',
+          created_by: item.created_by,
+          updated_by: item.updated_by
+        }));
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
+    },
     addVernacularName() {
       this.formData.vernacular_names.push({ place: "", name: "" });
-    },
-    addImageField() {
-      this.formData.images.push("");
     },
     closeModal() {
       this.showModal = false;
@@ -234,39 +242,53 @@ export default {
         common_name: "",
         scientific_name: "",
         vernacular_names: [{ place: "", name: "" }],
-        images: [""],
+        images: {
+          image: null,
+          diagram: null
+        },
         description: "",
         more_info: "",
         category: ""
       };
       this.editIndex = null;
     },
+    handleFileUpload(event, type) {
+      const file = event.target.files[0];
+      if (file) {
+        this.formData.images[type] = file;
+      }
+    },
     async submitForm() {
-  try {
-    if (this.editIndex === null) {
-      const res = await additem(this.formData);
-      console.log(res);
-      await this.getitem(); // Refresh the list after adding
-    } else {
-      const entryToUpdate = this.entries[this.editIndex];
-      const updatedData = {
-        common_name: this.formData.common_name,
-        scientific_name: this.formData.scientific_name,
-        vernacular_names: this.formData.vernacular_names,
-        images: this.formData.images,
-        description: this.formData.description,
-        more_info: this.formData.more_info,
-        category: this.formData.category,
-      };
-      const res = await edititem(entryToUpdate.item_id, updatedData);
-      console.log(res);
-      await this.getitem(); // Refresh the list after updating
-    }
-    this.closeModal();
-  } catch (error) {
-    console.log(error);
-  }
-},
+      try {
+        const formData = new FormData();
+        formData.append('common_name', this.formData.common_name);
+        formData.append('scientific_name', this.formData.scientific_name);
+        formData.append('vernacular_names', JSON.stringify(this.formData.vernacular_names));
+        if (this.formData.images.image) {
+          formData.append('images[0][image]', this.formData.images.image);
+        }
+        if (this.formData.images.diagram) {
+          formData.append('images[0][diagram]', this.formData.images.diagram);
+        }
+        formData.append('description', this.formData.description);
+        formData.append('more_info', this.formData.more_info);
+        formData.append('category', this.formData.category);
+
+        if (this.editIndex === null) {
+          const res = await additem(formData);
+          console.log(res);
+        } else {
+          const entryToUpdate = this.entries[this.editIndex];
+          const res = await edititem(entryToUpdate.item_id, formData);
+          console.log(res);
+        }
+        await this.getitem(); // Refresh the list after adding/updating
+        this.closeModal();
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    
     editEntry(index) {
       this.editIndex = index;
       const entry = this.entries[index];
@@ -274,7 +296,10 @@ export default {
         common_name: entry.vernacularNames[0]?.name || '',
         scientific_name: entry.scientificName,
         vernacular_names: entry.vernacularNames,
-        images: entry.images,
+        images: {
+          image: null,
+          diagram: null
+        },
         description: entry.description,
         more_info: entry.externalLink,
         category: entry.category
