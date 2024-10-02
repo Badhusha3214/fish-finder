@@ -5,10 +5,11 @@
       "destination": "/index.html"
     }
   ],
-  "routes": [
+  "redirects": [
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/old-route",
+      "destination": "/new-route",
+      "permanent": true
     }
   ]
 }
