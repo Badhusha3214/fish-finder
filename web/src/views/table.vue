@@ -78,8 +78,6 @@
         </div>
       </div>
 
-      <!-- Modal component -->
-      <!-- Modal component -->
   <div v-if="showModal" class="fixed inset-0 bg-gray-700 bg-opacity-50 overflow-y-auto h-full w-full z-50">
     <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
       <h3 class="text-lg font-bold mb-4 text-black">{{ editIndex === null ? 'Add New Entry' : 'Edit Entry' }}</h3>
@@ -106,9 +104,39 @@
           </select>
         </div>
         <div>
-          <label class="block text-black text-sm font-bold mb-2" for="vernacularNames">Vernacular Names (comma-separated)</label>
-          <input v-model="formData.vernacular_names" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="vernacularNames" type="text" placeholder="Name1, Name2, ..." required>
-        </div>
+            <label class="block text-black text-sm font-bold mb-2">Vernacular Names</label>
+            <div v-for="(name, index) in vernacularNames" :key="index" class="flex space-x-2 mb-2">
+              <input
+                v-model="name.place"
+                class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline"
+                type="text"
+                placeholder="Place"
+                required
+              >
+              <input
+                v-model="name.name"
+                class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline"
+                type="text"
+                placeholder="Name"
+                required
+              >
+              <button
+                @click="removeVernacularName(index)"
+                type="button"
+                class="bg-red-500 text-white px-2 rounded hover:bg-red-600"
+              >
+                ×
+              </button>
+            </div>
+            <button
+              @click="addVernacularName"
+              type="button"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+            >
+              Add Vernacular Name
+            </button>
+          </div>
+          
         <div>
           <label class="block text-black text-sm font-bold mb-2" for="moreInfo">More Info</label>
           <input v-model="formData.more_info" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="moreInfo" type="url" placeholder="https://example.com" required>
@@ -152,12 +180,12 @@ export default {
       entries: [],
       showModal: false,
       loading: true,
+      vernacularNames: [{ place: '', name: '' }],
       formData: {
         common_name: "",
         scientific_name: "",
         description: "",
         category: "",
-        vernacular_names: "",
         more_info: "",
         images: [{ image: null, diagram: null }]
       },
@@ -165,13 +193,13 @@ export default {
       searchTerm: ""
     };
   },
-
   computed: {
     filteredEntries() {
       return this.entries.filter(entry =>
         entry.scientificName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         entry.description.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        Object.values(entry.vernacularNames).some(name => 
+        Object.entries(entry.vernacularNames).some(([place, name]) => 
+          place.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
           name.toLowerCase().includes(this.searchTerm.toLowerCase())
         ) ||
         entry.category.toLowerCase().includes(this.searchTerm.toLowerCase())
@@ -225,13 +253,12 @@ export default {
       }
     },
     addVernacularName() {
-      if (this.newVernacularPlace) {
-        this.$set(this.formData.vernacular_names, this.newVernacularPlace, "");
-        this.newVernacularPlace = "";
-      }
+      this.vernacularNames.push({ place: '', name: '' });
     },
-    addImageField() {
-      this.formData.images[0].image.push("");
+    removeVernacularName(index) {
+      if (this.vernacularNames.length > 1) {
+        this.vernacularNames.splice(index, 1);
+      }
     },
     closeModal() {
       this.showModal = false;
@@ -243,10 +270,10 @@ export default {
         scientific_name: "",
         description: "",
         category: "",
-        vernacular_names: "",
         more_info: "",
         images: [{ image: null, diagram: null }]
       };
+      this.vernacularNames = [{ place: '', name: '' }];
       this.editIndex = null;
     },
     handleFileUpload(event, type) {
@@ -256,29 +283,40 @@ export default {
     async submitForm() {
       try {
         const formData = new FormData();
+        
+        // Add regular form fields
         for (const key in this.formData) {
           if (key === 'images') {
-            formData.append('image', this.formData.images[0].image);
-            formData.append('diagram', this.formData.images[0].diagram);
-          } else if (key === 'vernacular_names') {
-            formData.append(key, JSON.stringify(this.formData[key].split(',').map(name => name.trim())));
+            if (this.formData.images[0].image) {
+              formData.append('image', this.formData.images[0].image);
+            }
+            if (this.formData.images[0].diagram) {
+              formData.append('diagram', this.formData.images[0].diagram);
+            }
           } else {
             formData.append(key, this.formData[key]);
           }
         }
+        
+        // Handle vernacular names
+        const vernacularNamesObject = {};
+        this.vernacularNames.forEach(({ place, name }) => {
+          if (place && name) {
+            vernacularNamesObject[place] = name;
+          }
+        });
+        formData.append('vernacular_names', JSON.stringify(vernacularNamesObject));
 
         if (this.editIndex === null) {
-          const res = await additem(formData);
-          console.log(res);
+          await additem(formData);
         } else {
           const entryToUpdate = this.entries[this.editIndex];
-          const res = await edititem(entryToUpdate.item_id, formData);
-          console.log(res);
+          await edititem(entryToUpdate.item_id, formData);
         }
         await this.getitem(); // Refresh the list after adding or updating
         this.closeModal();
       } catch (error) {
-        console.error(error);
+        console.error("Error submitting form:", error);
       }
     },
     editEntry(index) {
@@ -287,12 +325,23 @@ export default {
       this.formData = {
         common_name: entry.commonName,
         scientific_name: entry.scientificName,
-        vernacular_names: Object.values(entry.vernacularNames).join(', '),
-        images: [{ image: null, diagram: null }],
         description: entry.description,
         more_info: entry.externalLink,
-        category: entry.category
+        category: entry.category,
+        images: [{ image: null, diagram: null }]
       };
+      
+      // Convert vernacular names object to array of place-name pairs
+      this.vernacularNames = Object.entries(entry.vernacularNames).map(([place, name]) => ({
+        place,
+        name
+      }));
+      
+      // Ensure there's at least one empty vernacular name field
+      if (this.vernacularNames.length === 0) {
+        this.vernacularNames.push({ place: '', name: '' });
+      }
+      
       this.showModal = true;
     },
     async deleteEntry(index) {
