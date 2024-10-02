@@ -11,6 +11,6 @@
         "dest": "/$1"
       }
     ],
-    "errorPage": "src/views/404.vue"
+    "errorPage": "/404.html"
   }
   
