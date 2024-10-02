@@ -1,6 +1,31 @@
 <template>
   <DashboardLayout>
     <div class="min-h-screen bg-white rounded-lg">
+
+      <!-- Error Alert -->
+      <div v-if="error" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded relative" role="alert">
+        <strong class="font-bold">Error!</strong>
+        <span class="block sm:inline">{{ error }}</span>
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3" @click="error = null">
+          <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <title>Close</title>
+            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+          </svg>
+        </span>
+      </div>
+      
+      <!-- Success Alert -->
+      <div v-if="successMessage" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded relative" role="alert">
+        <strong class="font-bold">Success!</strong>
+        <span class="block sm:inline">{{ successMessage }}</span>
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3" @click="successMessage = null">
+          <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <title>Close</title>
+            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+          </svg>
+        </span>
+      </div>
+
       <template v-if="loading">
         <h1 class="text-xl font-bold p-5 text-gray-500">Items are loading</h1>
         <Loader />
@@ -19,7 +44,7 @@
                 <th class="py-3 px-4 text-center">Images</th>
                 <th class="py-3 px-4 text-left hidden md:table-cell">Description</th>
                 <th class="py-3 px-4 text-center hidden lg:table-cell">External Link</th>
-                <th class="py-3 px-4 text-center">category</th>
+                <th class="py-3 px-4 text-center">Category</th>
                 <th class="py-3 px-4 text-center">Created by</th>
                 <th class="py-3 px-4 text-center">Updated by</th>
                 <th class="py-3 px-4 text-center">Actions</th>
@@ -29,15 +54,22 @@
               <tr v-for="(entry, index) in filteredEntries" :key="index" class="odd:bg-white hover:bg-btn hover:bg-opacity-30">
                 <td class="py-3 px-4 text-left">
                   <div class="font-medium">{{ entry.scientificName }}</div>
-                  <div class="text-xs text-gray-400 sm:hidden">{{ entry.vernacularNames[0]?.name || 'N/A' }}</div>
                 </td>
                 <td class="py-3 px-4 text-left hidden sm:table-cell">
-                  <ul class="list-disc list-inside">
-                    <li v-for="(name, num) in entry.vernacularNames.slice(0, 2)" :key="num">
-                      {{ name.place }}: {{ name.name }}
-                    </li>
-                  </ul>
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <tbody class="divide-y divide-gray-200">
+                      <tr v-for="(name, place) in entry.vernacularNames" :key="place" class="text-xs">
+                        <td class="py-1 pr-2 font-medium text-gray-600">{{ place }}:</td>
+                        <td class="py-1">{{ name }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <!-- Mobile view -->
+                  <div class="sm:hidden text-xs text-gray-600">
+                    {{ Object.values(entry.vernacularNames)[0] || 'N/A' }}
+                  </div>
                 </td>
+                <!-- Rest of the columns remain the same -->
                 <td class="py-3 px-4 text-center">
                   <div class="flex justify-center space-x-2">
                     <img v-if="entry.images[0]?.image" :src="entry.images[0].image[0]" :alt="`${entry.scientificName} image`" class="w-12 h-12 rounded-full">
@@ -78,79 +110,94 @@
           </table>
         </div>
       </div>
-  
-      <!-- Responsive Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-gray-700 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-          <h3 class="text-lg font-bold mb-4 text-black">{{ editIndex === null ? 'Add New Entry' : 'Edit Entry' }}</h3>
-          <form @submit.prevent="submitForm" class="space-y-4">
-            <div>
-              <label class="block text-black text-sm font-bold mb-2" for="commonName">Common Name</label>
-              <input v-model="formData.common_name" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="commonName" type="text" placeholder="Common Name" required>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2" for="scientificName">Scientific Name</label>
-              <input v-model="formData.scientific_name" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="scientificName" type="text" placeholder="Scientific Name" required>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2">Vernacular Names</label>
-              <div v-for="(name, index) in formData.vernacular_names" :key="index" class="flex mb-2 space-x-2">
-                <input v-model="name.place" class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Place" required>
-                <input v-model="name.name" class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Name" required>
-              </div>
-              <button type="button" @click="addVernacularName" class="bg-btn hover:bg-blue-600 text-white px-2 py-1 rounded text-sm">+ Add Name</button>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2">Image</label>
-              <input 
-                type="file" 
-                @change="handleFileUpload($event, 'image')" 
-                accept="image/*"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline"
-                required
-              >
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2">Diagram</label>
-              <input 
-                type="file" 
-                @change="handleFileUpload($event, 'diagram')" 
-                accept="image/*"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline"
-                required
-              >
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2" for="description">Description</label>
-              <textarea v-model="formData.description" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="description" placeholder="Description" required></textarea>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2" for="externalLink">External Link</label>
-              <input v-model="formData.more_info" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="externalLink" type="url" placeholder="https://example.com" required>
-            </div>
-            <div>
-              <label class="block text-black text-sm font-bold mb-2" for="category">Category</label>
-              <select v-model="formData.category" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="category" required>
-                <option value="">Select categories</option>
-                <option value="brackish">Brackish</option>
-                <option value="freshwater">Freshwater</option>
-                <option value="marine">Marine</option>
-              </select>
-            </div>
-            <div class="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
-              <button @click="closeModal" class="bg-gray-200 hover:bg-red hover:text-white text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="button">
-                Cancel
-              </button>
-              <button class="bg-btn hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
-                {{ editIndex === null ? 'Submit' : 'Update' }}
-              </button>
-            </div>
-          </form>
+
+  <div v-if="showModal" class="fixed inset-0 bg-gray-700 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+      <h3 class="text-lg font-bold mb-4 text-black">{{ editIndex === null ? 'Add New Entry' : 'Edit Entry' }}</h3>
+      <form @submit.prevent="submitForm" class="space-y-4">
+        <div>
+          <label class="block text-black text-sm font-bold mb-2" for="commonName">Common Name</label>
+          <input v-model="formData.common_name" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="commonName" type="text" placeholder="Common Name" required>
         </div>
-      </div>
+        <div>
+          <label class="block text-black text-sm font-bold mb-2" for="scientificName">Scientific Name</label>
+          <input v-model="formData.scientific_name" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="scientificName" type="text" placeholder="Scientific Name" required>
+        </div>
+        <div>
+          <label class="block text-black text-sm font-bold mb-2" for="description">Description</label>
+          <textarea v-model="formData.description" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="description" placeholder="Description" required></textarea>
+        </div>
+        <div>
+          <label class="block text-black text-sm font-bold mb-2" for="category">Category</label>
+          <select v-model="formData.category" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="category" required>
+            <option value="">Select category</option>
+            <option value="brackish">Brackish</option>
+            <option value="freshwater">Freshwater</option>
+            <option value="marine">Marine</option>
+          </select>
+        </div>
+        <div>
+            <label class="block text-black text-sm font-bold mb-2">Vernacular Names</label>
+            <div v-for="(name, index) in vernacularNames" :key="index" class="flex space-x-2 mb-2">
+              <input
+                v-model="name.place"
+                class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline"
+                type="text"
+                placeholder="Place"
+                required
+              >
+              <input
+                v-model="name.name"
+                class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline"
+                type="text"
+                placeholder="Name"
+                required
+              >
+              <button
+                @click="removeVernacularName(index)"
+                type="button"
+                class="bg-red-500 text-white px-2 rounded hover:bg-red-600"
+              >
+                ×
+              </button>
+            </div>
+            <button
+              @click="addVernacularName"
+              type="button"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+            >
+              Add Vernacular Name
+            </button>
+          </div>
+          
+        <div>
+          <label class="block text-black text-sm font-bold mb-2" for="moreInfo">More Info</label>
+          <input v-model="formData.more_info" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="moreInfo" type="url" placeholder="https://example.com" required>
+        </div>
+        <div>
+          <label class="block text-black text-sm font-bold mb-2" for="image">Image</label>
+          <input @change="handleFileUpload($event, 'image')" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="image" type="file" accept="image/*" required>
+        </div>
+        <div>
+          <label class="block text-black text-sm font-bold mb-2" for="diagram">Diagram</label>
+          <input @change="handleFileUpload($event, 'diagram')" class="shadow appearance-none border rounded w-full py-2 px-3 text-black leading-tight focus:outline-none focus:shadow-outline" id="diagram" type="file" accept="image/*" required>
+        </div>
+        <div class="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
+          <button @click="closeModal" class="bg-gray-200 hover:bg-red hover:text-white text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="button">
+            Cancel
+          </button>
+          <button class="bg-btn hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
+            {{ editIndex === null ? 'Submit' : 'Update' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
     </div>
   </DashboardLayout>
 </template>
+
+
 
 <script>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
@@ -158,7 +205,7 @@ import Loader from '@/components/Loader.vue'
 import { getitem, additem, deleteitem, edititem } from '@/API/index';
 
 export default {
-  name: 'table',
+  name: 'ItemTable',
   components: {
     DashboardLayout,
     Loader,
@@ -168,17 +215,16 @@ export default {
       entries: [],
       showModal: false,
       loading: true,
+      error: null,
+      successMessage: null,
+      vernacularNames: [{ place: '', name: '' }],
       formData: {
         common_name: "",
         scientific_name: "",
-        vernacular_names: [{ place: "", name: "" }],
-        images: {
-          image: null,
-          diagram: null
-        },
         description: "",
+        category: "",
         more_info: "",
-        category: ""
+        images: [{ image: null, diagram: null }]
       },
       editIndex: null,
       searchTerm: ""
@@ -189,49 +235,110 @@ export default {
       return this.entries.filter(entry =>
         entry.scientificName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         entry.description.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        entry.vernacularNames.some(vn => 
-          vn.place.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          vn.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+        Object.entries(entry.vernacularNames).some(([place, name]) => 
+          place.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          name.toLowerCase().includes(this.searchTerm.toLowerCase())
         ) ||
         entry.category.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
     }
   },
-  mounted() {
-    this.loading = true;
-    this.checkAuth();
+  async created() {
+    await this.initializeData();
   },
   methods: {
-    checkAuth() {
-      if (!document.cookie.includes('token')) {
-        this.$router.push('/login');
-      } else {
-        this.getitem();
-      } 
-    },
-    async getitem() {
+    async initializeData() {
       try {
-        const res = await getitem();
-        const data = res.data.data.items;
-        this.entries = data.map(item => ({
-          item_id: item.item_id,
-          scientificName: item.scientific_name,
-          vernacularNames: JSON.parse(item.vernacular_names[0]),
-          images: item.images,
-          description: item.description,
-          externalLink: item.more_info || '',
-          category: item.category || 'Not specified',
-          created_by: item.created_by,
-          updated_by: item.updated_by
-        }));
+        this.loading = true;
+        if (!document.cookie.includes('token')) {
+          this.showError('Authentication failed. Please log in.');
+          this.$router.push('/login');
+          return;
+        }
+        await this.getItems();
       } catch (error) {
-        console.log(error);
+        this.showError('Failed to initialize data. Please refresh the page.');
+        console.error('Initialization error:', error);
       } finally {
         this.loading = false;
       }
     },
+    showError(message, timeout = 5000) {
+      this.error = message;
+      setTimeout(() => {
+        this.error = null;
+      }, timeout);
+    },
+    showSuccess(message, timeout = 5000) {
+      this.successMessage = message;
+      setTimeout(() => {
+        this.successMessage = null;
+      }, timeout);
+    },
+    async getItems() {
+      try {
+        const res = await getitem();
+        const data = res.data.data.items;
+        this.entries = data.map(item => {
+          let vernacularNames = {};
+          
+          try {
+            const cleanedJsonString = item.vernacular_names[0].replace(/,\s*$/, "");
+            vernacularNames = JSON.parse(cleanedJsonString);
+          } catch (error) {
+            console.error("Error parsing vernacular names:", error);
+          }
+          
+          return {
+            item_id: item.item_id,
+            scientificName: item.scientific_name,
+            vernacularNames: vernacularNames,
+            images: item.images[0].image.length > 0 ? item.images[0].image : ['https://via.placeholder.com/100'],
+            description: item.description,
+            externalLink: item.more_info || '',
+            category: item.category || 'Not specified',
+            created_by: item.created_by,
+            updated_by: item.updated_by
+          };
+        });
+      } catch (error) {
+        console.error("Error fetching items:", error);
+        this.showError('Failed to fetch items. Please try again later.');
+        throw error;
+      }
+    },
+    handleFileUpload(event, type) {
+      try {
+        const file = event.target.files[0];
+        if (!file) {
+          this.showError(`No ${type} file selected`);
+          return;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+          this.showError(`Invalid file type for ${type}. Please select an image file.`);
+          return;
+        }
+        
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+          this.showError(`${type} file is too large. Maximum size is 5MB.`);
+          return;
+        }
+        
+        this.formData.images[0][type] = file;
+      } catch (error) {
+        console.error(`Error handling ${type} file upload:`, error);
+        this.showError(`Failed to process ${type} file. Please try again.`);
+      }
+    },
     addVernacularName() {
-      this.formData.vernacular_names.push({ place: "", name: "" });
+      this.vernacularNames.push({ place: '', name: '' });
+    },
+    removeVernacularName(index) {
+      if (this.vernacularNames.length > 1) {
+        this.vernacularNames.splice(index, 1);
+      }
     },
     closeModal() {
       this.showModal = false;
@@ -241,15 +348,12 @@ export default {
       this.formData = {
         common_name: "",
         scientific_name: "",
-        vernacular_names: [{ place: "", name: "" }],
-        images: {
-          image: null,
-          diagram: null
-        },
         description: "",
+        category: "",
         more_info: "",
-        category: ""
+        images: [{ image: null, diagram: null }]
       };
+      this.vernacularNames = [{ place: '', name: '' }];
       this.editIndex = null;
     },
     handleFileUpload(event, type) {
@@ -260,66 +364,92 @@ export default {
     },
     async submitForm() {
       try {
+        this.loading = true;
         const formData = new FormData();
-        formData.append('common_name', this.formData.common_name);
-        formData.append('scientific_name', this.formData.scientific_name);
-        formData.append('vernacular_names', JSON.stringify(this.formData.vernacular_names));
-        if (this.formData.images.image) {
-          formData.append('images[0][image]', this.formData.images.image);
+        
+        for (const key in this.formData) {
+          if (key === 'images') {
+            if (this.formData.images[0].image) {
+              formData.append('image', this.formData.images[0].image);
+            }
+            if (this.formData.images[0].diagram) {
+              formData.append('diagram', this.formData.images[0].diagram);
+            }
+          } else {
+            formData.append(key, this.formData[key]);
+          }
         }
-        if (this.formData.images.diagram) {
-          formData.append('images[0][diagram]', this.formData.images.diagram);
-        }
-        formData.append('description', this.formData.description);
-        formData.append('more_info', this.formData.more_info);
-        formData.append('category', this.formData.category);
+        
+        const vernacularNamesObject = {};
+        this.vernacularNames.forEach(({ place, name }) => {
+          if (place && name) {
+            vernacularNamesObject[place] = name;
+          }
+        });
+        formData.append('vernacular_names', JSON.stringify(vernacularNamesObject));
 
         if (this.editIndex === null) {
-          const res = await additem(formData);
-          console.log(res);
+          await additem(formData);
+          this.showSuccess('Item added successfully!');
         } else {
           const entryToUpdate = this.entries[this.editIndex];
-          const res = await edititem(entryToUpdate.item_id, formData);
-          console.log(res);
+          await edititem(entryToUpdate.item_id, formData);
+          this.showSuccess('Item updated successfully!');
         }
-        await this.getitem(); // Refresh the list after adding/updating
+        await this.getItems();
         this.closeModal();
       } catch (error) {
-        console.log(error);
+        console.error("Error submitting form:", error);
+        this.showError('Failed to submit form. Please check your inputs and try again.');
+      } finally {
+        this.loading = false;
       }
     },
-    
     editEntry(index) {
-      this.editIndex = index;
-      const entry = this.entries[index];
-      this.formData = {
-        common_name: entry.vernacularNames[0]?.name || '',
-        scientific_name: entry.scientificName,
-        vernacular_names: entry.vernacularNames,
-        images: {
-          image: null,
-          diagram: null
-        },
-        description: entry.description,
-        more_info: entry.externalLink,
-        category: entry.category
-      };
-      this.showModal = true;
+      try {
+        this.editIndex = index;
+        const entry = this.entries[index];
+        this.formData = {
+          common_name: entry.commonName,
+          scientific_name: entry.scientificName,
+          description: entry.description,
+          more_info: entry.externalLink,
+          category: entry.category,
+          images: [{ image: null, diagram: null }]
+        };
+        
+        this.vernacularNames = Object.entries(entry.vernacularNames).map(([place, name]) => ({
+          place,
+          name
+        }));
+        
+        if (this.vernacularNames.length === 0) {
+          this.vernacularNames.push({ place: '', name: '' });
+        }
+        
+        this.showModal = true;
+      } catch (error) {
+        console.error("Error editing entry:", error);
+        this.showError('Failed to load entry for editing. Please try again.');
+      }
     },
     async deleteEntry(index) {
-  if (confirm("Are you sure you want to delete this entry?")) {
-    try {
-      const entryToDelete = this.entries[index];
-      await deleteitem(entryToDelete.item_id);
-      this.entries.splice(index, 1);
-      await this.getitem(); // Refresh the list after deleting
-    } catch (error) {
-      console.log(error);
-      alert("Failed to delete entry. Please try again later.");
-      console.error("Failed to delete entry:", error);
+      if (confirm("Are you sure you want to delete this entry?")) {
+        try {
+          this.loading = true;
+          const entryToDelete = this.entries[index];
+          await deleteitem(entryToDelete.item_id);
+          this.showSuccess('Item deleted successfully!');
+          await this.getItems();
+        } catch (error) {
+          console.error("Failed to delete entry:", error);
+          this.showError('Failed to delete entry. Please try again later.');
+        } finally {
+          this.loading = false;
+        }
+      }
     }
-  }
-}
   }
 };
 </script>
+

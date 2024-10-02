@@ -194,6 +194,17 @@ router.post(
     { name: "diagram", maxCount: 1 },
   ]),
   async (req, res) => {
+    // Here checks the whether the scientific_name exists or not
+    const scientificNameExists = await Item.findOne({
+      scientific_name: req.body.scientific_name,
+    });
+
+    if (scientificNameExists) {
+      return res.status(400).json({
+        status: 400,
+        message: "Scientific Name Already Exists",
+      });
+    }
     const uploadPromises = [];
     const fileUrls = {
       image: [],
@@ -258,7 +269,7 @@ router.post(
         res.status(201).json({
           status: 201,
           message: "Item created successfully",
-          //   data: item,
+          data: item,
         });
       })
       .catch((err) => {
