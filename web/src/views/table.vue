@@ -292,7 +292,7 @@ export default {
             item_id: item.item_id,
             scientificName: item.scientific_name,
             vernacularNames: vernacularNames,
-            images: item.images[0].image.length > 0 ? item.images[0].image : ['https://via.placeholder.com/100'],
+            images: item.images[0].image,
             description: item.description,
             externalLink: item.more_info || '',
             category: item.category || 'Not specified',
