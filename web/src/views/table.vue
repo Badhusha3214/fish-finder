@@ -155,7 +155,7 @@
               <button
                 @click="removeVernacularName(index)"
                 type="button"
-                class="bg-red-500 text-white px-2 rounded hover:bg-red-600"
+                class="bg-red text-black px-2 rounded hover:bg-red-600"
               >
                 ×
               </button>
@@ -163,7 +163,7 @@
             <button
               @click="addVernacularName"
               type="button"
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+              class="bg-btn text-white px-4 py-2 rounded hover:bg-btnh w-full"
             >
               Add Vernacular Name
             </button>
@@ -185,8 +185,15 @@
           <button @click="closeModal" class="bg-gray-200 hover:bg-red hover:text-white text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="button">
             Cancel
           </button>
-          <button class="bg-btn hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
-            {{ editIndex === null ? 'Submit' : 'Update' }}
+          <button class="bg-btn hover:bg-btnh text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
+            <span v-if="!loading">{{ editIndex === null ? 'Submit' : 'Update' }}</span>
+              <span v-else class="flex items-center justify-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading...
+              </span>
           </button>
         </div>
       </form>
@@ -445,4 +452,3 @@ export default {
   }
 };
 </script>
-
