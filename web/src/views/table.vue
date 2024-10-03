@@ -72,8 +72,7 @@
                 <!-- Rest of the columns remain the same -->
                 <td class="py-3 px-4 text-center">
                   <div class="flex justify-center space-x-2">
-                    <img v-if="entry.images[0]?.image" :src="entry.images[0].image[0]" :alt="`${entry.scientificName} image`" class="w-12 h-12 rounded-full">
-                    <img v-if="entry.images[0]?.diagram" :src="entry.images[0].diagram[0]" :alt="`${entry.scientificName} diagram`" class="w-12 h-12 rounded-full">
+                    <img v-for="(img, imgIndex) in entry.images.slice(0, 1)" :key="imgIndex" :src="img" :alt="`${entry.scientificName} ${imgIndex + 1}`" class="w-12 h-12 rounded-full">
                   </div>
                 </td>
                 <td class="py-3 px-4 text-left hidden md:table-cell">
@@ -156,7 +155,7 @@
               <button
                 @click="removeVernacularName(index)"
                 type="button"
-                class="bg-red-500 text-white px-2 rounded hover:bg-red-600"
+                class="bg-red text-black px-2 rounded hover:bg-red-600"
               >
                 ×
               </button>
@@ -164,7 +163,7 @@
             <button
               @click="addVernacularName"
               type="button"
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+              class="bg-btn text-white px-4 py-2 rounded hover:bg-btnh w-full"
             >
               Add Vernacular Name
             </button>
@@ -186,8 +185,15 @@
           <button @click="closeModal" class="bg-gray-200 hover:bg-red hover:text-white text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="button">
             Cancel
           </button>
-          <button class="bg-btn hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
-            {{ editIndex === null ? 'Submit' : 'Update' }}
+          <button class="bg-btn hover:bg-btnh text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto" type="submit">
+            <span v-if="!loading">{{ editIndex === null ? 'Submit' : 'Update' }}</span>
+              <span v-else class="flex items-center justify-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading...
+              </span>
           </button>
         </div>
       </form>
@@ -293,7 +299,7 @@ export default {
             item_id: item.item_id,
             scientificName: item.scientific_name,
             vernacularNames: vernacularNames,
-            images: item.images[0].image.length > 0 ? item.images[0].image : ['https://via.placeholder.com/100'],
+            images: item.images[0].image,
             description: item.description,
             externalLink: item.more_info || '',
             category: item.category || 'Not specified',
@@ -355,12 +361,6 @@ export default {
       };
       this.vernacularNames = [{ place: '', name: '' }];
       this.editIndex = null;
-    },
-    handleFileUpload(event, type) {
-      const file = event.target.files[0];
-      if (file) {
-        this.formData.images[type] = file;
-      }
     },
     async submitForm() {
       try {
@@ -452,4 +452,3 @@ export default {
   }
 };
 </script>
-

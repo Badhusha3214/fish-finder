@@ -6,7 +6,7 @@
 
         <Sidebar />
 
-        <main class="p-4 md:ml-72 h-auto">
+        <main class="p-4 md:ml-60 h-auto">
 
             <slot />
 
