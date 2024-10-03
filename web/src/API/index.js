@@ -173,14 +173,13 @@ export const deletesuggestions = async (suggestionId) => {
       }
   
       // Make the API call with the token in headers
-      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items`, {
+      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items?limit=100`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
 
-      });
-  
-    //   console.log(res);
+      });      
+
       return res;
     } catch (error) {
       console.error('Error fetching suggestions:', error.response ? error.response.data : error.message);

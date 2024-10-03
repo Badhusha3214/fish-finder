@@ -10,7 +10,7 @@
 
     <!-- Sidebar -->
     <aside :class="{ 'translate-x-0': isOpen, '-translate-x-full': !isOpen }"
-      class="fixed top-0 left-0 z-40 w-72 h-screen pt-5 transition-transform bg-btn border-r border-gray-200 md:translate-x-0 "
+      class="fixed top-0 left-0 z-40 w-60 h-screen pt-5 transition-transform bg-btn border-r border-gray-200 md:translate-x-0 "
       aria-label="Sidenav" id="drawer-navigation">
       <div class="flex justify-center items-center w-full md:w-auto">
           <a href="/" class="flex items-center ml-auto md:ml-0">
