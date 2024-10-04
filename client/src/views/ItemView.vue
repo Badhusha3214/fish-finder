@@ -283,7 +283,7 @@ export default {
       try {
         const res = await getSingleItem(id.value);
         item.value = res.data;
-        console.log(item.value);
+        // console.log(item.value);
         
         prepareLightboxImages();
         initializeImageLoadedStatus();
