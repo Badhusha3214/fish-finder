@@ -110,10 +110,10 @@
           </div>
         </div>
 
-        <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-75 overflow-y-auto h-full w-full  z-50 flex items-center justify-center p-4">
-      <div class="relative mx-auto p-8 border border-gray-300 w-full max-w-3xl shadow-lg rounded-lg mt-12 bg-white">
-        <h3 class="text-3xl font-bold mb-6 text-black">{{ editIndex === null ? 'Add New Entry' : 'Edit Entry' }}</h3>
-        <form @submit.prevent="submitForm" class="space-y-6">
+        <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-start justify-center p-4">
+        <div class="relative mx-auto p-8 border border-gray-300 w-full max-w-3xl shadow-lg rounded-lg my-8 bg-white">
+          <h3 class="text-3xl font-bold mb-6 text-black">{{ editIndex === null ? 'Add New Entry' : 'Edit Entry' }}</h3>
+          <form @submit.prevent="submitForm" class="space-y-6 max-h-[calc(100vh-10rem)] overflow-y-auto">
           <div class="space-y-5">
             <div>
               <label class="block text-sm font-medium text-gray-700" for="commonName">Common Name</label>
@@ -184,6 +184,7 @@
               <input @change="handleFileUpload($event, 'diagram')" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200" id="diagram" type="file" accept="image/*" >
             </div>
           </div>
+        </form>
           <div class="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-8">
             <button @click="closeModal" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-black bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" type="button">
               Cancel
@@ -199,12 +200,11 @@
               </span>
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
-      </div>
-    </DashboardLayout>
-  </template>
+  </DashboardLayout>
+</template>
 
 
 
