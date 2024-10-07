@@ -95,32 +95,32 @@
       <p class="text-sm text-secondary">{{ item?.description }}</p>
 
       <table>
-        <thead>
-          <tr class="border border-primary w-full text-base">
-            <th class="border-r border-primary w-1/2 py-2">District</th>
-            <th class="w-1/2 py-2">Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-if="Object.keys(parsedVernacularNames).length > 0">
-            <tr
-              v-for="(name, district) in parsedVernacularNames"
-              :key="district"
-              class="border-b border-x border-primary w-full text-sm"
-            >
-              <td class="border-r border-primary w-1/2 px-3 py-2">
-                {{ district }}
-              </td>
-              <td class="w-1/2 px-3 py-2">{{ name }}</td>
-            </tr>
-          </template>
-          <tr v-else>
-            <td colspan="2" class="px-3 py-2 text-center">
-              No vernacular names available
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <thead>
+      <tr class="border border-primary w-full text-base">
+        <th class="border-r border-primary w-1/2 py-2">District</th>
+        <th class="w-1/2 py-2">Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template v-if="item?.vernacular_names && item.vernacular_names.length > 0">
+        <tr
+          v-for="(vernacularName, index) in item.vernacular_names"
+          :key="index"
+          class="border-b border-x border-primary w-full text-sm"
+        >
+          <td class="border-r border-primary w-1/2 px-3 py-2">
+            {{ vernacularName.place }}
+          </td>
+          <td class="w-1/2 px-3 py-2">{{ vernacularName.name }}</td>
+        </tr>
+      </template>
+      <tr v-else>
+        <td colspan="2" class="px-3 py-2 text-center">
+          No vernacular names available
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
       <template v-if="item">
         <div class="flex items-center gap-2 text-sm text-primary font-bold ml-0.5">
