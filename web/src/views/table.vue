@@ -214,6 +214,7 @@
     </form>
   </div>
 </div>
+<!-- nothing -->
     </div>
   </DashboardLayout>
 </template>
