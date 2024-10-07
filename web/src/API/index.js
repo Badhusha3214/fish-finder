@@ -263,6 +263,9 @@ export const deletesuggestions = async (suggestionId) => {
     
   export const additem = async (item) => {
     try {
+
+      console.log(item);
+      
       // Retrieve cookies and find the token
       const cookies = document.cookie.split(';');
       const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));

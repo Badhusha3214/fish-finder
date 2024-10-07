@@ -1,6 +1,7 @@
 <template>
   <DashboardLayout>
     <div class="min-h-screen bg-white rounded-lg">
+      <h1 class="text-2xl sm:text-3xl font-bold sm:mb-6 text-btn p-4">User Feedback</h1>
       <!-- Error Alert -->
       <div v-if="error" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded relative" role="alert">
         <strong class="font-bold">Error!</strong>
@@ -65,7 +66,7 @@
                   </table>
                   <!-- Mobile view -->
                   <div class="sm:hidden text-xs text-gray-600">
-                    {{ Object.values(entry.vernacularNames)[0] || 'N/A' }}
+                    {{ Object.entries(entry.vernacularNames)[0]?.[0] }}: {{ Object.entries(entry.vernacularNames)[0]?.[1] || 'N/A' }}
                   </div>
                 </td>
                 <td class="py-3 px-4 text-center">
@@ -107,11 +108,11 @@
           </table>
         </div>
       </div>
-
       <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-start justify-center p-4">
-  <div class="relative mx-auto p-8 border border-gray-300 w-full max-w-3xl shadow-lg rounded-lg my-8 bg-white">
-    <h3 class="text-3xl font-bold mb-6 text-black">{{ editIndex === null ? 'Add New Entry' : 'Edit Entry' }}</h3>
-    <form @submit.prevent="submitForm" class="space-y-6 max-h-[calc(100vh-10rem)] overflow-y-auto">
+        <div class="relative mx-auto p-8 border border-gray-300 w-full max-w-3xl shadow-lg rounded-lg my-8 bg-white">
+          <h3 class="text-3xl font-bold mb-6 text-black">{{ editIndex === null ? 'Add New Entry' : 'Edit Entry' }}</h3>
+          <form @submit.prevent="submitForm" class="space-y-6 max-h-[calc(100vh-10rem)] overflow-y-auto">
+
       <div class="space-y-5">
         <div class="flex space-x-4">
           <div class="flex-1">
@@ -130,59 +131,43 @@
         </div>
         
         <div class="flex items-center justify-between">
-          <label class="block text-sm font-medium text-gray-700">Vernacular Names</label>
-          <button
-            @click="addVernacularName"
-            type="button"
-            class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-black bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-          >
-            Add Vernacular Name
-          </button>
-        </div>
-        <div class="space-y-2">
-          <div v-for="(name, index) in vernacularNames" :key="index" class="flex space-x-2">
-            <select
-              v-model="name.place"
-              class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-black focus:ring focus:ring-black focus:ring-opacity-50"
-              required
-
-            >
-            <option value="">Select place</option>
-            <option value="Thiruvananthapuram">Thiruvananthapuram</option>
-<option value="Kollam">Kollam</option>
-<option value="Pathanamthitta">Pathanamthitta</option>
-<option value="Alappuzha">Alappuzha</option>
-<option value="Kottayam">Kottayam</option>
-<option value="Idukki">Idukki</option>
-<option value="Ernakulam">Ernakulam</option>
-<option value="Thrissur">Thrissur</option>
-<option value="Palakkad">Palakkad</option>  
-<option value="Malappuram">Malappuram</option>  
-<option value="Kozhikode">Kozhikode</option>  
-<option value="Wayanad">Wayanad</option>  
-<option value="Kannur">Kannur</option>  
-<option value="Kasaragod">Kasaragod</option>
-
-              <option v-for="place in keralaPlaces" :key="place" :value="place">{{ place }}</option>
-            </select>
-            <input
-              v-model="name.name"
-              class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-black focus:ring focus:ring-black focus:ring-opacity-50"
-              type="text"
-              placeholder="Name"
-              required
-            >
-            <button
-              @click="removeVernacularName(index)"
-              type="button"
-              class="p-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </div>
+              <label class="block text-sm font-medium text-gray-700">Vernacular Names</label>
+              <button
+                @click="addVernacularName"
+                type="button"
+                class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-black bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                Add Vernacular Name
+              </button>
+            </div>
+            <div class="space-y-2">
+              <div v-for="(name, index) in vernacularNames" :key="index" class="flex space-x-2">
+                <select
+                  v-model="name.place"
+                  class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-black focus:ring focus:ring-black focus:ring-opacity-50"
+                  required
+                >
+                  <option value="">Select place</option>
+                  <option v-for="place in keralaPlaces" :key="place" :value="place">{{ place }}</option>
+                </select>
+                <input
+                  v-model="name.name"
+                  class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-black focus:ring focus:ring-black focus:ring-opacity-50"
+                  type="text"
+                  placeholder="Name"
+                  required
+                >
+                <button
+                  @click="removeVernacularName(index)"
+                  type="button"
+                  class="p-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
         
         <div class="flex space-x-4">
           <div class="flex-1">
@@ -251,7 +236,7 @@ export default {
       loading: true,
       error: null,
       successMessage: null,
-      vernacularNames: [{ place: '', name: '' }],
+      vernacularNames: [{ name: '', place: '' }],
       formData: {
         common_name: "",
         scientific_name: "",
@@ -262,7 +247,14 @@ export default {
       },
       editIndex: null,
       currentItemId: null,
-      searchTerm: ""
+      searchTerm: "",
+      keralaPlaces: [
+        "Thiruvananthapuram", "Kollam", "Pathanamthitta", "Alappuzha", "Kottayam",
+        "Idukki", "Ernakulam", "Thrissur", "Palakkad", "Malappuram",
+        "Kozhikode", "Wayanad", "Kannur", "Kasaragod"
+      ],
+      currentPage: 1,
+      itemsPerPage: 10,
     };
   },
   computed: {
@@ -272,44 +264,40 @@ export default {
         entry.scientificName.toLowerCase().includes(searchTermLower) ||
         entry.description.toLowerCase().includes(searchTermLower) ||
         Object.entries(entry.vernacularNames).some(([place, name]) => 
-          place.toLowerCase().includes(searchTermLower) ||
-          name.toLowerCase().includes(searchTermLower)
+          name.toLowerCase().includes(searchTermLower) ||
+          place.toLowerCase().includes(searchTermLower)
         ) ||
         entry.category.toLowerCase().includes(searchTermLower)
       );
-    }
+    },
+    paginatedEntries() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return this.filteredEntries.slice(startIndex, endIndex);
+    },
+    totalPages() {
+      return Math.ceil(this.filteredEntries.length / this.itemsPerPage);
+    },
   },
   async created() {
-    await this.initializeData();
+    try {
+      await this.initializeData();
+    } catch (error) {
+      console.error("Error initializing data:", error);
+      this.showError('Failed to initialize data. Please try again later.');
+    }
   },
   methods: {
     async initializeData() {
+      this.loading = true;
       try {
-        this.loading = true;
-        if (!document.cookie.includes('token')) {
-          this.showError('Authentication failed. Please log in.');
-          this.$router.push('/login');
-          return;
-        }
         await this.getItems();
       } catch (error) {
-        this.showError('Failed to initialize data. Please refresh the page.');
-        console.error('Initialization error:', error);
+        console.error("Error in initializeData:", error);
+        throw error;
       } finally {
         this.loading = false;
       }
-    },
-    showError(message, timeout = 5000) {
-      this.error = message;
-      setTimeout(() => {
-        this.error = null;
-      }, timeout);
-    },
-    showSuccess(message, timeout = 5000) {
-      this.successMessage = message;
-      setTimeout(() => {
-        this.successMessage = null;
-      }, timeout);
     },
     async getItems() {
       try {
@@ -320,8 +308,11 @@ export default {
           
           try {
             if (item.vernacular_names && item.vernacular_names.length > 0) {
-              const cleanedJsonString = item.vernacular_names[0].replace(/,\s*$/, "");
-              vernacularNames = JSON.parse(cleanedJsonString);
+              const parsedNames = JSON.parse(item.vernacular_names);
+              vernacularNames = parsedNames.reduce((acc, { name, place }) => {
+                acc[place] = name;
+                return acc;
+              }, {});
             }
           } catch (error) {
             console.error("Error parsing vernacular names:", error);
@@ -330,6 +321,7 @@ export default {
           return {
             item_id: item.item_id,
             scientificName: item.scientific_name,
+            common_name: item.common_name,
             vernacularNames: vernacularNames,
             images: item.images[0].image,
             description: item.description,
@@ -345,44 +337,14 @@ export default {
         throw error;
       }
     },
-    handleFileUpload(event, type) {
-      const file = event.target.files[0];
-      if (file) {
-        this.formData.images[0][type] = file;
-      }
-    },
-    addVernacularName() {
-      this.vernacularNames.push({ place: '', name: '' });
-    },
-    removeVernacularName(index) {
-      if (this.vernacularNames.length > 1) {
-        this.vernacularNames.splice(index, 1);
-      }
-    },
-    closeModal() {
-      this.showModal = false;
-      this.resetForm();
-    },
-    resetForm() {
-      this.formData = {
-        common_name: "",
-        scientific_name: "",
-        description: "",
-        category: "",
-        more_info: "",
-        images: [{ image: null, diagram: null }]
-      };
-      this.vernacularNames = [{ place: '', name: '' }];
-      this.editIndex = null;
-      this.currentItemId = null;
-    },
     editEntry(index) {
       this.editIndex = index;
       const entry = this.entries[index];
+      
       this.currentItemId = entry.item_id;
       
       this.formData = {
-        common_name: Object.values(entry.vernacularNames)[0] || '',
+        common_name: entry.common_name,
         scientific_name: entry.scientificName,
         description: entry.description,
         category: entry.category,
@@ -390,13 +352,9 @@ export default {
         images: [{ image: null, diagram: null }]
       };
       
-      this.vernacularNames = Object.entries(entry.vernacularNames).map(([place, name]) => ({
-        place,
-        name
-      }));
-      
+      this.vernacularNames = Object.entries(entry.vernacularNames).map(([place, name]) => ({ place, name }));
       if (this.vernacularNames.length === 0) {
-        this.vernacularNames.push({ place: '', name: '' });
+        this.vernacularNames = [{ name: '', place: '' }];
       }
       
       this.showModal = true;
@@ -421,14 +379,9 @@ export default {
         }
         
         // Handle vernacular names
-        const vernacularNamesObject = {};
-        this.vernacularNames.forEach(({ place, name }) => {
-          if (place && name) {
-            vernacularNamesObject[place] = name;
-          }
-        });
-        formData.append('vernacular_names', JSON.stringify(vernacularNamesObject));
-
+        const vernacularNamesArray = this.vernacularNames.filter(({ name, place }) => name && place);
+        formData.append('vernacular_names', JSON.stringify(vernacularNamesArray));
+        
         let response;
         if (this.editIndex === null) {
           response = await additem(formData);
@@ -466,7 +419,46 @@ export default {
           this.loading = false;
         }
       }
-    }
+    },
+    showError(message) {
+      this.error = message;
+      setTimeout(() => {
+        this.error = null;
+      }, 5000);
+    },
+    showSuccess(message) {
+      this.successMessage = message;
+      setTimeout(() => {
+        this.successMessage = null;
+      }, 5000);
+    },
+    closeModal() {
+      this.showModal = false;
+      this.editIndex = null;
+      this.currentItemId = null;
+      this.formData = {
+        common_name: "",
+        scientific_name: "",
+        description: "",
+        category: "",
+        more_info: "",
+        images: [{ image: null, diagram: null }]
+      };
+      this.vernacularNames = [{ name: '', place: '' }];
+    },
+    handleFileUpload(event, type) {
+      const file = event.target.files[0];
+      if (file) {
+        this.formData.images[0][type] = file;
+      }
+    },
+    addVernacularName() {
+      this.vernacularNames.push({ name: '', place: '' });
+    },
+    removeVernacularName(index) {
+      this.vernacularNames.splice(index, 1);
+    },
   }
 };
+
 </script>
