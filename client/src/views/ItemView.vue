@@ -88,6 +88,9 @@
           <div class="swiper-pagination"></div>
         </swiper>
       </div>
+      <h1 class="text-xl text-primary uppercase font-bold text-left">
+        {{ item?.common_name }}
+      </h1>
 
       <p class="text-sm text-secondary">{{ item?.description }}</p>
 
@@ -120,7 +123,7 @@
       </table>
 
       <template v-if="item">
-        <div class="flex items-center gap-2 text-sm text-primary font-bold">
+        <div class="flex items-center gap-2 text-sm text-primary font-bold ml-0.5">
           <svg
             width="12"
             height="12"
@@ -143,7 +146,7 @@
       <div class="flex w-full justify-start">
         <button
           @click="toggleModal"
-          class="flex items-center text-primary rounded-md hover:bg-gray-100"
+          class="flex items-center gap-2 text-sm text-primary font-bold"
         >
           <svg
             class="w-4 h-4 text-gray-800"
@@ -280,6 +283,8 @@ export default {
       try {
         const res = await getSingleItem(id.value);
         item.value = res.data;
+        // console.log(item.value);
+        
         prepareLightboxImages();
         initializeImageLoadedStatus();
       } catch (err) {
