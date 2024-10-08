@@ -154,7 +154,7 @@ export const deletesuggestions = async (suggestionId) => {
 // get items
 
 
-  export const getitem = async () => {
+  export const getitem = async (page) => {
     try {
       // Retrieve cookies and find the token
       const cookies = document.cookie.split(';');
@@ -173,12 +173,15 @@ export const deletesuggestions = async (suggestionId) => {
       }
   
       // Make the API call with the token in headers
-      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items?limit=100`, {
+      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        params: {
+          page: page
+        },
 
-      });      
+      });       
 
       return res;
     } catch (error) {
