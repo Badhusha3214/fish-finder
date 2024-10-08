@@ -2,7 +2,7 @@
   <DashboardLayout>
     <div class="min-h-screen bg-white rounded-lg">
       <h1 class="text-2xl sm:text-3xl font-bold sm:mb-6 text-btn p-4">
-        User Feedback
+        List your fish
       </h1>
       <!-- Error Alert -->
       <div
