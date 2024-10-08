@@ -209,20 +209,52 @@
                 </div>
               </div>
 
-              <div class="flex space-x-4">
-                <div class="flex-1">
-                  <label class="block text-sm font-medium text-gray-700" for="image">Image</label>
-                  <input @change="handleFileUpload($event, 'image')"
-                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
-                    id="image" type="file" accept="image/*" :required="editIndex === null" />
-                </div>
-                <div class="flex-1">
-                  <label class="block text-sm font-medium text-gray-700" for="diagram">Diagram</label>
-                  <input @change="handleFileUpload($event, 'diagram')"
-                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
-                    id="diagram" type="file" accept="image/*" />
-                </div>
-              </div>
+              <div class="space-y-4">
+    <div class="flex flex-col sm:flex-row gap-4">
+      <!-- Image Upload Section -->
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+        <div class="space-y-2">
+          <!-- Image Preview -->
+          <div v-if="imagePreview || formData.currentImage" class="mb-2">
+            <img 
+              :src="imagePreview || formData.currentImage" 
+              alt="Image preview" 
+              class="h-32 w-32 object-cover rounded-lg border border-gray-300"
+            />
+          </div>
+          <input 
+            @change="handleFileUpload($event, 'image')" 
+            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+            type="file" 
+            accept="image/*"
+            :required="editIndex === null && !formData.currentImage"
+          />
+        </div>
+      </div>
+
+      <!-- Diagram Upload Section -->
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Diagram</label>
+        <div class="space-y-2">
+          <!-- Diagram Preview -->
+          <div v-if="diagramPreview || formData.currentDiagram" class="mb-2">
+            <img 
+              :src="diagramPreview || formData.currentDiagram" 
+              alt="Diagram preview" 
+              class="h-32 w-32 object-cover rounded-lg border border-gray-300"
+            />
+          </div>
+          <input 
+            @change="handleFileUpload($event, 'diagram')" 
+            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+            type="file" 
+            accept="image/*"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
             </div>
             <div class="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-8">
               <button @click="closeModal" type="button"
@@ -386,7 +418,11 @@ export default {
         category: "",
         more_info: "",
         images: [{ image: null, diagram: null }],
+        currentImage: null,
+        currentDiagram: null
       },
+      imagePreview: null,
+      diagramPreview: null,
       editIndex: null,
       currentItemId: null,
       searchTerm: "",
@@ -559,40 +595,74 @@ export default {
       const entry = this.filteredEntries[index];
       this.currentItemId = entry.item_id;
 
-      // Populate basic form fields
+      // Reset previews
+      this.imagePreview = null;
+      this.diagramPreview = null;
+
+      // Extract images data properly
+      let currentImage = null;
+      let currentDiagram = null;
+
+      // Handle different possible image data structures
+      if (entry.images) {
+        if (Array.isArray(entry.images)) {
+          // If images is an array of objects with image and diagram properties
+          if (typeof entry.images[0] === 'object' && entry.images[0] !== null) {
+            currentImage = entry.images[0].image || null;
+            currentDiagram = entry.images[0].diagram || null;
+          }
+          // If images is an array of strings/urls
+          else {
+            currentImage = entry.images[0] || null;
+            currentDiagram = entry.images[1] || null;
+          }
+        }
+        // If images is a single object
+        else if (typeof entry.images === 'object') {
+          currentImage = entry.images.image || entry.images || null;
+          currentDiagram = entry.images.diagram || null;
+        }
+        // If images is a single string/url
+        else {
+          currentImage = entry.images;
+        }
+      }
+
+      // Populate form data
       this.formData = {
         common_name: entry.common_name || '',
         scientific_name: entry.scientificName || '',
         description: entry.description || '',
         category: entry.category === 'Not specified' ? '' : entry.category,
         more_info: entry.externalLink || '',
-        images: [{ image: null, diagram: null }], // Keep null for file inputs
+        images: [{ image: null, diagram: null }],
+        currentImage: currentImage,
+        currentDiagram: currentDiagram
       };
+
+      // Console log for debugging
+      console.log('Current Image:', this.formData.currentImage);
+      console.log('Current Diagram:', this.formData.currentDiagram);
 
       // Handle vernacular names
       if (entry.vernacularNames && Array.isArray(entry.vernacularNames)) {
-        // If vernacularNames is already in the correct format
         this.vernacularNames = entry.vernacularNames.map(name => ({
           name: name.name || '',
           place: name.place || ''
         }));
       } else if (typeof entry.vernacularNames === 'object') {
-        // If vernacularNames is an object
         this.vernacularNames = Object.entries(entry.vernacularNames).map(([place, name]) => ({
           place,
           name
         }));
       } else {
-        // Fallback to empty vernacular name
         this.vernacularNames = [{ name: '', place: '' }];
       }
 
-      // Ensure at least one vernacular name entry exists
       if (this.vernacularNames.length === 0) {
         this.vernacularNames = [{ name: '', place: '' }];
       }
 
-      // Show the modal with populated data
       this.showModal = true;
     },
 
@@ -681,6 +751,7 @@ export default {
         category: "",
         more_info: "",
         images: [{ image: null, diagram: null }],
+        
       };
       this.vernacularNames = [{ name: "", place: "" }];
     },

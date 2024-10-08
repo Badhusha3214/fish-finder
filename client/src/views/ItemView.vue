@@ -29,7 +29,7 @@
         <img src="/img/logo.png" class="w-8 h-8" alt="logo" />
       </div>
 
-      <h1 class="text-2xl text-primary uppercase font-bold text-center">
+      <h1 class="text-2xl text-primary uppercase font-bold text-center italic ">
         {{ item?.scientific_name }}
       </h1>
 
