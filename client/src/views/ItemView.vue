@@ -29,7 +29,7 @@
         <img src="/img/logo.png" class="w-8 h-8" alt="logo" />
       </div>
 
-      <h1 class="text-2xl text-primary uppercase font-bold text-center">
+      <h1 class="text-2xl text-primary uppercase font-bold text-center italic ">
         {{ item?.scientific_name }}
       </h1>
 
@@ -375,10 +375,10 @@ export default {
           console.log("Raw vernacular names:", item.value.vernacular_names[0]);
 
           // Remove trailing comma if present and parse the JSON string
-          const cleanedJsonString = item.value.vernacular_names[0].replace(
-            /,\s*$/,
-            ""
-          );
+          // const cleanedJsonString = item.value.vernacular_names[0].replace(
+          //   /,\s*$/,
+          //   ""
+          // );
           const namesObj = JSON.parse(cleanedJsonString);
 
           // Convert the object to an array of entries for easier iteration in the template
