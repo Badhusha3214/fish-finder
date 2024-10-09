@@ -216,13 +216,13 @@
         <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
         <div class="space-y-2">
           <!-- Image Preview -->
-          <div v-if="imagePreview || formData.currentImage" class="mb-2">
+          <!-- <div v-if="imagePreview || formData.currentImage" class="mb-2">
             <img 
               :src="imagePreview || formData.currentImage" 
               alt="Image preview" 
               class="h-32 w-32 object-cover rounded-lg border border-gray-300"
             />
-          </div>
+          </div> -->
           <input 
             @change="handleFileUpload($event, 'image')" 
             class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
@@ -238,13 +238,13 @@
         <label class="block text-sm font-medium text-gray-700 mb-2">Diagram</label>
         <div class="space-y-2">
           <!-- Diagram Preview -->
-          <div v-if="diagramPreview || formData.currentDiagram" class="mb-2">
+          <!-- <div v-if="diagramPreview || formData.currentDiagram" class="mb-2">
             <img 
               :src="diagramPreview || formData.currentDiagram" 
               alt="Diagram preview" 
               class="h-32 w-32 object-cover rounded-lg border border-gray-300"
             />
-          </div>
+          </div> -->
           <input 
             @change="handleFileUpload($event, 'diagram')" 
             class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
@@ -627,7 +627,7 @@ export default {
           currentImage = entry.images;
         }
       }
-
+      
       // Populate form data
       this.formData = {
         common_name: entry.common_name || '',
