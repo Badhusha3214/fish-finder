@@ -309,6 +309,9 @@ router.patch("/:id", verifyToken, async (req, res) => {
       more_info: req.body.more_info,
       updated_at: Date.now(),
       updated_by: req.user.user_id,
+    },
+    {
+      new: true
     }
   )
     .then((item) => {
