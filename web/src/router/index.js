@@ -1,13 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
-// import HomeView from '@/views/HomeView.vue'
 import Feedback from '@/views/feedback.vue'
-import table  from '@/views/table.vue'
+import table from '@/views/table.vue'
 import login from '@/views/Login.vue'
 import signup from '@/views/SignUp.vue'
 import dashboard from '@/views/dashboard.vue'
 import contacts from '@/views/contactView.vue'
-
 import NotFoundView from '@/views/404.vue'
 
 const router = createRouter({
@@ -75,16 +72,35 @@ const router = createRouter({
     //     title: 'signup',
     //   },
     // },
-
   ]
 })
 
-
-// Change page title on route change
+// Authentication check and title change combined
 router.beforeEach((to, from, next) => {
+  // Update page title
   document.title = `${to.meta.title} - Admin | Fish` || 'Fish app'
+
+  // Check for token if route requires auth
+  if (to.meta.requiresAuth) {
+    const token = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('token='))
+      ?.split('=')[1]
+
+    if (!token) {
+      next('/login')
+      return
+    }
+  }
+  
   next()
 })
 
-
 export default router
+
+
+
+
+
+
+
