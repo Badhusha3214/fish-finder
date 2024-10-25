@@ -5,6 +5,7 @@ import Feedback from '@/views/feedback.vue'
 import table  from '@/views/table.vue'
 import login from '@/views/Login.vue'
 import signup from '@/views/SignUp.vue'
+import dashboard from '@/views/dashboard.vue'
 import contacts from '@/views/contactView.vue'
 
 import NotFoundView from '@/views/404.vue'
@@ -56,6 +57,14 @@ const router = createRouter({
       component: login,
       meta: {
         title: 'login',
+      },
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: dashboard,
+      meta: {
+        title: 'dashboard',
       },
     },
     // {
