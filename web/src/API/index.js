@@ -234,6 +234,7 @@ export const deletesuggestions = async (suggestionId) => {
       const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
   
       if (!tokenCookie) {
+        window.location.href = '/login';
         throw new Error('No token found in cookie');
       }
   

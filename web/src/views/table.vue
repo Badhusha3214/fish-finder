@@ -344,8 +344,9 @@ export default {
               }
           } catch (error) {
               console.error('Error fetching items:', error);
-              alert('Failed to load items. Please try again.');
-          } finally {
+              // alert('Failed to load items. Please try again.');
+              window.location.href = '/login';
+            } finally {
               this.loading = false;
           }
       },
