@@ -227,7 +227,7 @@ export const deletesuggestions = async (suggestionId) => {
   };
   export const edititem = async (itemid , item) => {
     try {
-      console.log("testing");
+      console.log(item);
       
       // Retrieve cookies and find the token
       const cookies = document.cookie.split(';');
@@ -247,7 +247,7 @@ export const deletesuggestions = async (suggestionId) => {
       }
   
       // Make the API call with the token in headers
-      const res = await axios.patch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items/${itemid}`, {item}, {
+      const res = await axios.patch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items/${itemid}`, item, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
