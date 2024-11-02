@@ -227,13 +227,14 @@ export const deletesuggestions = async (suggestionId) => {
   };
   export const edititem = async (itemid , item) => {
     try {
-      console.log("testing");
+      console.log(item);
       
       // Retrieve cookies and find the token
       const cookies = document.cookie.split(';');
       const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
   
       if (!tokenCookie) {
+        window.location.href = '/login';
         throw new Error('No token found in cookie');
       }
   
@@ -247,7 +248,7 @@ export const deletesuggestions = async (suggestionId) => {
       // console.log("item editited ",item);
       
       // Make the API call with the token in headers
-      const res = await axios.patch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items/${itemid}`, {item}, {
+      const res = await axios.patch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items/${itemid}`, item, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
