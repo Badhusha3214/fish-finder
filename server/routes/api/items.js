@@ -294,40 +294,25 @@ router.post(
  * @example /api/v1/item/123456
  **/
 
-router.patch("/:id", verifyToken, async (req, res) => {
-  const itemId = req.params.id;
+router.patch
+("/:id",  (req, res) => {
+  console.log(req);
+  
+  // const itemId = req.params.id;
 
-  await Item.findOneAndUpdate(
-    { item_id: itemId },
-    {
-      common_name: req.body.common_name,
-      scientific_name: req.body.scientific_name,
-      images: req.body.images,
-      description: req.body.description,
-      category: req.body.category,
-      vernacular_names: req.body.vernacular_names,
-      more_info: req.body.more_info,
-      updated_at: Date.now(),
-      updated_by: req.user.user_id,
-    },
-    {
-      new: true
-    }
-  )
-    .then((item) => {
-      res.status(200).json({
-        status: 200,
-        message: "Item updated successfully",
-        data: item,
-      });
-    })
-    .catch((err) => {
-      res.status(400).json({
-        status: 400,
-        message: "Error updating item",
-        error: err,
-      });
-    });
+  // const item = await Item.findOne({ item_id: itemId })
+  // // console.log(item);
+  
+  //   item.common_name= req.body.common_name,
+  //   item.scientific_name= req.body.scientific_name,
+  //   item.images= req.body.images,
+  //   item.description= req.body.description,
+  //   item.category= req.body.category,
+  //   item.vernacular_names= req.body.vernacular_names,
+  //   item.more_info= req.body.more_info,
+  //   item.updated_at= Date.now(),
+  //   // item.updated_by: req.user.user_id,
+  // await item.save()
 });
 
 /**

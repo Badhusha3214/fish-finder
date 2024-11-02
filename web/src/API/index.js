@@ -244,7 +244,8 @@ export const deletesuggestions = async (suggestionId) => {
       if (!token) {
         throw new Error('Token is empty');
       }
-  
+      // console.log("item editited ",item);
+      
       // Make the API call with the token in headers
       const res = await axios.patch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items/${itemid}`, {item}, {
         headers: {
@@ -253,7 +254,7 @@ export const deletesuggestions = async (suggestionId) => {
 
       });
   
-    //   console.log(res);
+      // console.log("response aney",res);
       return res;
     } catch (error) {
       console.error('Error fetching suggestions:', error.response ? error.response.data : error.message);

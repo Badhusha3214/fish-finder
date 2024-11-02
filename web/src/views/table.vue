@@ -33,10 +33,10 @@
         </button>
       </div>
 
-      <template v-if="loading">
+      <!-- <template v-if="loading">
         <h1 class="text-xl font-bold p-5 text-gray-500">Items are loading</h1>
         <Loader />
-      </template>
+      </template> -->
       <div v-else class="container mx-auto p-4 sm:p-6">
         <div
           class="mb-4 bg-btn p-5 rounded-lg bg-opacity-10 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
@@ -88,7 +88,7 @@
                 </td>
                 <td class="py-3 px-4 text-center">
                   <div class="flex justify-center space-x-2">
-                    <img v-for="(img, imgIndex) in entry.images.slice(0, 1)" :key="imgIndex" :src="img"
+                    <img v-for="(img, imgIndex) in entry.images[0]" :key="imgIndex" :src="img"
                       :alt="`${entry.scientificName} ${imgIndex + 1}`" class="w-12 h-12 rounded-full" />
                   </div>
                 </td>
@@ -210,51 +210,44 @@
               </div>
 
               <div class="space-y-4">
-    <div class="flex flex-col sm:flex-row gap-4">
-      <!-- Image Upload Section -->
-      <div class="flex-1">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
-        <div class="space-y-2">
-          <!-- Image Preview -->
-          <!-- <div v-if="imagePreview || formData.currentImage" class="mb-2">
+                <div class="flex flex-col sm:flex-row gap-4">
+                  <!-- Image Upload Section -->
+                  <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+                    <div class="space-y-2">
+                      <!-- Image Preview -->
+                      <!-- <div v-if="imagePreview || formData.currentImage" class="mb-2">
             <img 
               :src="imagePreview || formData.currentImage" 
               alt="Image preview" 
               class="h-32 w-32 object-cover rounded-lg border border-gray-300"
             />
           </div> -->
-          <input 
-            @change="handleFileUpload($event, 'image')" 
-            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
-            type="file" 
-            accept="image/*"
-            :required="editIndex === null && !formData.currentImage"
-          />
-        </div>
-      </div>
+                      <input @change="handleFileUpload($event, 'image')"
+                        class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+                        type="file" accept="image/*" :required="editIndex === null && !formData.currentImage" />
+                    </div>
+                  </div>
 
-      <!-- Diagram Upload Section -->
-      <div class="flex-1">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Diagram</label>
-        <div class="space-y-2">
-          <!-- Diagram Preview -->
-          <!-- <div v-if="diagramPreview || formData.currentDiagram" class="mb-2">
+                  <!-- Diagram Upload Section -->
+                  <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Diagram</label>
+                    <div class="space-y-2">
+                      <!-- Diagram Preview -->
+                      <!-- <div v-if="diagramPreview || formData.currentDiagram" class="mb-2">
             <img 
               :src="diagramPreview || formData.currentDiagram" 
               alt="Diagram preview" 
               class="h-32 w-32 object-cover rounded-lg border border-gray-300"
             />
           </div> -->
-          <input 
-            @change="handleFileUpload($event, 'diagram')" 
-            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
-            type="file" 
-            accept="image/*"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
+                      <input @change="handleFileUpload($event, 'diagram')"
+                        class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+                        type="file" accept="image/*" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-8">
               <button @click="closeModal" type="button"
@@ -382,7 +375,7 @@
                   <path fill-rule="evenodd"
                     d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
                     clip-rule="evenodd" />
-                </svg>  
+                </svg>
               </button>
             </nav>
           </div>
@@ -407,7 +400,7 @@ export default {
     return {
       entries: [],
       showModal: false,
-      loading: true,
+      loading: false,
       error: null,
       successMessage: null,
       vernacularNames: [{ name: "", place: "" }],
@@ -461,10 +454,11 @@ export default {
             ([place, name]) =>
               name.toLowerCase().includes(searchTermLower) ||
               place.toLowerCase().includes(searchTermLower)
-          ) ||
-          entry.category.toLowerCase().includes(searchTermLower)
-      );
+            ) ||  
+            entry.category.toLowerCase().includes(searchTermLower)
+          );      
     },
+    
     displayedPages() {
       const range = [];
       const rangeWithDots = [];
@@ -495,6 +489,7 @@ export default {
       return rangeWithDots;
     },
   },
+  
   async created() {
     try {
       await this.initializeData();
@@ -508,6 +503,8 @@ export default {
       this.loading = true;
       try {
         await this.getItems();
+        console.log("getitem calling");
+
       } catch (error) {
         console.error("Error in initializeData:", error);
         this.showError("Failed to initialize data. Please try again later.");
@@ -543,19 +540,15 @@ export default {
     async getItems() {
       try {
         const res = await getitem(this.currentPage, this.itemsPerPage);
+        console.log("Raw API response:", res.data);
+
         const meta = res.data.data.meta;
-
-        this.currentPage = meta.page;
-        this.itemsPerPage = meta.limit;
-        this.totalPages = meta.pages;
-        this.total = meta.total;
-
         const data = res.data.data.items;
+        console.log("Items to process:", data);
 
         this.entries = data.map((item) => {
-          // Replace your existing vernacular names parsing with the new method
+          console.log("Processing item:", item); // Add this to debug individual items
           const vernacularNames = this.formatVernacularNames(item);
-
           return {
             item_id: item.item_id,
             scientificName: item.scientific_name,
@@ -569,8 +562,9 @@ export default {
             updated_by: item.updated_by,
           };
         });
+        console.log("Processed entries:", this.entries);
       } catch (error) {
-        console.error("Error fetching items:", error);
+        console.error("Error in getItems:", error);
         this.showError("Failed to fetch items. Please try again later.");
         throw error;
       }
@@ -627,7 +621,7 @@ export default {
           currentImage = entry.images;
         }
       }
-      
+
       // Populate form data
       this.formData = {
         common_name: entry.common_name || '',
@@ -668,6 +662,8 @@ export default {
 
     async submitForm() {
       try {
+        console.log('Form Data:', this.formData);
+        console.log('Vernacular Names:', this.vernacularNames);
         this.loading = true;
         const formData = new FormData();
 
@@ -698,7 +694,9 @@ export default {
           if (!this.currentItemId) {
             throw new Error("No item ID found for update");
           }
-          response = await edititem(this.currentItemId, formData);
+          response = await edititem(this.currentItemId, this.formData);
+          console.log("updated the content ", this.formData);
+
           this.showSuccess("Item updated successfully!");
         }
 
@@ -751,7 +749,7 @@ export default {
         category: "",
         more_info: "",
         images: [{ image: null, diagram: null }],
-        
+
       };
       this.vernacularNames = [{ name: "", place: "" }];
     },

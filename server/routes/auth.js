@@ -17,7 +17,7 @@ const jwt = require("jsonwebtoken");
  **/
 
 router.post("/register", async (req, res) => {
-  try {
+    try {
     let { first_name, last_name, email, password } = req.body;
     let user = await User.findOne({ email: email });
 
@@ -61,6 +61,8 @@ router.post("/register", async (req, res) => {
       });
     }
   } catch (err) {
+    console.error(err);
+    
     return res.status(400).json({
       status: 400,
       message: "Error creating user",
