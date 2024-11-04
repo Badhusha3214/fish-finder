@@ -7,6 +7,7 @@ import SearchView from '@/views/SearchView.vue'
 import ItemView from '@/views/ItemView.vue'
 import About from '@/views/Sidebar/About.vue'
 import Contact from '@/views/Sidebar/Contact.vue'
+import GS from '@/views/GS.vue'
 
 
 
@@ -29,6 +30,14 @@ const router = createRouter({
       component: HomeView,
       meta: {
         title: 'Home',
+      }
+    },
+    {
+      path: '/GS',
+      name: 'GS',
+      component: GS,
+      meta: {
+        title: 'GS',
       }
     },
     
