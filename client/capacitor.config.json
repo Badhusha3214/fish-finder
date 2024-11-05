@@ -1,6 +1,6 @@
 {
-  "appId": "fish.finder",
-  "appName": "fish-finder",
+  "appId": "Fintell",
+  "appName": "Fintell",
   "webDir": "dist",
   "plugins": {
     "SplashScreen": {

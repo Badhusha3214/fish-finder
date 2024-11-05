@@ -82,7 +82,7 @@ const router = createRouter({
 
 
 router.beforeEach((to, from, next) => {
-  document.title = `${to.meta.title} - Fish Finder`
+  document.title = `${to.meta.title} - Fintell`
   next()
 })
 
