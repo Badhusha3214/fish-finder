@@ -13,7 +13,7 @@
 
     <!-- Logo -->
     <div class="flex flex-col py-6 items-center justify-center">
-      <img src="/img/logo.png" class="w-40 h-40" alt="Fish Finder logo">
+      <img src="/img/logo.png" class="w-40 h-40" alt="Fintell logo">
     </div>
 
     <!-- App Description -->

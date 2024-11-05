@@ -41,6 +41,8 @@
                             <td class="px-6 py-4">
                                 <img v-if="item.images?.[0]?.image?.[0]" :src="item.images[0].image[0]"
                                     class="w-10 h-10 object-cover rounded" :alt="item.common_name">
+                                <img v-else-if="item.images?.[0]?.diagram?.[0]" :src="item.images[0].diagram[0]"
+                                    class="w-10 h-10 object-cover rounded" :alt="item.common_name">
                             </td>
                             <td class="px-6 py-4 hidden md:table-cell">
                                 {{ truncateText(item.description, 50) }}
@@ -145,13 +147,12 @@
                                 <!-- Image Upload -->
                                 <div>
                                     <label class="block mb-2">Image</label>
-                                    <input type="file" @change="handleImageUpload($event, 'image')" accept="image/*"
-                                        class="w-full p-2 border rounded">
-                                    <div v-if="formData.images[0].image" class="mt-2">
-                                        <img :src="getImagePreview(formData.images[0].image)"
-                                            class="h-24 w-24 object-cover rounded">
-                                        <button @click="removeImage('image')" type="button"
-                                            class="text-red-600 text-sm mt-1">
+                                    <input id="image-input" type="file" @change="handleImageUpload($event, 'image')"
+                                        accept="image/*" class="w-full p-2 border rounded">
+                                    <div v-if="hasImage('image')" class="mt-2">
+                                        <img :src="formData.images[0].image[0]" class="h-24 w-24 object-cover rounded"
+                                            alt="Selected image">
+                                        <button @click="removeimg()" type="button" class="text-red-600 text-sm mt-1">
                                             Remove
                                         </button>
                                     </div>
@@ -160,11 +161,11 @@
                                 <!-- Diagram Upload -->
                                 <div>
                                     <label class="block mb-2">Diagram</label>
-                                    <input type="file" @change="handleImageUpload($event, 'diagram')" accept="image/*"
-                                        class="w-full p-2 border rounded">
-                                    <div v-if="formData.images[0].diagram" class="mt-2">
-                                        <img :src="getImagePreview(formData.images[0].diagram)"
-                                            class="h-24 w-24 object-cover rounded">
+                                    <input id="diagram-input" type="file" @change="handleImageUpload($event, 'diagram')"
+                                        accept="image/*" class="w-full p-2 border rounded">
+                                    <div v-if="hasImage('diagram')" class="mt-2">
+                                        <img :src="formData.images[0].diagram[0]" class="h-24 w-24 object-cover rounded"
+                                            alt="Selected diagram">
                                         <button @click="removeImage('diagram')" type="button"
                                             class="text-red-600 text-sm mt-1">
                                             Remove
@@ -254,6 +255,30 @@ export default {
 
     methods: {
 
+        async urlToFile(url, filename = 'image.jpg', mimeType = 'image/jpeg') {
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                return new File([blob], filename, { type: mimeType });
+            } catch (error) {
+                console.error('Error converting URL to File:', error);
+                return null;
+            }
+        },
+
+        updateFileInput(fileInputRef, file) {
+            // Create a DataTransfer object
+            const dataTransfer = new DataTransfer();
+            if (file) {
+                dataTransfer.items.add(file);
+            }
+
+            // Update the file input's files property
+            const fileInput = document.querySelector(fileInputRef);
+            if (fileInput) {
+                fileInput.files = dataTransfer.files;
+            }
+        },
 
 
         // Form state management
@@ -265,8 +290,8 @@ export default {
                 category: "marine",
                 more_info: "",
                 images: [{
-                    image: null,
-                    diagram: null,
+                    image: [],
+                    diagram: [],
                     imageFile: null,
                     diagramFile: null
                 }],
@@ -293,36 +318,85 @@ export default {
                 return;
             }
 
-            // Store file and create preview
-            if (type === 'image') {
-                this.formData.images[0].imageFile = file;
-            } else {
-                this.formData.images[0].diagramFile = file;
-            }
-
             const reader = new FileReader();
             reader.onload = (e) => {
-                if (type === 'image') {
-                    this.formData.images[0].image = e.target.result;
-                } else {
-                    this.formData.images[0].diagram = e.target.result;
-                }
+                const currentImages = [...this.formData.images];
+                const newImageData = {
+                    ...currentImages[0],
+                    [type]: [e.target.result], // Wrap in array to match API structure
+                    [`${type}File`]: file
+                };
+
+                this.formData.images = [newImageData];
+                console.log(`After ${type} upload:`, {
+                    image: this.formData.images[0].image,
+                    imageFile: this.formData.images[0].imageFile,
+                    diagram: this.formData.images[0].diagram,
+                    diagramFile: this.formData.images[0].diagramFile
+                });
             };
             reader.readAsDataURL(file);
         },
 
-        removeImage(type) {
-            if (type === 'image') {
-                this.formData.images[0].image = null;
-                this.formData.images[0].imageFile = null;
-            } else {
-                this.formData.images[0].diagram = null;
-                this.formData.images[0].diagramFile = null;
-            }
+        removeimg() {
+            const currentImages = [...this.formData.images];
+
+            // Store the current diagram data
+            const currentDiagram = currentImages[0].diagram;
+            const currentDiagramFile = currentImages[0].diagramFile;
+
+            // Reset image-related properties
+            currentImages[0].image = [];
+            currentImages[0].imageFile = null;
+
+            // Preserve the diagram data
+            currentImages[0].diagram = currentDiagram;
+            currentImages[0].diagramFile = currentDiagramFile;
+
+            // Update the formData
+            this.formData.images = currentImages;
+
+            // Reset the file input
+            this.updateFileInput('#image-input', null);
+
+            console.log('After removing image:', {
+                image: this.formData.images[0].image,
+                imageFile: this.formData.images[0].imageFile,
+                diagram: this.formData.images[0].diagram,
+                diagramFile: this.formData.images[0].diagramFile
+            });
         },
 
+        removeImage(type) {
+            const currentImages = [...this.formData.images];
+            if (type === 'diagram') {
+                currentImages[0].diagram = [];
+                currentImages[0].diagramFile = null;
+                this.updateFileInput('#diagram-input', null);
+            } else if (type === 'image') {
+                currentImages[0].image = [];
+                currentImages[0].imageFile = null;
+                this.updateFileInput('#image-input', null);
+            }
+            this.formData.images = currentImages;
+
+            console.log(`After removing ${type}:`, {
+                image: this.formData.images[0].image,
+                imageFile: this.formData.images[0].imageFile,
+                diagram: this.formData.images[0].diagram,
+                diagramFile: this.formData.images[0].diagramFile
+            });
+        },
         getImagePreview(imageData) {
-            return imageData || '';
+            if (Array.isArray(imageData) && imageData.length > 0) {
+                return imageData[0];
+            }
+            return '';
+        },
+
+        hasImage(type) {
+            return Array.isArray(this.formData.images[0]?.[type]) &&
+                this.formData.images[0]?.[type].length > 0;
         },
 
         // Vernacular names methods
@@ -378,7 +452,7 @@ export default {
             this.showModal = true;
         },
 
-        editItem(item) {
+        async editItem(item) {
             this.isEditing = true;
             this.editingId = item.item_id;
 
@@ -400,7 +474,7 @@ export default {
                 parsedVernacularNames = [{ name: "", place: "" }];
             }
 
-            // Set up the form data
+            // Initialize form data
             this.formData = {
                 common_name: item.common_name || '',
                 scientific_name: item.scientific_name || '',
@@ -408,8 +482,8 @@ export default {
                 category: item.category || 'marine',
                 more_info: item.more_info || '',
                 images: [{
-                    image: item.images?.[0]?.image || null,
-                    diagram: item.images?.[0]?.diagram || null,
+                    image: item.images?.[0]?.image || [],
+                    diagram: item.images?.[0]?.diagram || [],
                     imageFile: null,
                     diagramFile: null
                 }],
@@ -418,6 +492,35 @@ export default {
                     place: vn.place || ''
                 }))
             };
+
+            // Handle existing images
+            try {
+                // Process image if it exists
+                if (item.images?.[0]?.image?.[0]) {
+                    const imageUrl = item.images[0].image[0];
+                    const imageFile = await this.urlToFile(imageUrl, 'image.jpg');
+                    if (imageFile) {
+                        this.formData.images[0].imageFile = imageFile;
+                        this.$nextTick(() => {
+                            this.updateFileInput('#image-input', imageFile);
+                        });
+                    }
+                }
+
+                // Process diagram if it exists
+                if (item.images?.[0]?.diagram?.[0]) {
+                    const diagramUrl = item.images[0].diagram[0];
+                    const diagramFile = await this.urlToFile(diagramUrl, 'diagram.jpg');
+                    if (diagramFile) {
+                        this.formData.images[0].diagramFile = diagramFile;
+                        this.$nextTick(() => {
+                            this.updateFileInput('#diagram-input', diagramFile);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error processing images:', error);
+            }
 
             console.log('Editing form data:', this.formData);
             this.showModal = true;
@@ -451,6 +554,14 @@ export default {
                     formDataToSubmit.append('_method', 'PATCH');
                 }
 
+                // Log state before appending
+                console.log('Form submission image state before append:', {
+                    image: this.formData.images[0].image,
+                    imageFile: this.formData.images[0].imageFile,
+                    diagram: this.formData.images[0].diagram,
+                    diagramFile: this.formData.images[0].diagramFile
+                });
+
                 // Append basic fields
                 Object.keys(basicFields).forEach(key => {
                     if (basicFields[key]) {
@@ -470,11 +581,34 @@ export default {
                 });
 
                 // Handle images
-                if (this.formData.images[0].imageFile) {
+                if (this.formData.images[0].imageFile === null && this.formData.images[0].diagramFile === null) {
+                    console.log("No images to upload");
+                    formDataToSubmit.append('image', null);
+                }
+
+                if (this.formData.images[0].diagramFile === null && this.formData.images[0].imageFile !== null) {
+                    console.log("Uploading only image");
+                    formDataToSubmit.append('diagram', null);
+                }
+
+                if (this.formData.images[0].imageFile === null && this.formData.images[0].diagramFile !== null) {
+                    console.log("Uploading only diagram");
+                    formDataToSubmit.append('image', null);
+                }
+
+                if (this.formData.images[0].imageFile !== null) {
+                    console.log("Uploading image file:", this.formData.images[0].imageFile);
                     formDataToSubmit.append('image', this.formData.images[0].imageFile);
                 }
-                if (this.formData.images[0].diagramFile) {
+                if (this.formData.images[0].diagramFile !== null) {
+                    console.log("Uploading diagram file:", this.formData.images[0].diagramFile);
                     formDataToSubmit.append('diagram', this.formData.images[0].diagramFile);
+                }
+
+                // Log final FormData contents
+                console.log('Final FormData contents:');
+                for (let pair of formDataToSubmit.entries()) {
+                    console.log(pair[0], pair[1]);
                 }
 
                 const response = await (this.isEditing
