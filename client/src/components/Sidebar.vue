@@ -8,7 +8,7 @@
       @click.stop
     >
       <div class="pt-14">
-        <h1 class="text-xl px-2 pb-5 text-primary uppercase font-bold">Fish Finder</h1>
+        <h1 class="text-xl px-2 pb-5 text-primary uppercase font-bold">Fintell</h1>
   
         <template v-for="(option, index) in options" :key="index">
           <button 

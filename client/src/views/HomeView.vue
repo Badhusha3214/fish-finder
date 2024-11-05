@@ -27,12 +27,12 @@
 
         <div class="relative flex flex-col w-full mt-10 mb-6">
           <button
-            class="py-4 w-full mt-4  text-white text-xl font-bold rounded-full touch-manipulation active:opacity-80"
+            class="py-4 w-full mt-4  text-white text-xl font-bold rounded-full touch-manipulation active:opacity-80 bg-gradient-to-r from-blue-900 to-blue-700 hover:from-blue-800 hover:to-blue-600" 
             @touchstart="onTouchStart2" @touchend="onTouchEnd" @click="openGS">
             <span>Search</span>
           </button>
-          <div class="absolute left-0 top-0 -z-10 w-full h-full flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="316" height="78" viewBox="0 0 316 78" fill="none">
+          <div class="absolute left-0 top-0 -z-10 w-full h-full flex items-center justify-center ">
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="316" height="78" viewBox="0 0 316 78" fill="none">
               <g filter="url(#filter0_d_72_187)">
                 <path
                   d="M5.5 46.2857C5.5 32.3208 16.8208 21 30.7857 21H124.277C136.497 21 147.804 14.5328 154 4C160.196 14.5328 171.503 21 183.723 21H285.214C299.179 21 310.5 32.3208 310.5 46.2857C310.5 60.2506 299.179 71.5714 285.214 71.5714H30.7857C16.8208 71.5714 5.5 60.2506 5.5 46.2857Z"
@@ -57,7 +57,7 @@
                   <stop offset="1" stop-color="#194DAA" />
                 </linearGradient>
               </defs>
-            </svg>
+            </svg> -->
           </div>
         </div>
       </div>
@@ -104,7 +104,7 @@ export default {
           title: "Fresh Water",
           description:
             "Freshwater fish live in rivers, lakes, and streams, adapting to low salt environments.",
-          image: "/img/category/Fresh.png",
+          image: "/img/category/f1.png",
         },
         {
           id: "marine",
