@@ -22,19 +22,19 @@ router.get('/', async (req, res) => {
 
     let category = req.query.category;
     let search = req.query.query || null;
-
     let query = {};
 
-    if (search && category) {
-        query = {
-            category: category,
-            // category: { $regex: category, $options: 'i' },
-            $or: [
-                { common_name: { $regex: search, $options: 'i' } },
-                { scientific_name: { $regex: search, $options: 'i' } },
-                { vernacular_names: { $elemMatch: { name: { $regex: search, $options: 'i' } } } }
-            ]
-        };
+    if (search) {
+        query.$or = [
+            { common_name: { $regex: search, $options: 'i' } },
+            { scientific_name: { $regex: search, $options: 'i' } },
+            { vernacular_names: { $elemMatch: { name: { $regex: search, $options: 'i' } } } }
+        ];
+
+        if (category) {
+            query.category = category;
+            // query.category = { $regex: category, $options: 'i' };
+        }
     }
 
     let items = await Item.find(query)
