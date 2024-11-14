@@ -2,7 +2,7 @@
     <DashboardLayout>
         <div class="container mx-auto p-4">
             <!-- Loading Spinner -->
-            <loading-spinner v-if="loading" />
+            <loading-spinner v-if="loading" class="z-50" />
 
             <!-- Add New Item Button -->
             <div class="mb-4 flex justify-center justify-between ">
@@ -15,70 +15,72 @@
                 </button>
             </div>
 
-            <!-- Table -->
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="w-full text-sm text-left text-gray-800">
-                    <!-- Table header remains the same -->
-                    <thead class="text-xs uppercase bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-3">Common Name</th>
-                            <th class="px-6 py-3">Scientific Name</th>
-                            <th class="px-6 py-3">Images</th>
-                            <th class="px-6 py-3 hidden md:table-cell">Description</th>
-                            <th class="px-6 py-3">Category</th>
-                            <th class="px-6 py-3 hidden lg:table-cell">Vernacular Names</th>
-                            <th class="px-6 py-3 hidden lg:table-cell">More Info</th>
-                            <th class="px-6 py-3">Created by</th>
-                            <th class="px-6 py-3">Updated by</th>
-                            <th class="px-6 py-3">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="item in items" :key="item.item_id" class="bg-white border-b hover:bg-gray-50">
-                            <!-- Table body content remains the same -->
-                            <td class="px-6 py-4 font-medium">{{ item.common_name }}</td>
-                            <td class="px-6 py-4">{{ item.scientific_name }}</td>
-                            <td class="px-6 py-4">
-                                <img v-if="item.images?.[0]?.image?.[0]" :src="item.images[0].image[0]"
-                                    class="w-10 h-10 object-cover rounded" :alt="item.common_name">
-                                <img v-else-if="item.images?.[0]?.diagram?.[0]" :src="item.images[0].diagram[0]"
-                                    class="w-10 h-10 object-cover rounded" :alt="item.common_name">
-                            </td>
-                            <td class="px-6 py-4 hidden md:table-cell">
-                                {{ truncateText(item.description, 50) }}
-                            </td>
-                            <td class="px-6 py-4">{{ item.category }}</td>
-                            <td class="px-6 py-4 hidden lg:table-cell">
-                                <table>
-                                    <tr v-for="(vernacularName, index) in item.vernacular_names" :key="index">
-                                        <td class="font-medium text-gray-600 pr-2">{{ vernacularName.place }}:</td>
-                                        <td>{{ vernacularName.name }}</td>
-                                    </tr>
-                                </table>
-                            </td>
-                            <td class="px-6 py-4 hidden lg:table-cell">
-                                <a v-if="item.more_info" :href="item.more_info" target="_blank"
-                                    class="text-blue-600 hover:underline">
-                                    Link
-                                </a>
-                            </td>
-                            <td class="px-6 py-4">{{ item.created_by }}</td>
-                            <td class="px-6 py-4">{{ item.updated_by }}</td>
-                            <td class="px-6 py-4">
-                                <div class="flex gap-2">
-                                    <button @click="editItem(item)" class="text-gray-600 hover:text-gray-900">
-                                        Edit
-                                    </button>
-                                    <button @click="deleteItem(item.item_id)" class="text-red-600 hover:text-red-900">
-                                        Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Table with horizontal scroll -->
+            <div class="custom-scrollbar relative">
+                <div class="w-full overflow-x-auto border rounded-lg shadow">
+                    <table class="min-w-[1200px] w-full text-sm text-left text-gray-800">
+                        <!-- Table header -->
+                        <thead class="text-xs uppercase bg-gray-100 sticky top-0">
+                            <tr>
+                                <th class="px-6 py-3 whitespace-nowrap">Common Name</th>
+                                <th class="px-6 py-3 whitespace-nowrap">Scientific Name</th>
+                                <th class="px-6 py-3 whitespace-nowrap">Images</th>
+                                <th class="px-6 py-3 whitespace-nowrap">Description</th>
+                                <th class="px-6 py-3 whitespace-nowrap">Category</th>
+                                <th class="px-6 py-3 whitespace-nowrap">Vernacular Names</th>
+                                <th class="px-6 py-3 whitespace-nowrap">More Info</th>
+                                <th class="px-6 py-3 whitespace-nowrap">Created by</th>
+                                <th class="px-6 py-3 whitespace-nowrap">Updated by</th>
+                                <th class="px-6 py-3 whitespace-nowrap">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Table body content -->
+                            <tr v-for="item in items" :key="item.item_id" class="bg-white border-b hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium whitespace-nowrap">{{ item.common_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ item.scientific_name }}</td>
+                                <td class="px-6 py-4">
+                                    <img v-if="item.images?.[0]?.image?.[0]" :src="item.images[0].image[0]"
+                                        class="w-10 h-10 object-cover rounded" :alt="item.common_name">
+                                    <img v-else-if="item.images?.[0]?.diagram?.[0]" :src="item.images[0].diagram[0]"
+                                        class="w-10 h-10 object-cover rounded" :alt="item.common_name">
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ truncateText(item.description, 50) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ item.category }}</td>
+                                <td class="px-6 py-4">
+                                    <table>
+                                        <tr v-for="(vernacularName, index) in item.vernacular_names" :key="index">
+                                            <td class="font-medium text-gray-600 pr-2">{{ vernacularName.place }}:</td>
+                                            <td>{{ vernacularName.name }}</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <a v-if="item.more_info" :href="item.more_info" target="_blank"
+                                        class="text-blue-600 hover:underline">
+                                        Link
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ item.created_by }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ item.updated_by }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex gap-2">
+                                        <button @click="editItem(item)" class="text-gray-600 hover:text-gray-900">
+                                            Edit
+                                        </button>
+                                        <button @click="deleteItem(item.item_id)"
+                                            class="text-red-600 hover:text-red-900">
+                                            Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
             <!-- Pagination section remains the same -->
             <div class="flex items-center justify-between mt-4">
                 <div class="text-sm text-gray-700">
@@ -105,7 +107,7 @@
             </div>
 
             <!-- Updated Add/Edit Modal -->
-            <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center z-50 justify-center">
+            <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center z-40 justify-center">
                 <div class="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                     <h2 class="text-xl font-bold mb-4">{{ isEditing ? 'Edit Item' : 'Add New Item' }}</h2>
                     <form @submit.prevent="submitForm" class="space-y-6">
@@ -240,6 +242,7 @@ export default {
             totalPages: 1,
             totalItems: 0,
             itemsPerPage: 10,
+            formSubmitting: false,
             formData: this.getInitialFormState()
         }
     },
@@ -321,19 +324,15 @@ export default {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const currentImages = [...this.formData.images];
+
                 const newImageData = {
-                    ...currentImages[0],
-                    [type]: [e.target.result], // Wrap in array to match API structure
-                    [`${type}File`]: file
+                    image: type === 'image' ? [e.target.result] : currentImages[0].image,
+                    diagram: type === 'diagram' ? [e.target.result] : currentImages[0].diagram,
+                    imageFile: type === 'image' ? file : currentImages[0].imageFile,
+                    diagramFile: type === 'diagram' ? file : currentImages[0].diagramFile
                 };
 
                 this.formData.images = [newImageData];
-                console.log(`After ${type} upload:`, {
-                    image: this.formData.images[0].image,
-                    imageFile: this.formData.images[0].imageFile,
-                    diagram: this.formData.images[0].diagram,
-                    diagramFile: this.formData.images[0].diagramFile
-                });
             };
             reader.readAsDataURL(file);
         },
@@ -341,51 +340,37 @@ export default {
         removeimg() {
             const currentImages = [...this.formData.images];
 
-            // Store the current diagram data
-            const currentDiagram = currentImages[0].diagram;
-            const currentDiagramFile = currentImages[0].diagramFile;
+            // Only reset image-related properties, preserve diagram
+            currentImages[0] = {
+                ...currentImages[0],
+                image: [],
+                imageFile: null
+            };
 
-            // Reset image-related properties
-            currentImages[0].image = [];
-            currentImages[0].imageFile = null;
-
-            // Preserve the diagram data
-            currentImages[0].diagram = currentDiagram;
-            currentImages[0].diagramFile = currentDiagramFile;
-
-            // Update the formData
             this.formData.images = currentImages;
-
-            // Reset the file input
             this.updateFileInput('#image-input', null);
-
-            console.log('After removing image:', {
-                image: this.formData.images[0].image,
-                imageFile: this.formData.images[0].imageFile,
-                diagram: this.formData.images[0].diagram,
-                diagramFile: this.formData.images[0].diagramFile
-            });
         },
 
         removeImage(type) {
             const currentImages = [...this.formData.images];
+
             if (type === 'diagram') {
-                currentImages[0].diagram = [];
-                currentImages[0].diagramFile = null;
+                currentImages[0] = {
+                    ...currentImages[0],
+                    diagram: [],
+                    diagramFile: null
+                };
                 this.updateFileInput('#diagram-input', null);
             } else if (type === 'image') {
-                currentImages[0].image = [];
-                currentImages[0].imageFile = null;
+                currentImages[0] = {
+                    ...currentImages[0],
+                    image: [],
+                    imageFile: null
+                };
                 this.updateFileInput('#image-input', null);
             }
-            this.formData.images = currentImages;
 
-            console.log(`After removing ${type}:`, {
-                image: this.formData.images[0].image,
-                imageFile: this.formData.images[0].imageFile,
-                diagram: this.formData.images[0].diagram,
-                diagramFile: this.formData.images[0].diagramFile
-            });
+            this.formData.images = currentImages;
         },
         getImagePreview(imageData) {
             if (Array.isArray(imageData) && imageData.length > 0) {
@@ -469,12 +454,7 @@ export default {
                 parsedVernacularNames = [{ name: "", place: "" }];
             }
 
-            // Ensure we have at least one empty entry if no vernacular names exist
-            if (!parsedVernacularNames.length) {
-                parsedVernacularNames = [{ name: "", place: "" }];
-            }
-
-            // Initialize form data
+            // Initialize form data with existing images
             this.formData = {
                 common_name: item.common_name || '',
                 scientific_name: item.scientific_name || '',
@@ -487,51 +467,68 @@ export default {
                     imageFile: null,
                     diagramFile: null
                 }],
-                vernacular_names: parsedVernacularNames.map(vn => ({
-                    name: vn.name || '',
-                    place: vn.place || ''
-                }))
+                vernacular_names: parsedVernacularNames
             };
 
-            // Handle existing images
-            try {
-                // Process image if it exists
-                if (item.images?.[0]?.image?.[0]) {
-                    const imageUrl = item.images[0].image[0];
-                    const imageFile = await this.urlToFile(imageUrl, 'image.jpg');
-                    if (imageFile) {
-                        this.formData.images[0].imageFile = imageFile;
-                        this.$nextTick(() => {
-                            this.updateFileInput('#image-input', imageFile);
-                        });
-                    }
+            // Convert existing image URLs to File objects and update file inputs
+            if (this.formData.images[0].image.length > 0) {
+                const imageUrl = this.formData.images[0].image[0];
+                const imageFile = await this.urlToFile(imageUrl, 'existing-image.jpg');
+                if (imageFile) {
+                    this.formData.images[0].imageFile = imageFile;
+                    this.updateFileInput('#image-input', imageFile);
                 }
-
-                // Process diagram if it exists
-                if (item.images?.[0]?.diagram?.[0]) {
-                    const diagramUrl = item.images[0].diagram[0];
-                    const diagramFile = await this.urlToFile(diagramUrl, 'diagram.jpg');
-                    if (diagramFile) {
-                        this.formData.images[0].diagramFile = diagramFile;
-                        this.$nextTick(() => {
-                            this.updateFileInput('#diagram-input', diagramFile);
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error('Error processing images:', error);
             }
 
-            console.log('Editing form data:', this.formData);
+            if (this.formData.images[0].diagram.length > 0) {
+                const diagramUrl = this.formData.images[0].diagram[0];
+                const diagramFile = await this.urlToFile(diagramUrl, 'existing-diagram.jpg');
+                if (diagramFile) {
+                    this.formData.images[0].diagramFile = diagramFile;
+                    this.updateFileInput('#diagram-input', diagramFile);
+                }
+            }
+
             this.showModal = true;
         },
 
-        closeModal() {
-            this.showModal = false;
-            this.isEditing = false;
-            this.editingId = null;
-            this.formData = this.getInitialFormState();
+        async urlToFile(url, filename = 'image.jpg', mimeType = 'image/jpeg') {
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                return new File([blob], filename, { type: mimeType });
+            } catch (error) {
+                console.error('Error converting URL to File:', error);
+                return null;
+            }
         },
+
+
+        updateFileInput(fileInputRef, file) {
+            try {
+                const dataTransfer = new DataTransfer();
+                if (file) {
+                    dataTransfer.items.add(file);
+                }
+
+                const fileInput = document.querySelector(fileInputRef);
+                if (fileInput) {
+                    fileInput.files = dataTransfer.files;
+                }
+            } catch (error) {
+                console.error('Error updating file input:', error);
+            }
+        },
+
+
+
+        closeModal() {
+    this.showModal = false;
+    this.isEditing = false;
+    this.editingId = null;
+    this.formSubmitting = false;
+    this.formData = this.getInitialFormState();
+},
 
         // Form submission
         async submitForm() {
@@ -554,14 +551,6 @@ export default {
                     formDataToSubmit.append('_method', 'PATCH');
                 }
 
-                // Log state before appending
-                console.log('Form submission image state before append:', {
-                    image: this.formData.images[0].image,
-                    imageFile: this.formData.images[0].imageFile,
-                    diagram: this.formData.images[0].diagram,
-                    diagramFile: this.formData.images[0].diagramFile
-                });
-
                 // Append basic fields
                 Object.keys(basicFields).forEach(key => {
                     if (basicFields[key]) {
@@ -574,41 +563,32 @@ export default {
                     vn && typeof vn === 'object' && (vn.name?.trim() || vn.place?.trim())
                 );
 
-                // Append each vernacular name separately without stringifying
                 validVernacularNames.forEach((vn, index) => {
                     formDataToSubmit.append(`vernacular_names[${index}][name]`, vn.name?.trim() || '');
                     formDataToSubmit.append(`vernacular_names[${index}][place]`, vn.place?.trim() || '');
                 });
 
                 // Handle images
-                if (this.formData.images[0].imageFile === null && this.formData.images[0].diagramFile === null) {
-                    console.log("No images to upload");
-                    formDataToSubmit.append('image', null);
+                const currentImages = this.formData.images[0];
+
+                // Handle image file
+                if (currentImages.imageFile) {
+                    formDataToSubmit.append('image', currentImages.imageFile);
+                } else if (this.isEditing && currentImages.image.length > 0) {
+                    // If editing and there's an existing image but no new file, don't append anything
+                    // This preserves the existing image
+                } else {
+                    formDataToSubmit.append('image', '');
                 }
 
-                if (this.formData.images[0].diagramFile === null && this.formData.images[0].imageFile !== null) {
-                    console.log("Uploading only image");
-                    formDataToSubmit.append('diagram', null);
-                }
-
-                if (this.formData.images[0].imageFile === null && this.formData.images[0].diagramFile !== null) {
-                    console.log("Uploading only diagram");
-                    formDataToSubmit.append('image', null);
-                }
-
-                if (this.formData.images[0].imageFile !== null) {
-                    console.log("Uploading image file:", this.formData.images[0].imageFile);
-                    formDataToSubmit.append('image', this.formData.images[0].imageFile);
-                }
-                if (this.formData.images[0].diagramFile !== null) {
-                    console.log("Uploading diagram file:", this.formData.images[0].diagramFile);
-                    formDataToSubmit.append('diagram', this.formData.images[0].diagramFile);
-                }
-
-                // Log final FormData contents
-                console.log('Final FormData contents:');
-                for (let pair of formDataToSubmit.entries()) {
-                    console.log(pair[0], pair[1]);
+                // Handle diagram file
+                if (currentImages.diagramFile) {
+                    formDataToSubmit.append('diagram', currentImages.diagramFile);
+                } else if (this.isEditing && currentImages.diagram.length > 0) {
+                    // If editing and there's an existing diagram but no new file, don't append anything
+                    // This preserves the existing diagram
+                } else {
+                    formDataToSubmit.append('diagram', '');
                 }
 
                 const response = await (this.isEditing
@@ -625,7 +605,7 @@ export default {
                 console.error('Error submitting form:', error);
                 this.handleSubmissionError(error);
             } finally {
-                this.loading = false;
+                this.formSubmitting = false;
             }
         },
 
@@ -696,3 +676,36 @@ export default {
     }
 }
 </script>
+<style>
+.custom-scrollbar {
+    position: relative;
+    margin-bottom: 12px;
+    /* Space for the scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+    border: 2px solid #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* For Firefox */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
+</style>
