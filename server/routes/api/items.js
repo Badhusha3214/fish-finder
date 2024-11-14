@@ -1,24 +1,18 @@
 const express = require("express");
 const router = express.Router();
 
-const multer = require("multer");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-const sharp = require("sharp");
-const slugify = require("slugify");
-
 const Item = require("../../models/items");
 const User = require("../../models/users");
 const verifyToken = require("../../middleware/authentication");
 
-const generateSlug = (filename) => {
-  const name = filename.split(".").slice(0, -1).join(".");
-  return slugify(name, { lower: true, strict: true });
-};
-
+const multer = require("multer");
+const sharp = require("sharp");
 const upload = multer({ storage: multer.memoryStorage() });
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
+// Create S3 client
 const s3Client = new S3Client({
-  region: "auto", // Region is automatically handled by R2
+  region: "auto",
   endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
   credentials: {
     accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
@@ -26,6 +20,7 @@ const s3Client = new S3Client({
   },
 });
 
+// Compress image to reduce size
 const compressImage = async (buffer, maxSizeKB) => {
   let quality = 100;
   let imageBuffer;
@@ -33,16 +28,45 @@ const compressImage = async (buffer, maxSizeKB) => {
 
   do {
     imageBuffer = await sharp(buffer)
-      .resize({ width: 800 }) // Adjust resize parameters if needed
-      .jpeg({ quality })
+      .resize({ width: 800 })
+      .jpeg({ quality: quality })
       .toBuffer();
-
     sizeKB = imageBuffer.length / 1024;
-    quality -= 10; // Decrease quality until under maxSizeKB
+    quality -= 10;
   } while (sizeKB > maxSizeKB && quality > 10);
 
   return imageBuffer;
 };
+
+// Handle files for each field
+const handleFiles = async (fieldName, req, uploadPromises, fileUrls) => {
+  if (req.files[fieldName]) {
+    for (const file of req.files[fieldName]) {
+      let buffer = file.buffer;
+      if (file.mimetype.startsWith("image/")) {
+        buffer = await compressImage(buffer, 500);
+      }
+
+      const fileName = `${Date.now()}_${file.originalname}`;
+      const key = `${fieldName}/${fileName}`;
+
+      const params = {
+        Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,
+        Key: key,
+        Body: buffer,
+        ContentType: file.mimetype,
+      };
+
+      const command = new PutObjectCommand(params);
+      uploadPromises.push(s3Client.send(command));
+      fileUrls[fieldName].push(
+        `${process.env.CLOUDFLARE_R2_BUCKET_URL}/${key}`
+      );
+    }
+  }
+};
+
+// ------------------------- ROUTES -------------------------
 
 /**
  * @route   GET /api/v1/item
@@ -68,11 +92,26 @@ router.get("/", async (req, res) => {
     query = {
       category: category,
       $or: [
-        { common_name: { $regex: search, $options: "i" } },
-        { scientific_name: { $regex: search, $options: "i" } },
+        {
+          common_name: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          scientific_name: {
+            $regex: search,
+            $options: "i",
+          },
+        },
         {
           vernacular_names: {
-            $elemMatch: { name: { $regex: search, $options: "i" } },
+            $elemMatch: {
+              name: {
+                $regex: search,
+                $options: "i",
+              },
+            },
           },
         },
       ],
@@ -199,12 +238,53 @@ router.post("/", verifyToken, async (req, res) => {
       message: "Scientific Name Already Exists",
     });
   }
+  const uploadPromises = [];
+  const fileUrls = {
+    image: [],
+    diagram: [],
+  };
+
+  const handleFiles = async (fieldName, req, uploadPromises, fileUrls) => {
+    if (req.files[fieldName]) {
+      for (const file of req.files[fieldName]) {
+        let buffer = file.buffer;
+
+        if (file.mimetype.startsWith("image/")) {
+          buffer = await compressImage(buffer, 500); // Compress to 500KB
+        }
+        const folderName = fieldName;
+        const fileExtension = file.originalname.split(".").pop();
+        const fileName = `${Date.now()}_${file.originalname}`;
+        const key = `${folderName}/${generateSlug(fileName)}.${fileExtension}`;
+
+        const params = {
+          Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,
+          Key: key,
+          Body: buffer,
+          ContentType: file.mimetype,
+        };
+
+        const command = new PutObjectCommand(params);
+        uploadPromises.push(s3Client.send(command));
+        fileUrls[fieldName].push(
+          `${process.env.CLOUDFLARE_R2_BUCKET_URL}/${key}`
+        ); // Store the file URL
+      }
+    }
+  };
+
+  // Handle files for each field
+  await Promise.all([
+    handleFiles("image", req, uploadPromises, fileUrls),
+    handleFiles("diagram", req, uploadPromises, fileUrls),
+  ]);
+
+  await Promise.all(uploadPromises);
 
   const newItem = new Item({
     common_name: req.body.common_name,
     scientific_name: req.body.scientific_name,
-    image: req.body.image, // Store URL directly
-    diagram: req.body.diagram, // Store URL directly
+    images: fileUrls,
     description: req.body.description,
     category: req.body.category,
     vernacular_names: req.body.vernacular_names,
@@ -213,7 +293,6 @@ router.post("/", verifyToken, async (req, res) => {
     created_by: req.user.user_id,
     updated_by: req.user.user_id,
   });
-  console.log(newItem);
 
   await newItem
     .save()
@@ -221,7 +300,7 @@ router.post("/", verifyToken, async (req, res) => {
       res.status(201).json({
         status: 201,
         message: "Item created successfully",
-        data: newItem,
+        data: item,
       });
     })
     .catch((err) => {
@@ -234,65 +313,6 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 /**
- * @route   POST /api/v1/item/generateImage
- * @desc    Generate image with cloudflare r2
- * @access  Admin, Super Admin
- * @params  image as multiform data
- * @return   data
- * @error   400, { error }
- * @status  200, 400
- *
- **/
-router.post(
-  "/generateImage",
-  verifyToken,
-  upload.fields([{ name: "image", maxCount: 1 }]),
-  async (req, res) => {
-    const uploadPromises = [];
-    const fileUrls = {
-      image: "",
-    };
-
-    const handleFiles = async (fieldName, req, uploadPromises, fileUrls) => {
-      if (req.files[fieldName]) {
-        for (const file of req.files[fieldName]) {
-          let buffer = file.buffer;
-
-          if (file.mimetype.startsWith("image/")) {
-            buffer = await compressImage(buffer, 500); // Compress to 500KB
-          }
-          const folderName = fieldName;
-          const fileExtension = file.originalname.split(".").pop();
-          const fileName = `${Date.now()}_${file.originalname}`;
-          const key = `${folderName}/${generateSlug(
-            fileName
-          )}.${fileExtension}`;
-
-          const params = {
-            Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,
-            Key: key,
-            Body: buffer,
-            ContentType: file.mimetype,
-          };
-
-          const command = new PutObjectCommand(params);
-          uploadPromises.push(s3Client.send(command));
-          const imageLink = (fileUrls[
-            fieldName
-          ] = `${process.env.CLOUDFLARE_R2_BUCKET_URL}/${key}`);
-          // Store the file URL
-        }
-      }
-    };
-
-    // Handle files for each field
-    await Promise.all([handleFiles("image", req, uploadPromises, fileUrls)]);
-
-    await Promise.all(uploadPromises);
-    return res.send(fileUrls);
-  }
-);
-/**
  * @route   PATCH /api/v1/item/:id
  * @desc    Update a item by item_id
  * @access  Admin, Super Admin
@@ -304,45 +324,49 @@ router.post(
  * @example /api/v1/item/123456
  **/
 
-router.patch("/:id", verifyToken, async (req, res) => {
-  const itemId = req.params.id;
+router.patch(
+  "/:id",
+  verifyToken,
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "diagram", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    const itemId = req.params.id;
 
-  const updateData = {
-    common_name: req.body.common_name,
-    scientific_name: req.body.scientific_name,
-    description: req.body.description,
-    category: req.body.category,
-    vernacular_names: req.body.vernacular_names,
-    more_info: req.body.more_info,
-    updated_at: Date.now(),
-    updated_by: req.user.user_id,
-  };
-  // Only update the images if they are provided
-  if (req.body.image) {
-    updateData.image = req.body.image;
-  }
-  if (req.body.diagram) {
-    updateData.diagram = req.body.diagram;
-  }
-
-  await Item.findOneAndUpdate({ item_id: itemId }, updateData, {
-    new: true,
-  })
-    .then((item) => {
-      res.status(200).json({
-        status: 200,
-        message: "Item updated successfully",
-        data: item,
+    await Item.findOneAndUpdate(
+      { item_id: itemId },
+      {
+        common_name: req.body.common_name,
+        scientific_name: req.body.scientific_name,
+        images: req.body.images,
+        description: req.body.description,
+        category: req.body.category,
+        vernacular_names: req.body.vernacular_names,
+        more_info: req.body.more_info,
+        updated_at: Date.now(),
+        updated_by: req.user.user_id,
+      },
+      {
+        new: true,
+      }
+    )
+      .then((item) => {
+        res.status(200).json({
+          status: 200,
+          message: "Item updated successfully",
+          data: item,
+        });
+      })
+      .catch((err) => {
+        res.status(400).json({
+          status: 400,
+          message: "Error updating item",
+          error: err,
+        });
       });
-    })
-    .catch((err) => {
-      res.status(400).json({
-        status: 400,
-        message: "Error updating item",
-        error: err,
-      });
-    });
-});
+  }
+);
 
 /**
  * @route   DELETE /api/v1/item/:id
@@ -359,7 +383,9 @@ router.patch("/:id", verifyToken, async (req, res) => {
 router.delete("/:id", verifyToken, async (req, res) => {
   const itemId = req.params.id;
 
-  await Item.findOneAndDelete({ item_id: itemId })
+  await Item.findOneAndDelete({
+    item_id: itemId,
+  })
     .then((item) => {
       res.status(200).json({
         status: 200,

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">fish-finder</string>
-    <string name="title_activity_main">fish-finder</string>
+    <string name="app_name">Fintell</string>
+    <string name="title_activity_main">Fintell</string>
     <string name="package_name">fish.finder</string>
     <string name="custom_url_scheme">fish.finder</string>
 </resources>
