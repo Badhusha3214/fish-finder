@@ -186,29 +186,71 @@ router.get("/:id", async (req, res) => {
  * @example /api/v1/item
  **/
 
-router.post(
-  "/",
-  verifyToken,
-  upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "diagram", maxCount: 1 },
-  ]),
-  async (req, res) => {
-    // Here checks the whether the scientific_name exists or not
-    const scientificNameExists = await Item.findOne({
-      scientific_name: req.body.scientific_name,
-    });
+router.post("/", verifyToken, async (req, res) => {
+  // Here checks the whether the scientific_name exists or not
 
-    if (scientificNameExists) {
-      return res.status(400).json({
-        status: 400,
-        message: "Scientific Name Already Exists",
+  const scientificNameExists = await Item.findOne({
+    scientific_name: req.body.scientific_name,
+  });
+
+  if (scientificNameExists) {
+    return res.status(400).json({
+      status: 400,
+      message: "Scientific Name Already Exists",
+    });
+  }
+
+  const newItem = new Item({
+    common_name: req.body.common_name,
+    scientific_name: req.body.scientific_name,
+    image: req.body.image, // Store URL directly
+    diagram: req.body.diagram, // Store URL directly
+    description: req.body.description,
+    category: req.body.category,
+    vernacular_names: req.body.vernacular_names,
+    more_info: req.body.more_info,
+
+    created_by: req.user.user_id,
+    updated_by: req.user.user_id,
+  });
+  console.log(newItem);
+
+  await newItem
+    .save()
+    .then((item) => {
+      res.status(201).json({
+        status: 201,
+        message: "Item created successfully",
+        data: newItem,
       });
-    }
+    })
+    .catch((err) => {
+      res.status(400).json({
+        status: 400,
+        message: "Error creating item",
+        error: err,
+      });
+    });
+});
+
+/**
+ * @route   POST /api/v1/item/generateImage
+ * @desc    Generate image with cloudflare r2
+ * @access  Admin, Super Admin
+ * @params  image as multiform data
+ * @return   data
+ * @error   400, { error }
+ * @status  200, 400
+ *
+ **/
+router.post(
+  "/generateImage",
+  verifyToken,
+  upload.fields([{ name: "image", maxCount: 1 }]),
+  async (req, res) => {
     const uploadPromises = [];
     const fileUrls = {
-      image: [],
-      diagram: [],
+      image: "",
     };
 
     const handleFiles = async (fieldName, req, uploadPromises, fileUrls) => {
@@ -235,53 +277,21 @@ router.post(
 
           const command = new PutObjectCommand(params);
           uploadPromises.push(s3Client.send(command));
-          fileUrls[fieldName].push(
-            `${process.env.CLOUDFLARE_R2_BUCKET_URL}/${key}`
-          ); // Store the file URL
+          const imageLink = (fileUrls[
+            fieldName
+          ] = `${process.env.CLOUDFLARE_R2_BUCKET_URL}/${key}`);
+          // Store the file URL
         }
       }
     };
 
     // Handle files for each field
-    await Promise.all([
-      handleFiles("image", req, uploadPromises, fileUrls),
-      handleFiles("diagram", req, uploadPromises, fileUrls),
-    ]);
+    await Promise.all([handleFiles("image", req, uploadPromises, fileUrls)]);
 
     await Promise.all(uploadPromises);
-
-    const newItem = new Item({
-      common_name: req.body.common_name,
-      scientific_name: req.body.scientific_name,
-      images: fileUrls,
-      description: req.body.description,
-      category: req.body.category,
-      vernacular_names: req.body.vernacular_names,
-      more_info: req.body.more_info,
-
-      created_by: req.user.user_id,
-      updated_by: req.user.user_id,
-    });
-
-    await newItem
-      .save()
-      .then((item) => {
-        res.status(201).json({
-          status: 201,
-          message: "Item created successfully",
-          data: item,
-        });
-      })
-      .catch((err) => {
-        res.status(400).json({
-          status: 400,
-          message: "Error creating item",
-          error: err,
-        });
-      });
+    return res.send(fileUrls);
   }
 );
-
 /**
  * @route   PATCH /api/v1/item/:id
  * @desc    Update a item by item_id
@@ -297,23 +307,27 @@ router.post(
 router.patch("/:id", verifyToken, async (req, res) => {
   const itemId = req.params.id;
 
-  await Item.findOneAndUpdate(
-    { item_id: itemId },
-    {
-      common_name: req.body.common_name,
-      scientific_name: req.body.scientific_name,
-      images: req.body.images,
-      description: req.body.description,
-      category: req.body.category,
-      vernacular_names: req.body.vernacular_names,
-      more_info: req.body.more_info,
-      updated_at: Date.now(),
-      updated_by: req.user.user_id,
-    },
-    {
-      new: true
-    }
-  )
+  const updateData = {
+    common_name: req.body.common_name,
+    scientific_name: req.body.scientific_name,
+    description: req.body.description,
+    category: req.body.category,
+    vernacular_names: req.body.vernacular_names,
+    more_info: req.body.more_info,
+    updated_at: Date.now(),
+    updated_by: req.user.user_id,
+  };
+  // Only update the images if they are provided
+  // if (req.body.image) {
+  //   updateData.image = req.body.image;
+  // }
+  // if (req.body.diagram) {
+  //   updateData.diagram = req.body.diagram;
+  // }
+
+  await Item.findOneAndUpdate({ item_id: itemId }, updateData, {
+    new: true,
+  })
     .then((item) => {
       res.status(200).json({
         status: 200,
