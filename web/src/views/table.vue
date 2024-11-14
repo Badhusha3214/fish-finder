@@ -81,30 +81,88 @@
                     </table>
                 </div>
             </div>
-            <!-- Pagination section remains the same -->
-            <div class="flex items-center justify-between mt-4">
-                <div class="text-sm text-gray-700">
-                    Showing {{ startIndex + 1 }} to {{ endIndex }} of {{ totalItems }} entries
-                </div>
-                <div class="flex gap-2">
-                    <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
-                        class="px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50">
-                        Previous
+            
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+            <!-- Entries info - Hide on very small screens -->
+            <div class="hidden sm:block text-sm text-gray-700">
+                Showing {{ startIndex + 1 }} to {{ endIndex }} of {{ totalItems }} entries
+            </div>
+            
+            <!-- Pagination controls -->
+            <div class="flex items-center gap-1 sm:gap-2">
+                <!-- Previous button -->
+                <button 
+                    @click="changePage(currentPage - 1)" 
+                    :disabled="currentPage === 1"
+                    class="px-2 sm:px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                >
+                    <span class="hidden sm:inline">Previous</span>
+                    <span class="sm:hidden">&larr;</span>
+                </button>
+
+                <!-- Dynamic page numbers -->
+                <div class="flex gap-1 sm:gap-2">
+                    <!-- First page -->
+                    <button 
+                        v-if="shouldShowFirst"
+                        @click="changePage(1)"
+                        :class="[
+                            'px-2 sm:px-4 py-2 border rounded text-sm sm:text-base',
+                            currentPage === 1 ? 'bg-gray-800 text-white' : 'bg-white hover:bg-gray-50'
+                        ]"
+                    >
+                        1
                     </button>
-                    <button v-for="page in totalPages" :key="page" @click="changePage(page)" :class="[
-                        'px-4 py-2 border rounded',
-                        currentPage === page
-                            ? 'bg-gray-800 text-white'
-                            : 'bg-white hover:bg-gray-50'
-                    ]">
+
+                    <!-- Left ellipsis -->
+                    <span v-if="shouldShowLeftEllipsis" class="px-2 py-2">...</span>
+
+                    <!-- Page numbers around current page -->
+                    <button 
+                        v-for="page in visiblePages" 
+                        :key="page"
+                        @click="changePage(page)"
+                        :class="[
+                            'px-2 sm:px-4 py-2 border rounded hidden sm:block text-sm sm:text-base',
+                            currentPage === page ? 'bg-gray-800 text-white' : 'bg-white hover:bg-gray-50'
+                        ]"
+                    >
                         {{ page }}
                     </button>
-                    <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
-                        class="px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50">
-                        Next
+
+                    <!-- Current page indicator for mobile -->
+                    <span class="sm:hidden px-2 py-2 text-sm">
+                        Page {{ currentPage }} of {{ totalPages }}
+                    </span>
+
+                    <!-- Right ellipsis -->
+                    <span v-if="shouldShowRightEllipsis" class="px-2 py-2">...</span>
+
+                    <!-- Last page -->
+                    <button 
+                        v-if="shouldShowLast"
+                        @click="changePage(totalPages)"
+                        :class="[
+                            'px-2 sm:px-4 py-2 border rounded text-sm sm:text-base',
+                            currentPage === totalPages ? 'bg-gray-800 text-white' : 'bg-white hover:bg-gray-50'
+                        ]"
+                    >
+                        {{ totalPages }}
                     </button>
                 </div>
+
+                <!-- Next button -->
+                <button 
+                    @click="changePage(currentPage + 1)" 
+                    :disabled="currentPage === totalPages"
+                    class="px-2 sm:px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                >
+                    <span class="hidden sm:inline">Next</span>
+                    <span class="sm:hidden">&rarr;</span>
+                </button>
             </div>
+        </div>
+
 
             <!-- Updated Add/Edit Modal -->
             <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center z-40 justify-center">
@@ -392,6 +450,38 @@ export default {
                 this.formData.vernacular_names = [{ name: "", place: "" }];
             }
         },
+
+        visiblePages() {
+            const delta = 2; // Number of pages to show on each side of current page
+            let range = [];
+            
+            for (
+                let i = Math.max(2, currentPage - delta);
+                i <= Math.min(totalPages - 1, currentPage + delta);
+                i++
+            ) {
+                range.push(i);
+            }
+            
+            return range;
+        },
+
+        shouldShowFirst() {
+            return this.totalPages > 1;
+        },
+
+        shouldShowLast() {
+            return this.totalPages > 1 && this.totalPages !== this.currentPage;
+        },
+
+        shouldShowLeftEllipsis() {
+            return this.currentPage > 3;
+        },
+
+        shouldShowRightEllipsis() {
+            return this.currentPage < this.totalPages - 2;
+        },
+        
 
         removeVernacularName(index) {
             if (Array.isArray(this.formData.vernacular_names) &&
