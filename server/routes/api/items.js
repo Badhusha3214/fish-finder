@@ -318,12 +318,12 @@ router.patch("/:id", verifyToken, async (req, res) => {
     updated_by: req.user.user_id,
   };
   // Only update the images if they are provided
-  // if (req.body.image) {
-  //   updateData.image = req.body.image;
-  // }
-  // if (req.body.diagram) {
-  //   updateData.diagram = req.body.diagram;
-  // }
+  if (req.body.image) {
+    updateData.image = req.body.image;
+  }
+  if (req.body.diagram) {
+    updateData.diagram = req.body.diagram;
+  }
 
   await Item.findOneAndUpdate({ item_id: itemId }, updateData, {
     new: true,
