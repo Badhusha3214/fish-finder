@@ -41,10 +41,12 @@
                                 <td class="px-6 py-4 whitespace-nowrap">{{ item.scientific_name }}</td>
                                 <td class="px-6 py-4">
                                     <div class="flex space-x-2">
-                                        <img v-if="item.image != ' '" :src="item.image"
-                                            class="w-10 h-10 object-cover rounded" :alt="item.common_name">
-                                        <img v-if="item.diagram != ' '" :src="item.diagram"
-                                            class="w-10 h-10 object-cover rounded" :alt="item.common_name">
+                                        <img v-if="formData.image != null && formData.image && formData.image != ' '"
+                                            :src="item.image" class="w-10 h-10 object-cover rounded"
+                                            :alt="item.common_name">
+                                        <img v-if="item.diagram != null && item.diagram && item.diagram != ' '"
+                                            :src="item.diagram" class="w-10 h-10 object-cover rounded"
+                                            :alt="item.common_name">
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -84,6 +86,93 @@
                 </div>
             </div>
 
+            <!-- Pagination Section -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+                <!-- Entries info -->
+                <div class="hidden sm:block text-sm text-gray-700">
+                    Showing {{ startIndex + 1 }} to {{ endIndex }} of {{ totalItems }} entries
+                </div>
+
+                <!-- Pagination controls -->
+                <div class="flex items-center gap-1">
+                    <!-- First page -->
+                    <button @click="changePage(1)" :disabled="currentPage === 1"
+                        class="hidden sm:block px-3 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        First
+                    </button>
+
+                    <!-- Previous button -->
+                    <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
+                        class="px-3 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        <span class="hidden sm:inline">Previous</span>
+                        <span class="sm:hidden">&larr;</span>
+                    </button>
+
+                    <!-- Page numbers -->
+                    <div class="flex gap-1">
+                        <!-- First page when not in range -->
+                        <button v-if="currentPage > 3" @click="changePage(1)"
+                            class="px-3 py-2 border rounded bg-white hover:bg-gray-50 text-sm">
+                            1
+                        </button>
+
+                        <!-- Left ellipsis -->
+                        <span v-if="currentPage > 3" class="px-3 py-2 text-gray-500 text-sm">
+                            ...
+                        </span>
+
+                        <!-- Page numbers around current page -->
+                        <button v-for="page in visiblePages" :key="page" @click="changePage(page)" :class="[
+                            'px-3 py-2 border rounded text-sm',
+                            currentPage === page
+                                ? 'bg-gray-800 text-white'
+                                : 'bg-white hover:bg-gray-50'
+                        ]">
+                            {{ page }}
+                        </button>
+
+                        <!-- Right ellipsis -->
+                        <span v-if="currentPage < totalPages - 2" class="px-3 py-2 text-gray-500 text-sm">
+                            ...
+                        </span>
+
+                        <!-- Last page when not in range -->
+                        <button v-if="currentPage < totalPages - 2" @click="changePage(totalPages)"
+                            class="px-3 py-2 border rounded bg-white hover:bg-gray-50 text-sm">
+                            {{ totalPages }}
+                        </button>
+                    </div>
+
+                    <!-- Next button -->
+                    <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
+                        class="px-3 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        <span class="hidden sm:inline">Next</span>
+                        <span class="sm:hidden">&rarr;</span>
+                    </button>
+
+                    <!-- Last page -->
+                    <button @click="changePage(totalPages)" :disabled="currentPage === totalPages"
+                        class="hidden sm:block px-3 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        Last
+                    </button>
+                </div>
+
+                <!-- Items per page selector
+    <div class="hidden sm:flex items-center gap-2 text-sm">
+        <span>Show</span>
+        <select 
+            v-model="itemsPerPage" 
+            class="border rounded px-2 py-1"
+            @change="changeItemsPerPage"
+        >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+        <span>entries</span>
+    </div> -->
+            </div>
             <!-- Modal Form -->
             <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center z-40 justify-center">
                 <div class="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -109,14 +198,15 @@
                             </div>
                             <div>
                                 <label class="block mb-2">More Info URL</label>
-                                <input v-model="formData.more_info" type="url" class="w-full p-2 border rounded">
+                                <input v-model="formData.more_info" type="url" class="w-full p-2 border rounded" required>
                             </div>
                         </div>
 
                         <!-- Description -->
                         <div>
                             <label class="block mb-2">Description</label>
-                            <textarea v-model="formData.description" class="w-full p-2 border rounded" rows="3"></textarea>
+                            <textarea v-model="formData.description" class="w-full p-2 border rounded"
+                                rows="3" required></textarea>
                         </div>
 
                         <!-- Images Section -->
@@ -129,8 +219,10 @@
                                     <input id="image-input" type="file" @change="handleImageUpload($event, 'image')"
                                         accept="image/*" class="w-full  border rounded">
                                     <div v-if="formData.image != ' ' && formData.image" class="mt-2">
-                                        <img :src="formData.image" class="h-24 w-24 object-cover rounded" alt="Selected image">
-                                        <button @click="removeImage('image')" type="button" class="text-red-600 text-sm mt-1">
+                                        <img :src="formData.image" class="h-24 w-24 object-cover rounded"
+                                            alt="Selected image">
+                                        <button @click="removeImage('image')" type="button"
+                                            class="text-red-600 text-sm mt-1">
                                             Remove
                                         </button>
                                     </div>
@@ -142,8 +234,10 @@
                                     <input id="diagram-input" type="file" @change="handleImageUpload($event, 'diagram')"
                                         accept="image/*" class="w-full  border rounded">
                                     <div v-if="formData.diagram != ' ' && formData.diagram" class="mt-2">
-                                        <img :src="formData.diagram" class="h-24 w-24 object-cover rounded" alt="Selected diagram">
-                                        <button @click="removeImage('diagram')" type="button" class="text-red-600 text-sm mt-1">
+                                        <img :src="formData.diagram" class="h-24 w-24 object-cover rounded"
+                                            alt="Selected diagram">
+                                        <button @click="removeImage('diagram')" type="button"
+                                            class="text-red-600 text-sm mt-1">
                                             Remove
                                         </button>
                                     </div>
@@ -155,7 +249,8 @@
                         <div class="space-y-4">
                             <div class="flex justify-between items-center">
                                 <h3 class="font-semibold">Vernacular Names</h3>
-                                <button type="button" @click="addVernacularName" class="text-blue-600 hover:text-blue-800">
+                                <button type="button" @click="addVernacularName"
+                                    class="text-blue-600 hover:text-blue-800">
                                     + Add Name
                                 </button>
                             </div>
@@ -277,8 +372,8 @@ export default {
                 description: "",
                 category: "marine",
                 more_info: "",
-                image: "",
-                diagram: "",
+                image: null,
+                diagram: null,
                 vernacular_names: [{ name: "", place: "" }]
             };
         },
@@ -333,7 +428,7 @@ export default {
         },
 
         removeImage(type) {
-            this.formData[type] = " ";
+            this.formData[type] = null;
             const fileInput = document.querySelector(`#${type}-input`);
             if (fileInput) {
                 fileInput.value = '';
@@ -441,15 +536,15 @@ export default {
         async editItem(item) {
             this.isEditing = true;
             this.editingId = item.item_id;
-            
+
             this.formData = {
                 common_name: item.common_name || '',
                 scientific_name: item.scientific_name || '',
                 description: item.description || '',
                 category: item.category || 'marine',
                 more_info: item.more_info || '',
-                image: item.image || '',
-                diagram: item.diagram || '',
+                image: item.image || null,
+                diagram: item.diagram || null,
                 vernacular_names: Array.isArray(item.vernacular_names) ? item.vernacular_names : [{ name: "", place: "" }]
             };
 
@@ -494,29 +589,9 @@ export default {
             this.formData = this.getInitialFormState();
         },
 
-        async fetchImageAsBlob(url) {
-            try {
-                const response = await fetch(url, {
-                    mode: 'cors',
-                    headers: {
-                        'Access-Control-Allow-Origin': '*'
-                    }
-                });
 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch image: ${response.data.statusText}`);
-                }
-
-                return await response.blob();
-            } catch (error) {
-                console.error('Error fetching image:', error);
-                throw error;
-            }
-        },
-
-
-       // Update the submitForm method
-       async submitForm() {
+        // Update the submitForm method
+        async submitForm() {
             if (this.formSubmitting || this.imageUploading) return; // Prevent submission if still uploading
 
             try {
@@ -537,29 +612,36 @@ export default {
 
                 if (this.isEditing) {
                     const response = await edititem(this.editingId, formDataToSubmit);
-                    if (response.data.status === 200) {
+                    if (response.data.status === 200 || response.data.status === 201) {
                         this.closeModal();
                         window.location.reload(); // Force page reload after edit
                     }
                 } else {
                     const response = await additem(formDataToSubmit);
-                    if (response.data.status === 200) {
+                    console.log(response);
+                    if (response.data.status === 200 || response.data.status === 201) {
                         this.closeModal();
                         window.location.reload(); // Force page reload after add
+                    } else if (response.data.status === 400) {
+                        alert('Scientific Name Already Exists.');
+                    } else {
+                        alert('Failed to add item. Please try again.');
                     }
                 }
             } catch (error) {
+                
                 console.error('Error submitting form:', error);
-                this.handleSubmissionError(error);
+                // this.handleSubmissionError(error);
             } finally {
                 this.formSubmitting = false;
             }
         },
-    
+
 
 
         handleSubmissionError(error) {
             if (error.response) {
+
                 if (error.response.data.status === 400) {
                     alert('Scientific Name Already Exists.');
                 } else if (error.response.data.status === 502) {
