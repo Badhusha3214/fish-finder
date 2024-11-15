@@ -82,6 +82,7 @@ export const getsuggestions = async (suggestions) => {
       return error;
     }
   };
+
   export const marksuggestions = async (suggestionId) => {
     try {
       // Retrieve cookies and find the token
@@ -117,7 +118,9 @@ export const getsuggestions = async (suggestions) => {
       return error;
     }
   };
-export const deletesuggestions = async (suggestionId) => {
+
+
+  export const deletesuggestions = async (suggestionId) => {
   try {
     // Retrieve cookies and find the token
     const cookies = document.cookie.split(';');
@@ -289,6 +292,43 @@ export const deletesuggestions = async (suggestionId) => {
   
       // Make the API call with the token in headers
       const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items` ,item, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+
+      });
+  
+    //   console.log(res);
+      return res;
+    } catch (error) {
+      console.error('Error fetching suggestions:', error.response ? error.response.data : error.message);
+      return error;
+    }
+  };
+
+  export const imgtourl = async (item) => {
+    try {
+
+      console.log(item);
+      
+      // Retrieve cookies and find the token
+      const cookies = document.cookie.split(';');
+      const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
+  
+      if (!tokenCookie) {
+        throw new Error('No token found in cookie');
+      }
+  
+      // Extract the token value from the cookie
+      const token = tokenCookie.split('=')[1].trim();
+  
+      // Ensure the token is not empty
+      if (!token) {
+        throw new Error('Token is empty');
+      }
+  
+      // Make the API call with the token in headers
+      const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/v1/items/generateImage` ,item, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
