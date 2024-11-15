@@ -1,5 +1,10 @@
 <template>
     <DashboardLayout>
+
+        <!-- Add this with your other loading overlays -->
+        <loading-overlay v-if="imageUploading" message="Uploading image, please wait..." />
+        <loading-overlay v-if="formSubmitting" message="Saving new item, please wait..." />
+        <loading-overlay v-if="editSubmitting" message="Updating item, please wait..." />
         <div class="container mx-auto p-4">
             <!-- Loading Spinner -->
             <loading-spinner v-if="loading" class="z-50" />
@@ -41,7 +46,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">{{ item.scientific_name }}</td>
                                 <td class="px-6 py-4">
                                     <div class="flex space-x-2">
-                                        <img v-if="formData.image != null && formData.image && formData.image != ' '"
+                                        <img v-if="item.image != null && item.image && item.image != ' '"
                                             :src="item.image" class="w-10 h-10 object-cover rounded"
                                             :alt="item.common_name">
                                         <img v-if="item.diagram != null && item.diagram && item.diagram != ' '"
@@ -198,15 +203,16 @@
                             </div>
                             <div>
                                 <label class="block mb-2">More Info URL</label>
-                                <input v-model="formData.more_info" type="url" class="w-full p-2 border rounded" required>
+                                <input v-model="formData.more_info" type="url" class="w-full p-2 border rounded"
+                                    required>
                             </div>
                         </div>
 
                         <!-- Description -->
                         <div>
                             <label class="block mb-2">Description</label>
-                            <textarea v-model="formData.description" class="w-full p-2 border rounded"
-                                rows="3" required></textarea>
+                            <textarea v-model="formData.description" class="w-full p-2 border rounded" rows="3"
+                                required></textarea>
                         </div>
 
                         <!-- Images Section -->
@@ -289,6 +295,7 @@
 </template>
 
 <script>
+import LoadingOverlay from '@/components/loadingoverlay.vue';
 import DashboardLayout from "@/layouts/DashboardLayout.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import { getitem, additem, imgtourl, deleteitem, edititem } from "@/API/index";
@@ -297,7 +304,8 @@ export default {
     name: 'ProductTable',
     components: {
         DashboardLayout,
-        LoadingSpinner
+        LoadingSpinner,
+        LoadingOverlay
     },
     data() {
         return {
@@ -309,6 +317,9 @@ export default {
             currentPage: 1,
             totalPages: 1,
             totalItems: 0,
+            formSubmitting: false,
+            imageUploading: false,
+            editSubmitting: false,
             itemsPerPage: 10,
             formSubmitting: false,
             imageUploading: false, // New state for tracking image upload
@@ -397,21 +408,18 @@ export default {
             }
 
             try {
-                this.imageUploading = true; // Set uploading state
+                this.imageUploading = true;
                 const formData = new FormData();
                 formData.append('image', file);
                 const response = await imgtourl(formData);
                 const imageUrl = response.data.image;
-
-                // Store URL directly in formData
                 this.formData[type] = imageUrl;
-
             } catch (error) {
                 console.error(`Error handling ${type} upload:`, error);
                 alert(`Failed to upload ${type}. Please try again.`);
                 event.target.value = '';
             } finally {
-                this.imageUploading = false; // Reset uploading state
+                this.imageUploading = false;
             }
         },
 
@@ -586,74 +594,72 @@ export default {
             this.isEditing = false;
             this.editingId = null;
             this.formSubmitting = false;
+            this.editSubmitting = false;  // Reset edit loading state
+            this.imageUploading = false;  // Reset image loading state
             this.formData = this.getInitialFormState();
         },
 
 
         // Update the submitForm method
         async submitForm() {
-            if (this.formSubmitting || this.imageUploading) return; // Prevent submission if still uploading
+    if (this.formSubmitting || this.imageUploading) return;
 
-            try {
-                this.formSubmitting = true;
+    try {
+        this.formSubmitting = true;
+        const formDataToSubmit = {
+            common_name: this.formData.common_name,
+            scientific_name: this.formData.scientific_name,
+            description: this.formData.description,
+            category: this.formData.category,
+            more_info: this.formData.more_info,
+            image: this.formData.image,
+            diagram: this.formData.diagram,
+            vernacular_names: this.formData.vernacular_names.filter(
+                vn => vn.name?.trim() || vn.place?.trim()
+            )
+        };
 
-                const formDataToSubmit = {
-                    common_name: this.formData.common_name,
-                    scientific_name: this.formData.scientific_name,
-                    description: this.formData.description,
-                    category: this.formData.category,
-                    more_info: this.formData.more_info,
-                    image: this.formData.image,
-                    diagram: this.formData.diagram,
-                    vernacular_names: this.formData.vernacular_names.filter(
-                        vn => vn.name?.trim() || vn.place?.trim()
-                    )
-                };
-
-                if (this.isEditing) {
-                    const response = await edititem(this.editingId, formDataToSubmit);
-                    if (response.data.status === 200 || response.data.status === 201) {
-                        this.closeModal();
-                        window.location.reload(); // Force page reload after edit
-                    }
-                } else {
-                    const response = await additem(formDataToSubmit);
-                    console.log(response);
-                    if (response.data.status === 200 || response.data.status === 201) {
-                        this.closeModal();
-                        window.location.reload(); // Force page reload after add
-                    } else if (response.data.status === 400) {
-                        alert('Scientific Name Already Exists.');
-                    } else {
-                        alert('Failed to add item. Please try again.');
-                    }
-                }
-            } catch (error) {
-                
-                console.error('Error submitting form:', error);
-                // this.handleSubmissionError(error);
-            } finally {
-                this.formSubmitting = false;
+        if (this.isEditing) {
+            const response = await edititem(this.editingId, formDataToSubmit);
+            if (response.data.status === 200 || response.data.status === 201) {
+                await this.fetchItems(this.currentPage); // Fetch current page data
+                this.closeModal();
             }
-        },
-
+        } else {
+            const response = await additem(formDataToSubmit);
+            if (response.data.status === 200 || response.data.status === 201) {
+                await this.fetchItems(this.currentPage); // Fetch current page data
+                this.closeModal();
+            } else if (response.data.status === 400) {
+                alert('Scientific Name Already Exists.');
+            } else {
+                alert('Failed to add item. Please try again.');
+            }
+        }
+    } catch (error) {
+        console.error('Error submitting form:', error);
+        this.handleSubmissionError(error);
+    } finally {
+        this.formSubmitting = false;
+    }
+},
 
 
         handleSubmissionError(error) {
-            if (error.response) {
+            const action = this.isEditing ? 'update' : 'add';
 
+            if (error.response) {
                 if (error.response.data.status === 400) {
                     alert('Scientific Name Already Exists.');
                 } else if (error.response.data.status === 502) {
-                    alert('Server error. Please check your form data and try again.');
+                    alert(`Server error. Please check your form data and try again.`);
                 } else {
-                    alert(`Error: ${error.response.data?.message || 'Failed to save item. Please try again.'}`);
+                    alert(`Error: ${error.response.data?.message || `Failed to ${action} item. Please try again.`}`);
                 }
             } else {
-                alert('Network error. Please check your connection and try again.');
+                alert(`Network error. Please check your connection and try again.`);
             }
         },
-
         // Form validation
         validateForm() {
             if (!this.formData.common_name.trim()) {
