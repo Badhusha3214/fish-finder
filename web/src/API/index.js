@@ -302,6 +302,10 @@ export const getsuggestions = async (suggestions) => {
       return res;
     } catch (error) {
       console.error('Error fetching suggestions:', error.response ? error.response.data : error.message);
+      if(error.response.data){
+        console.log("data" , error.response.data.message );
+        alert(error.response.data.message);
+      }      
       return error;
     }
   };
