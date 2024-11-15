@@ -16,44 +16,37 @@
         <img src="/img/logo.png" class="w-8 h-8" alt="logo" />
       </div>
 
-      <h1 class="text-2xl text-primary uppercase font-bold text-center italic ">
+      <h1 class="text-2xl text-primary uppercase font-bold text-center italic">
         {{ item?.scientific_name }}
       </h1>
 
-      <!-- swiper in itemView -->
-
+      <!-- Modified swiper section -->
       <div class="w-auto h-auto relative">
         <swiper :slides-per-view="1" :loop="false" :pagination="{ clickable: true }" :modules="modules">
-          <template v-if="item?.images && item.images.length > 0">
-            <!-- Images -->
-            <swiper-slide v-for="(imageObj, index) in item.images" :key="index">
-              <template v-if="imageObj.image && imageObj.image.length > 0">
-                <div class="relative w-full max-h-48">
-                  <img :src="imageObj.image[0]" class="w-full max-h-48 h-auto rounded-xl object-cover cursor-pointer"
-                    :alt="item?.common_name" @click="showLightbox(imageObj.image[0])" @load="imageLoaded" />
-                </div>
-              </template>
-            </swiper-slide>
+          <!-- Image slide -->
+          <swiper-slide v-if="item?.image">
+            <div class="relative w-full max-h-48">
+              <img :src="item.image" 
+                   class="w-full max-h-48 h-auto rounded-xl object-cover cursor-pointer"
+                   :alt="item?.common_name" 
+                   @click="showLightbox(item.image)" 
+                   @load="imageLoaded" />
+            </div>
+          </swiper-slide>
 
-            <!-- Diagrams - Only show if diagram exists -->
-            <template v-if="item.images.some(img => img.diagram?.length > 0)">
-              <swiper-slide v-for="(imageObj, index) in item.images" :key="`diagram-${index}`">
-                <template v-if="imageObj.diagram && imageObj.diagram.length > 0">
-                  <div class="relative w-full max-h-48">
-                    <img :src="imageObj.diagram[0]"
-                      class="w-full max-h-48 h-auto rounded-xl object-cover cursor-pointer"
-                      :alt="`${item?.common_name} diagram`" @click="showLightbox(imageObj.diagram[0])"
-                      @load="imageLoaded" />
-                  </div>
-                </template>
-              </swiper-slide>
-            </template>
-          </template>
+          <!-- Diagram slide -->
+          <swiper-slide v-if="item?.diagram && item.diagram.trim() !== ' '">
+            <div class="relative w-full max-h-48">
+              <img :src="item.diagram"
+                   class="w-full max-h-48 h-auto rounded-xl object-cover cursor-pointer"
+                   :alt="`${item?.common_name} diagram`"
+                   @click="showLightbox(item.diagram)"
+                   @load="imageLoaded" />
+            </div>
+          </swiper-slide>
           <div class="swiper-pagination"></div>
         </swiper>
       </div>
-
-
 
       <h1 class="text-xl text-primary uppercase font-bold text-left">
         {{ item?.common_name }}
@@ -148,8 +141,7 @@
   </template>
 </template>
 
-<script>
-import { ref, reactive, computed, onMounted } from "vue";
+<script>import { ref, reactive, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getSingleItem, sendSuggession } from "@/API/index.js";
 import Loader from "@/components/Loader.vue";
@@ -187,8 +179,6 @@ export default {
       try {
         const res = await getSingleItem(id.value);
         item.value = res.data;
-        // console.log(item.value);
-
         prepareLightboxImages();
         initializeImageLoadedStatus();
       } catch (err) {
@@ -199,17 +189,18 @@ export default {
     };
 
     const prepareLightboxImages = () => {
-      if (item.value && item.value.images) {
-        lightboxImages.value = item.value.images.flatMap((imageObj) => [
-          ...(imageObj.image || []),
-          ...(imageObj.diagram || []),
-        ]);
+      if (item.value) {
+        lightboxImages.value = [
+          item.value.image,
+          ...(item.value.diagram && item.value.diagram.trim() !== ' ' ? [item.value.diagram] : [])
+        ].filter(Boolean);
       }
     };
 
     const initializeImageLoadedStatus = () => {
-      if (item.value && item.value.images) {
-        const totalImages = item.value.images.length * 2; // For both image and diagram
+      if (item.value) {
+        const totalImages = (item.value.image ? 1 : 0) + 
+                          (item.value.diagram && item.value.diagram.trim() !== ' ' ? 1 : 0);
         for (let i = 0; i < totalImages; i++) {
           imageLoadedStatus[i] = false;
         }
@@ -252,52 +243,13 @@ export default {
       try {
         let res = await sendSuggession(data);
         console.log(res);
-        // Here you might want to show a success message to the user
         toggleModal();
       } catch (error) {
         console.error("Error sending suggestion:", error);
-        // Here you might want to show an error message to the user
       }
     };
 
-    let vernacularNames;
-    try {
-      vernacularNames = JSON.parse(item.vernacular_names[0]);
-    } catch (error) {
-      console.error("Error parsing vernacular names:", error);
-      vernacularNames = {}; // Set to empty object if parsing fails
-    }
-
-    const parsedVernacularNames = computed(() => {
-      if (
-        item.value &&
-        item.value.vernacular_names &&
-        item.value.vernacular_names.length > 0
-      ) {
-        try {
-          // Log the raw value for debugging
-          console.log("Raw vernacular names:", item.value.vernacular_names[0]);
-
-          // Remove trailing comma if present and parse the JSON string
-          // const cleanedJsonString = item.value.vernacular_names[0].replace(
-          //   /,\s*$/,
-          //   ""
-          // );
-          const namesObj = JSON.parse(cleanedJsonString);
-
-          // Convert the object to an array of entries for easier iteration in the template
-          return Object.entries(namesObj).reduce((acc, [key, value]) => {
-            acc[key] = value;
-            return acc;
-          }, {});
-        } catch (e) {
-          console.error("Error parsing vernacular names:", e);
-          console.log("Problematic value:", item.value.vernacular_names[0]);
-          return {};
-        }
-      }
-      return {};
-    });
+    // Removed the unnecessary vernacular names parsing logic since the data is already in the correct format
 
     onMounted(() => {
       id.value = route.params.id;
@@ -322,12 +274,12 @@ export default {
       hideLightbox,
       toggleModal,
       submitSuggestion,
-      parsedVernacularNames,
       modules: [Pagination],
       router,
     };
   },
 };
+
 </script>
 
 <style>

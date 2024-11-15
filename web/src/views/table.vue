@@ -128,7 +128,7 @@
                                     <label class="block mb-2">Image</label>
                                     <input id="image-input" type="file" @change="handleImageUpload($event, 'image')"
                                         accept="image/*" class="w-full  border rounded">
-                                    <div v-if="formData.image != ' '" class="mt-2">
+                                    <div v-if="formData.image != ' ' && formData.image" class="mt-2">
                                         <img :src="formData.image" class="h-24 w-24 object-cover rounded" alt="Selected image">
                                         <button @click="removeImage('image')" type="button" class="text-red-600 text-sm mt-1">
                                             Remove
@@ -141,7 +141,7 @@
                                     <label class="block mb-2">Diagram</label>
                                     <input id="diagram-input" type="file" @change="handleImageUpload($event, 'diagram')"
                                         accept="image/*" class="w-full  border rounded">
-                                    <div v-if="formData.diagram != ' '" class="mt-2">
+                                    <div v-if="formData.diagram != ' ' && formData.diagram" class="mt-2">
                                         <img :src="formData.diagram" class="h-24 w-24 object-cover rounded" alt="Selected diagram">
                                         <button @click="removeImage('diagram')" type="button" class="text-red-600 text-sm mt-1">
                                             Remove
@@ -216,6 +216,7 @@ export default {
             totalItems: 0,
             itemsPerPage: 10,
             formSubmitting: false,
+            imageUploading: false, // New state for tracking image upload
             formData: this.getInitialFormState()
         }
     },
@@ -301,6 +302,7 @@ export default {
             }
 
             try {
+                this.imageUploading = true; // Set uploading state
                 const formData = new FormData();
                 formData.append('image', file);
                 const response = await imgtourl(formData);
@@ -313,6 +315,8 @@ export default {
                 console.error(`Error handling ${type} upload:`, error);
                 alert(`Failed to upload ${type}. Please try again.`);
                 event.target.value = '';
+            } finally {
+                this.imageUploading = false; // Reset uploading state
             }
         },
 
@@ -513,6 +517,8 @@ export default {
 
        // Update the submitForm method
        async submitForm() {
+            if (this.formSubmitting || this.imageUploading) return; // Prevent submission if still uploading
+
             try {
                 this.formSubmitting = true;
 
@@ -533,13 +539,13 @@ export default {
                     const response = await edititem(this.editingId, formDataToSubmit);
                     if (response.data.status === 200) {
                         this.closeModal();
-                        await this.fetchItems(this.currentPage);
+                        window.location.reload(); // Force page reload after edit
                     }
                 } else {
                     const response = await additem(formDataToSubmit);
                     if (response.data.status === 200) {
                         this.closeModal();
-                        await this.fetchItems(this.currentPage);
+                        window.location.reload(); // Force page reload after add
                     }
                 }
             } catch (error) {
@@ -549,6 +555,7 @@ export default {
                 this.formSubmitting = false;
             }
         },
+    
 
 
         handleSubmissionError(error) {
