@@ -436,7 +436,7 @@ export default {
         },
 
         removeImage(type) {
-            this.formData[type] = null;
+            this.formData[type] = " ";
             const fileInput = document.querySelector(`#${type}-input`);
             if (fileInput) {
                 fileInput.value = '';
