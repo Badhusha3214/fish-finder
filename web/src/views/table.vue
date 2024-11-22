@@ -1,5 +1,10 @@
 <template>
     <DashboardLayout>
+
+        <!-- Add this with your other loading overlays -->
+        <loading-overlay v-if="imageUploading" message="Uploading image, please wait..." />
+        <loading-overlay v-if="formSubmitting" message="Saving new item, please wait..." />
+        <loading-overlay v-if="editSubmitting" message="Updating item, please wait..." />
         <div class="container mx-auto p-4">
             <!-- Loading Spinner -->
             <loading-spinner v-if="loading" class="z-50" />
@@ -40,10 +45,14 @@
                                 <td class="px-6 py-4 font-medium whitespace-nowrap">{{ item.common_name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ item.scientific_name }}</td>
                                 <td class="px-6 py-4">
-                                    <img v-if="item.images?.[0]?.image?.[0]" :src="item.images[0].image[0]"
-                                        class="w-10 h-10 object-cover rounded" :alt="item.common_name">
-                                    <img v-else-if="item.images?.[0]?.diagram?.[0]" :src="item.images[0].diagram[0]"
-                                        class="w-10 h-10 object-cover rounded" :alt="item.common_name">
+                                    <div class="flex space-x-2">
+                                        <img v-if="item.image != null && item.image && item.image != ' '"
+                                            :src="item.image" class="w-10 h-10 object-cover rounded"
+                                            :alt="item.common_name">
+                                        <img v-if="item.diagram != null && item.diagram && item.diagram != ' '"
+                                            :src="item.diagram" class="w-10 h-10 object-cover rounded"
+                                            :alt="item.common_name">
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     {{ truncateText(item.description, 50) }}
@@ -81,32 +90,95 @@
                     </table>
                 </div>
             </div>
-            <!-- Pagination section remains the same -->
-            <div class="flex items-center justify-between mt-4">
-                <div class="text-sm text-gray-700">
+
+            <!-- Pagination Section -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+                <!-- Entries info -->
+                <div class="hidden sm:block text-sm text-gray-700">
                     Showing {{ startIndex + 1 }} to {{ endIndex }} of {{ totalItems }} entries
                 </div>
-                <div class="flex gap-2">
+
+                <!-- Pagination controls -->
+                <div class="flex items-center gap-1">
+                    <!-- First page -->
+                    <button @click="changePage(1)" :disabled="currentPage === 1"
+                        class="hidden sm:block px-3 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        First
+                    </button>
+
+                    <!-- Previous button -->
                     <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
-                        class="px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50">
-                        Previous
+                        class="px-3 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        <span class="hidden sm:inline">Previous</span>
+                        <span class="sm:hidden">&larr;</span>
                     </button>
-                    <button v-for="page in totalPages" :key="page" @click="changePage(page)" :class="[
-                        'px-4 py-2 border rounded',
-                        currentPage === page
-                            ? 'bg-gray-800 text-white'
-                            : 'bg-white hover:bg-gray-50'
-                    ]">
-                        {{ page }}
-                    </button>
+
+                    <!-- Page numbers -->
+                    <div class="flex gap-1">
+                        <!-- First page when not in range -->
+                        <button v-if="currentPage > 3" @click="changePage(1)"
+                            class="px-3 py-2 border rounded bg-white hover:bg-gray-50 text-sm">
+                            1
+                        </button>
+
+                        <!-- Left ellipsis -->
+                        <span v-if="currentPage > 3" class="px-3 py-2 text-gray-500 text-sm">
+                            ...
+                        </span>
+
+                        <!-- Page numbers around current page -->
+                        <button v-for="page in visiblePages" :key="page" @click="changePage(page)" :class="[
+                            'px-3 py-2 border rounded text-sm',
+                            currentPage === page
+                                ? 'bg-gray-800 text-white'
+                                : 'bg-white hover:bg-gray-50'
+                        ]">
+                            {{ page }}
+                        </button>
+
+                        <!-- Right ellipsis -->
+                        <span v-if="currentPage < totalPages - 2" class="px-3 py-2 text-gray-500 text-sm">
+                            ...
+                        </span>
+
+                        <!-- Last page when not in range -->
+                        <button v-if="currentPage < totalPages - 2" @click="changePage(totalPages)"
+                            class="px-3 py-2 border rounded bg-white hover:bg-gray-50 text-sm">
+                            {{ totalPages }}
+                        </button>
+                    </div>
+
+                    <!-- Next button -->
                     <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
-                        class="px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50">
-                        Next
+                        class="px-3 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        <span class="hidden sm:inline">Next</span>
+                        <span class="sm:hidden">&rarr;</span>
+                    </button>
+
+                    <!-- Last page -->
+                    <button @click="changePage(totalPages)" :disabled="currentPage === totalPages"
+                        class="hidden sm:block px-3 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        Last
                     </button>
                 </div>
-            </div>
 
-            <!-- Updated Add/Edit Modal -->
+                <!-- Items per page selector
+    <div class="hidden sm:flex items-center gap-2 text-sm">
+        <span>Show</span>
+        <select 
+            v-model="itemsPerPage" 
+            class="border rounded px-2 py-1"
+            @change="changeItemsPerPage"
+        >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+        <span>entries</span>
+    </div> -->
+            </div>
+            <!-- Modal Form -->
             <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center z-40 justify-center">
                 <div class="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                     <h2 class="text-xl font-bold mb-4">{{ isEditing ? 'Edit Item' : 'Add New Item' }}</h2>
@@ -131,15 +203,16 @@
                             </div>
                             <div>
                                 <label class="block mb-2">More Info URL</label>
-                                <input v-model="formData.more_info" type="url" class="w-full p-2 border rounded">
+                                <input v-model="formData.more_info" type="url" class="w-full p-2 border rounded"
+                                    required>
                             </div>
                         </div>
 
                         <!-- Description -->
                         <div>
                             <label class="block mb-2">Description</label>
-                            <textarea v-model="formData.description" class="w-full p-2 border rounded"
-                                rows="3"></textarea>
+                            <textarea v-model="formData.description" class="w-full p-2 border rounded" rows="3"
+                                required></textarea>
                         </div>
 
                         <!-- Images Section -->
@@ -150,11 +223,12 @@
                                 <div>
                                     <label class="block mb-2">Image</label>
                                     <input id="image-input" type="file" @change="handleImageUpload($event, 'image')"
-                                        accept="image/*" class="w-full p-2 border rounded">
-                                    <div v-if="hasImage('image')" class="mt-2">
-                                        <img :src="formData.images[0].image[0]" class="h-24 w-24 object-cover rounded"
+                                        accept="image/*" class="w-full  border rounded">
+                                    <div v-if="formData.image != ' ' && formData.image" class="mt-2">
+                                        <img :src="formData.image" class="h-24 w-24 object-cover rounded"
                                             alt="Selected image">
-                                        <button @click="removeimg()" type="button" class="text-red-600 text-sm mt-1">
+                                        <button @click="removeImage('image')" type="button"
+                                            class="text-red-600 text-sm mt-1">
                                             Remove
                                         </button>
                                     </div>
@@ -164,9 +238,9 @@
                                 <div>
                                     <label class="block mb-2">Diagram</label>
                                     <input id="diagram-input" type="file" @change="handleImageUpload($event, 'diagram')"
-                                        accept="image/*" class="w-full p-2 border rounded">
-                                    <div v-if="hasImage('diagram')" class="mt-2">
-                                        <img :src="formData.images[0].diagram[0]" class="h-24 w-24 object-cover rounded"
+                                        accept="image/*" class="w-full  border rounded">
+                                    <div v-if="formData.diagram != ' ' && formData.diagram" class="mt-2">
+                                        <img :src="formData.diagram" class="h-24 w-24 object-cover rounded"
                                             alt="Selected diagram">
                                         <button @click="removeImage('diagram')" type="button"
                                             class="text-red-600 text-sm mt-1">
@@ -190,17 +264,14 @@
                                 class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded">
                                 <div>
                                     <label class="block mb-2">Name</label>
-                                    <input v-model="formData.vernacular_names[index].name"
-                                        class="w-full p-2 border rounded">
+                                    <input v-model="name.name" class="w-full p-2 border rounded">
                                 </div>
                                 <div>
                                     <label class="block mb-2">Place</label>
                                     <select v-model="formData.vernacular_names[index].place"
                                         class="w-full p-2 border rounded">
                                         <option value="">Select a place</option>
-                                        <option v-for="place in keralaPlaces" 
-                                            :key="place" 
-                                            :value="place">
+                                        <option v-for="place in keralaPlaces" :key="place" :value="place">
                                             {{ place }}
                                         </option>
                                     </select>
@@ -214,14 +285,12 @@
 
                         <!-- Form Actions -->
                         <div class="flex justify-end gap-2 mt-6">
-                            <button type="button" @click="handleModalClose" 
-                                class="px-4 py-2 border rounded hover:bg-gray-50 disabled:opacity-50">
+                            <button type="button" @click="closeModal" class="px-4 py-2 border rounded hover:bg-gray-50">
                                 Cancel
                             </button>
-                            <button type="submit" :disabled="formSubmitting || isUploading"
-                                class="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900 disabled:opacity-50">
-                                {{ isEditing ? (formSubmitting ? 'Updating...' : 'Update') : (formSubmitting ?
-                                'Adding...' : 'Add') }}
+                            <button type="submit" class="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
+                                :disabled="formSubmitting">
+                                {{ isEditing ? 'Update' : 'Add' }}
                             </button>
                         </div>
                     </form>
@@ -230,16 +299,19 @@
         </div>
     </DashboardLayout>
 </template>
+
 <script>
+import LoadingOverlay from '@/components/loadingoverlay.vue';
 import DashboardLayout from "@/layouts/DashboardLayout.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
-import { getitem, additem, deleteitem, edititem } from "@/API/index";
+import { getitem, additem, imgtourl, deleteitem, edititem } from "@/API/index";
 
 export default {
     name: 'ProductTable',
     components: {
         DashboardLayout,
-        LoadingSpinner
+        LoadingSpinner,
+        LoadingOverlay
     },
     data() {
         return {
@@ -251,9 +323,12 @@ export default {
             currentPage: 1,
             totalPages: 1,
             totalItems: 0,
+            formSubmitting: false,
+            imageUploading: false,
+            editSubmitting: false,
             itemsPerPage: 10,
             formSubmitting: false,
-            isUploading: false, // New data property to track image upload state
+            imageUploading: false, // New state for tracking image upload
             formData: this.getInitialFormState(),
             keralaPlaces: [
                 'Alappuzha',
@@ -285,40 +360,28 @@ export default {
 
     methods: {
 
-        async handleModalClose() {
-            if (this.formSubmitting || this.isUploading) {
-                return; // Don't close if form is submitting or uploading
-            }
-            this.resetFormAndCloseModal();
-            await this.fetchItems(this.currentPage);
-        },
-
-        resetFormAndCloseModal() {
-            this.showModal = false;
-            this.isEditing = false;
-            this.editingId = null;
-            this.formSubmitting = false;
-            this.isUploading = false;
-            this.formData = this.getInitialFormState();
-            
-            // Reset file inputs
-            const imageInput = document.querySelector('#image-input');
-            const diagramInput = document.querySelector('#diagram-input');
-            if (imageInput) imageInput.value = '';
-            if (diagramInput) diagramInput.value = '';
-        },
-
         async urlToFile(url, filename = 'image.jpg', mimeType = 'image/jpeg') {
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                    mode: 'cors',
+                    headers: {
+                        'Access-Control-Allow-Origin': '*'
+                    }
+                });
+
+                // If the fetch fails due to CORS, return null without throwing an error
+                if (!response.ok) {
+                    console.warn(`Unable to fetch image from ${url}. Using existing URL.`);
+                    return null;
+                }
+
                 const blob = await response.blob();
                 return new File([blob], filename, { type: mimeType });
             } catch (error) {
-                console.error('Error converting URL to File:', error);
+                console.warn(`Unable to convert image URL to File: ${error.message}`);
                 return null;
             }
         },
-
         updateFileInput(fileInputRef, file) {
             // Create a DataTransfer object
             const dataTransfer = new DataTransfer();
@@ -342,95 +405,67 @@ export default {
                 description: "",
                 category: "marine",
                 more_info: "",
-                images: [{
-                    image: [],
-                    diagram: [],
-                    imageFile: null,
-                    diagramFile: null
-                }],
+                image: null,
+                diagram: null,
                 vernacular_names: [{ name: "", place: "" }]
             };
         },
 
         // Image handling methods
-        handleImageUpload(event, type) {
+
+        async handleImageUpload(event, type) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Validate file size (5MB limit)
             if (file.size > 5 * 1024 * 1024) {
                 alert('Image size should not exceed 5MB');
                 event.target.value = '';
                 return;
             }
 
-            // Validate file type
             if (!file.type.startsWith('image/')) {
                 alert('Please upload an image file');
                 event.target.value = '';
                 return;
             }
 
-            this.isUploading = true; // Set upload state to true
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const currentImages = [...this.formData.images];
-
-                const newImageData = {
-                    image: type === 'image' ? [e.target.result] : currentImages[0].image,
-                    diagram: type === 'diagram' ? [e.target.result] : currentImages[0].diagram,
-                    imageFile: type === 'image' ? file : currentImages[0].imageFile,
-                    diagramFile: type === 'diagram' ? file : currentImages[0].diagramFile
-                };
-
-                this.formData.images = [newImageData];
-                this.isUploading = false; // Set upload state to false when complete
-            };
-
-            reader.onerror = () => {
-                this.isUploading = false; // Set upload state to false on error
-                alert('Error uploading image. Please try again.');
-            };
-
-            reader.readAsDataURL(file);
+            try {
+                this.imageUploading = true;
+                const formData = new FormData();
+                formData.append('image', file);
+                const response = await imgtourl(formData);
+                const imageUrl = response.data.image;
+                this.formData[type] = imageUrl;
+            } catch (error) {
+                console.error(`Error handling ${type} upload:`, error);
+                alert(`Failed to upload ${type}. Please try again.`);
+                event.target.value = '';
+            } finally {
+                this.imageUploading = false;
+            }
         },
 
         removeimg() {
             const currentImages = [...this.formData.images];
-
-            // Only reset image-related properties, preserve diagram
             currentImages[0] = {
                 ...currentImages[0],
                 image: [],
                 imageFile: null
             };
-
             this.formData.images = currentImages;
+            this.formData.imageUrl = ''; // Clear the URL for new items
             this.updateFileInput('#image-input', null);
         },
 
         removeImage(type) {
-            const currentImages = [...this.formData.images];
-
-            if (type === 'diagram') {
-                currentImages[0] = {
-                    ...currentImages[0],
-                    diagram: [],
-                    diagramFile: null
-                };
-                this.updateFileInput('#diagram-input', null);
-            } else if (type === 'image') {
-                currentImages[0] = {
-                    ...currentImages[0],
-                    image: [],
-                    imageFile: null
-                };
-                this.updateFileInput('#image-input', null);
+            this.formData[type] = " ";
+            const fileInput = document.querySelector(`#${type}-input`);
+            if (fileInput) {
+                fileInput.value = '';
             }
-
-            this.formData.images = currentImages;
         },
+
+
         getImagePreview(imageData) {
             if (Array.isArray(imageData) && imageData.length > 0) {
                 return imageData[0];
@@ -452,6 +487,38 @@ export default {
             }
         },
 
+        visiblePages() {
+            const delta = 2; // Number of pages to show on each side of current page
+            let range = [];
+
+            for (
+                let i = Math.max(2, currentPage - delta);
+                i <= Math.min(totalPages - 1, currentPage + delta);
+                i++
+            ) {
+                range.push(i);
+            }
+
+            return range;
+        },
+
+        shouldShowFirst() {
+            return this.totalPages > 1;
+        },
+
+        shouldShowLast() {
+            return this.totalPages > 1 && this.totalPages !== this.currentPage;
+        },
+
+        shouldShowLeftEllipsis() {
+            return this.currentPage > 3;
+        },
+
+        shouldShowRightEllipsis() {
+            return this.currentPage < this.totalPages - 2;
+        },
+
+
         removeVernacularName(index) {
             if (Array.isArray(this.formData.vernacular_names) &&
                 this.formData.vernacular_names.length > 1) {
@@ -459,12 +526,12 @@ export default {
             }
         },
 
-
+        // Data fetching and pagination
         async fetchItems(page = 1) {
             this.loading = true;
             try {
                 const response = await getitem(page);
-                if (response.status === 200) {
+                if (response.data.status === 200) {
                     const { items, meta } = response.data.data;
                     this.items = items;
                     this.totalItems = meta.total;
@@ -475,12 +542,12 @@ export default {
                 }
             } catch (error) {
                 console.error('Error fetching items:', error);
+                // alert('Failed to load items. Please try again.');
                 window.location.href = '/login';
             } finally {
                 this.loading = false;
             }
         },
-
 
         async changePage(page) {
             if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
@@ -500,53 +567,16 @@ export default {
             this.isEditing = true;
             this.editingId = item.item_id;
 
-            // Handle vernacular names parsing
-            let parsedVernacularNames = [];
-            try {
-                if (typeof item.vernacular_names === 'string') {
-                    parsedVernacularNames = JSON.parse(item.vernacular_names);
-                } else if (Array.isArray(item.vernacular_names)) {
-                    parsedVernacularNames = item.vernacular_names;
-                }
-            } catch (e) {
-                console.error('Error parsing vernacular names:', e);
-                parsedVernacularNames = [{ name: "", place: "" }];
-            }
-
-            // Initialize form data with existing images
             this.formData = {
                 common_name: item.common_name || '',
                 scientific_name: item.scientific_name || '',
                 description: item.description || '',
                 category: item.category || 'marine',
                 more_info: item.more_info || '',
-                images: [{
-                    image: item.images?.[0]?.image || [],
-                    diagram: item.images?.[0]?.diagram || [],
-                    imageFile: null,
-                    diagramFile: null
-                }],
-                vernacular_names: parsedVernacularNames
+                image: item.image || null,
+                diagram: item.diagram || null,
+                vernacular_names: Array.isArray(item.vernacular_names) ? item.vernacular_names : [{ name: "", place: "" }]
             };
-
-            // Convert existing image URLs to File objects and update file inputs
-            if (this.formData.images[0].image.length > 0) {
-                const imageUrl = this.formData.images[0].image[0];
-                const imageFile = await this.urlToFile(imageUrl, 'existing-image.jpg');
-                if (imageFile) {
-                    this.formData.images[0].imageFile = imageFile;
-                    this.updateFileInput('#image-input', imageFile);
-                }
-            }
-
-            if (this.formData.images[0].diagram.length > 0) {
-                const diagramUrl = this.formData.images[0].diagram[0];
-                const diagramFile = await this.urlToFile(diagramUrl, 'existing-diagram.jpg');
-                if (diagramFile) {
-                    this.formData.images[0].diagramFile = diagramFile;
-                    this.updateFileInput('#diagram-input', diagramFile);
-                }
-            }
 
             this.showModal = true;
         },
@@ -580,127 +610,100 @@ export default {
         },
 
 
+        // closeModal() {
+        //     this.showModal = false;
+        //     this.isEditing = false;
+        //     this.editingId = null;
+        //     this.formSubmitting = false;
+        //     this.editSubmitting = false;
+        //     this.imageUploading = false;
 
-        closeModal() {
-            if (this.formSubmitting || this.isUploading) return; // Prevent closing while submitting or uploading
+        //     // Complete form reset with new object instance
+        //     this.formData = {
+        //         common_name: "",
+        //         scientific_name: "",
+        //         description: "",
+        //         category: "marine",
+        //         more_info: "",
+        //         image: null,
+        //         diagram: null,
+        //         vernacular_names: [{ name: "", place: "" }]
+        //     };
+        // },
+
+        async closeModal() {
             this.showModal = false;
             this.isEditing = false;
             this.editingId = null;
             this.formSubmitting = false;
-            this.isUploading = false;
+            this.editSubmitting = false;  // Reset edit loading state
+            this.imageUploading = false;  // Reset image loading state
             this.formData = this.getInitialFormState();
+            await this.fetchItems(this.currentPage);
+
         },
-        // Form submission
+
+
+        // Update the submitForm method
         async submitForm() {
-            if (!this.validateForm()) return;
-            if (this.isUploading) {
-                alert('Please wait for image upload to complete');
-                return;
-            }
+            if (this.formSubmitting || this.imageUploading) return;
 
-            this.formSubmitting = true;
-            this.loading = true;
-            
             try {
-                const formDataToSubmit = new FormData();;
-
-                // Add basic fields
-                const basicFields = {
+                this.formSubmitting = true;
+                const formDataToSubmit = {
                     common_name: this.formData.common_name,
                     scientific_name: this.formData.scientific_name,
                     description: this.formData.description,
                     category: this.formData.category,
-                    more_info: this.formData.more_info
+                    more_info: this.formData.more_info,
+                    image: this.formData.image,
+                    diagram: this.formData.diagram,
+                    vernacular_names: this.formData.vernacular_names.filter(
+                        vn => vn.name?.trim() || vn.place?.trim()
+                    )
                 };
 
                 if (this.isEditing) {
-                    formDataToSubmit.append('_method', 'PATCH');
-                }
-
-                // Append basic fields
-                Object.keys(basicFields).forEach(key => {
-                    if (basicFields[key]) {
-                        formDataToSubmit.append(key, basicFields[key]);
+                    const response = await edititem(this.editingId, formDataToSubmit);
+                    if (response.data.status === 200 || response.data.status === 201) {
+                        await this.fetchItems(this.currentPage); // Fetch current page data
+                        this.closeModal();
                     }
-                });
-
-                // Handle vernacular names
-                const validVernacularNames = this.formData.vernacular_names.filter(vn =>
-                    vn && typeof vn === 'object' && (vn.name?.trim() || vn.place?.trim())
-                );
-
-                validVernacularNames.forEach((vn, index) => {
-                    formDataToSubmit.append(`vernacular_names[${index}][name]`, vn.name?.trim() || '');
-                    formDataToSubmit.append(`vernacular_names[${index}][place]`, vn.place?.trim() || '');
-                });
-
-                // Handle images
-                const currentImages = this.formData.images[0];
-
-                // Handle image file
-                if (currentImages.imageFile) {
-                    formDataToSubmit.append('image', currentImages.imageFile);
-                } else if (this.isEditing && currentImages.image.length > 0) {
-                    // If editing and there's an existing image but no new file, don't append anything
                 } else {
-                    formDataToSubmit.append('image', '');
-                }
-
-                // Handle diagram file
-                if (currentImages.diagramFile) {
-                    formDataToSubmit.append('diagram', currentImages.diagramFile);
-                } else if (this.isEditing && currentImages.diagram.length > 0) {
-                    // If editing and there's an existing diagram but no new file, don't append anything
-                } else {
-                    formDataToSubmit.append('diagram', '');
-                }
-
-                const response = await (this.isEditing
-                    ? edititem(this.editingId, formDataToSubmit)
-                    : additem(formDataToSubmit));
-
-                if (response.status === 200 || response.status === 201) {
-                    // First reset the form and close the modal
-                    this.resetFormAndCloseModal();
-                    
-                    // Then handle pagination and data refresh
-                    let pageToLoad = this.currentPage;
-                    if (!this.isEditing && this.items.length >= this.itemsPerPage) {
-                        const totalItems = this.totalItems + 1;
-                        const newTotalPages = Math.ceil(totalItems / this.itemsPerPage);
-                        if (newTotalPages > this.totalPages) {
-                            pageToLoad = newTotalPages;
-                        }
+                    const response = await additem(formDataToSubmit);
+                    if (response.data.status === 200 || response.data.status === 201) {
+                        await this.fetchItems(this.currentPage); // Fetch current page data
+                        this.closeModal();
+                    } else if (response.data.status === 400) {
+                        alert('Scientific Name Already Exists.');
+                    } else {
+                        alert('Failed to add item. Please try again.');
                     }
-                    
-                    // Finally refresh the data
-                    await this.fetchItems(pageToLoad);
-                } else {
-                    throw new Error('Unexpected response status: ' + response.status);
                 }
             } catch (error) {
                 console.error('Error submitting form:', error);
                 this.handleSubmissionError(error);
             } finally {
                 this.formSubmitting = false;
-                this.loading = false;
             }
         },
+
 
         handleSubmissionError(error) {
+            const action = this.isEditing ? 'update' : 'add';
+
             if (error.response) {
-                if (error.response.status === 400) {
+                if (error.response.data.status === 400) {
                     alert('Scientific Name Already Exists.');
-                } else if (error.response.status === 502) {
-                    alert('Server error. Please check your form data and try again.');
+                } else if (error.response.data.status === 502) {
+                    alert(`Server error. Please check your form data and try again.`);
                 } else {
-                    alert(`Error: ${error.response.data?.message || 'Failed to save item. Please try again.'}`);
+                    alert(`Error: ${error.response.data?.message || `Failed to ${action} item. Please try again.`}`);
                 }
             } else {
-                alert('Network error. Please check your connection and try again.');
+                alert(`Network error. Please check your connection and try again.`);
             }
         },
-
         // Form validation
         validateForm() {
             if (!this.formData.common_name.trim()) {
@@ -730,7 +733,7 @@ export default {
             this.loading = true;
             try {
                 const response = await deleteitem(id);
-                if (response.status === 200) {
+                if (response.data.status === 200) {
                     // If deleting last item on page, go to previous page
                     if (this.items.length === 1 && this.currentPage > 1) {
                         await this.fetchItems(this.currentPage - 1);
