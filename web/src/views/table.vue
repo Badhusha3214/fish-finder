@@ -268,7 +268,13 @@
                                 </div>
                                 <div>
                                     <label class="block mb-2">Place</label>
-                                    <input v-model="name.place" class="w-full p-2 border rounded">
+                                    <select v-model="formData.vernacular_names[index].place"
+                                        class="w-full p-2 border rounded">
+                                        <option value="">Select a place</option>
+                                        <option v-for="place in keralaPlaces" :key="place" :value="place">
+                                            {{ place }}
+                                        </option>
+                                    </select>
                                 </div>
                                 <button type="button" @click="removeVernacularName(index)"
                                     class="text-red-600 hover:text-red-800 md:col-span-2">
@@ -323,7 +329,23 @@ export default {
             itemsPerPage: 10,
             formSubmitting: false,
             imageUploading: false, // New state for tracking image upload
-            formData: this.getInitialFormState()
+            formData: this.getInitialFormState(),
+            keralaPlaces: [
+                'Alappuzha',
+                'Ernakulam',
+                'Idukki',
+                'Kannur',
+                'Kasaragod',
+                'Kollam',
+                'Kottayam',
+                'Kozhikode',
+                'Malappuram',
+                'Palakkad',
+                'Pathanamthitta',
+                'Thiruvananthapuram',
+                'Thrissur',
+                'Wayanad'
+            ]
         }
     },
 
@@ -588,8 +610,28 @@ export default {
         },
 
 
+        // closeModal() {
+        //     this.showModal = false;
+        //     this.isEditing = false;
+        //     this.editingId = null;
+        //     this.formSubmitting = false;
+        //     this.editSubmitting = false;
+        //     this.imageUploading = false;
 
-        closeModal() {
+        //     // Complete form reset with new object instance
+        //     this.formData = {
+        //         common_name: "",
+        //         scientific_name: "",
+        //         description: "",
+        //         category: "marine",
+        //         more_info: "",
+        //         image: null,
+        //         diagram: null,
+        //         vernacular_names: [{ name: "", place: "" }]
+        //     };
+        // },
+
+        async closeModal() {
             this.showModal = false;
             this.isEditing = false;
             this.editingId = null;
@@ -597,52 +639,54 @@ export default {
             this.editSubmitting = false;  // Reset edit loading state
             this.imageUploading = false;  // Reset image loading state
             this.formData = this.getInitialFormState();
+            await this.fetchItems(this.currentPage);
+
         },
 
 
         // Update the submitForm method
         async submitForm() {
-    if (this.formSubmitting || this.imageUploading) return;
+            if (this.formSubmitting || this.imageUploading) return;
 
-    try {
-        this.formSubmitting = true;
-        const formDataToSubmit = {
-            common_name: this.formData.common_name,
-            scientific_name: this.formData.scientific_name,
-            description: this.formData.description,
-            category: this.formData.category,
-            more_info: this.formData.more_info,
-            image: this.formData.image,
-            diagram: this.formData.diagram,
-            vernacular_names: this.formData.vernacular_names.filter(
-                vn => vn.name?.trim() || vn.place?.trim()
-            )
-        };
+            try {
+                this.formSubmitting = true;
+                const formDataToSubmit = {
+                    common_name: this.formData.common_name,
+                    scientific_name: this.formData.scientific_name,
+                    description: this.formData.description,
+                    category: this.formData.category,
+                    more_info: this.formData.more_info,
+                    image: this.formData.image,
+                    diagram: this.formData.diagram,
+                    vernacular_names: this.formData.vernacular_names.filter(
+                        vn => vn.name?.trim() || vn.place?.trim()
+                    )
+                };
 
-        if (this.isEditing) {
-            const response = await edititem(this.editingId, formDataToSubmit);
-            if (response.data.status === 200 || response.data.status === 201) {
-                await this.fetchItems(this.currentPage); // Fetch current page data
-                this.closeModal();
+                if (this.isEditing) {
+                    const response = await edititem(this.editingId, formDataToSubmit);
+                    if (response.data.status === 200 || response.data.status === 201) {
+                        await this.fetchItems(this.currentPage); // Fetch current page data
+                        this.closeModal();
+                    }
+                } else {
+                    const response = await additem(formDataToSubmit);
+                    if (response.data.status === 200 || response.data.status === 201) {
+                        await this.fetchItems(this.currentPage); // Fetch current page data
+                        this.closeModal();
+                    } else if (response.data.status === 400) {
+                        alert('Scientific Name Already Exists.');
+                    } else {
+                        alert('Failed to add item. Please try again.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                this.handleSubmissionError(error);
+            } finally {
+                this.formSubmitting = false;
             }
-        } else {
-            const response = await additem(formDataToSubmit);
-            if (response.data.status === 200 || response.data.status === 201) {
-                await this.fetchItems(this.currentPage); // Fetch current page data
-                this.closeModal();
-            } else if (response.data.status === 400) {
-                alert('Scientific Name Already Exists.');
-            } else {
-                alert('Failed to add item. Please try again.');
-            }
-        }
-    } catch (error) {
-        console.error('Error submitting form:', error);
-        this.handleSubmissionError(error);
-    } finally {
-        this.formSubmitting = false;
-    }
-},
+        },
 
 
         handleSubmissionError(error) {
