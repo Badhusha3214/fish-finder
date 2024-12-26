@@ -14,7 +14,7 @@
       aria-label="Sidenav" id="drawer-navigation">
       <div class="flex justify-center items-center w-full md:w-auto">
           <a href="/" class="flex items-center ml-auto md:ml-0">
-            <img src="../../public/assets/white_logo.png" class="lg:h-24 h-10 " alt="Inovus Labs Logo">
+            <img src="../../public/assets/mmlogo.png" class="lg:h-24 h-10 " alt="Inovus Labs Logo">
           </a>
         </div>
       <div class="flex flex-col justify-between overflow-y-auto py-5 px-3 h-full bg-btn">

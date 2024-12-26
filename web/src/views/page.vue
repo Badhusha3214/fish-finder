@@ -3,7 +3,8 @@
         <!-- Hero Section -->
         <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
             <nav class="container mx-auto px-4 py-4">
-                <div class="flex justify-end">
+                <div class="flex justify-between items-center">
+                    <img src="../../public/assets/mmlogo.png" alt="" class="h-16 w-auto">
                     <a href="/login"
                         class="bg-white text-blue-800 px-6 py-2 rounded-full font-semibold hover:bg-blue-50 transition-colors">
                         Login
@@ -29,9 +30,6 @@
                                 Download App
                             </button>
                         </a>
-                        <!-- <button class="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10 transition-colors">
-                Learn More
-              </button> -->
                     </div>
                 </div>
             </div>
@@ -73,22 +71,16 @@
 
         <!-- Privacy Policy Section -->
         <section class="py-16">
-            <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-8">Privacy Policy & Copyright</h2>
-                <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
-                    <p class="text-gray-700 mb-4">
-                        User data is securely stored and not shared with third parties. The design and layout
-                        of the app are the intellectual property of DevMorphix.
-                    </p>
-                    <p class="text-gray-700">
-                        Unauthorized reproduction or use of these elements without permission is prohibited.
-                    </p>
-                    <p class="text-gray-900 font-semibold mt-4">
-                        © 2024 DevMorphix. All rights reserved.
-                    </p>
-                </div>
-            </div>
-        </section>
+      <div class="container mx-auto px-4 text-center">
+        <router-link to="/privacy" 
+          class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          <div class="flex items-center gap-2">
+            <ShieldIcon class="w-6 h-6" />
+            <span>Privacy Policy</span>
+          </div>
+        </router-link>
+      </div>
+    </section>
 
         <!-- Contact Section -->
         <footer class="bg-blue-900 text-white py-12">
@@ -183,5 +175,21 @@ const dataSources = [
 
 section {
     animation: fadeIn 0.8s ease-out;
+}
+
+.cls-1 {
+    fill: #d2e3fc;
+}
+
+.cls-2 {
+    fill: #9fbaee;
+}
+
+.cls-3 {
+    fill: #03266f;
+}
+
+.cls-4 {
+    fill: #fff;
 }
 </style>
