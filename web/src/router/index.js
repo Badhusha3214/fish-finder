@@ -6,21 +6,21 @@ import signup from '@/views/SignUp.vue'
 import dashboard from '@/views/dashboard.vue'
 import contacts from '@/views/contactView.vue'
 import NotFoundView from '@/views/404.vue'
-
+import home from '@/views/page.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     
-    // {
-    //   path: '/',
-    //   name: 'home',
-    //   component: HomeView,
-    //   meta: {
-    //     title: 'Home',
-    //   },
-    // },
     {
       path: '/',
+      name: 'home',
+      component: home,
+      meta: {
+        title: 'Home',
+      },
+    },
+    {
+      path: '/table',
       name: 'table',
       component: table,
       meta: {

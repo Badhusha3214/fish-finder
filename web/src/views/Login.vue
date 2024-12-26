@@ -153,7 +153,7 @@ export default {
             response.token
           }; expires=${expiryDate.toUTCString()}; path=/`;
 
-          window.location.href = "/";
+          window.location.href = "/table";
         } else if (response.response.status === 401) {
           this.wrongPassword = true;
           console.log("401 - wrong pass");

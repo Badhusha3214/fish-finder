@@ -108,7 +108,7 @@ export default {
         {
           name: 'Add Fish',
           icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#fff"/><g fill="#000"><path d="M21 14h6v20h-6z"/><path d="M14 21h20v6H14z"/></g></svg>`,
-          link: '/',
+          link: '/table',
           active: true,
         },
         {
