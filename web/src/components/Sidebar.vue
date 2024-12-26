@@ -14,7 +14,7 @@
       aria-label="Sidenav" id="drawer-navigation">
       <div class="flex justify-center items-center w-full md:w-auto">
           <a href="/" class="flex items-center ml-auto md:ml-0">
-            <img src="../../public/assets/white_logo.png" class="lg:h-24 h-10 " alt="Inovus Labs Logo">
+            <img src="../../public/assets/mmlogo.png" class="lg:h-24 h-10 " alt="Inovus Labs Logo">
           </a>
         </div>
       <div class="flex flex-col justify-between overflow-y-auto py-5 px-3 h-full bg-btn">
@@ -108,7 +108,7 @@ export default {
         {
           name: 'Add Fish',
           icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#fff"/><g fill="#000"><path d="M21 14h6v20h-6z"/><path d="M14 21h20v6H14z"/></g></svg>`,
-          link: '/',
+          link: '/table',
           active: true,
         },
         {
